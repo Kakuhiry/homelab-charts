@@ -52,7 +52,8 @@ ingress:
   hosts:
     - host: whoami
   tls:
-    - whoami
+    - hosts: 
+        - whoami
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
