@@ -6,7 +6,7 @@ metadata:
   name: {{ include "uptime.fullname" . }}-config
 spec:
   capacity:
-    storage: {{- .Values.persistentVolumes.storageSize }}
+    storage: {{ .Values.persistentVolumes.storageSize }}
   accessModes:
     - ReadWriteMany
   local:
@@ -21,7 +21,7 @@ spec:
                 - {{- .Values.persistentVolumes.config.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
-    namespace: jellyfin
+    namespace: {{ include "uptime.fullname" . }}
     name: {{ include "uptime.fullname" . }}-config-pvc
 ---
 apiVersion: v1
@@ -33,7 +33,7 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{- .Values.persistentVolumes.config.storageSize }}
+      storage: {{ .Values.persistentVolumes.config.storageSize }}
 {{- end}}
 {{- if .Values.persistentVolumes.data.enabled }}
 ---
@@ -43,7 +43,7 @@ metadata:
   name: {{ include "uptime.fullname" . }}-data
 spec:
   capacity:
-    storage: {{- .Values.persistentVolumes.data.storageSize }}
+    storage: {{ .Values.persistentVolumes.data.storageSize }}
   accessModes:
     - ReadWriteMany
   local:
@@ -58,7 +58,7 @@ spec:
                 - {{ .Values.persistentVolumes.data.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
-    namespace: jellyfin
+    namespace: {{ include "uptime.fullname" . }}
     name: {{ include "uptime.fullname" . }}-data-pvc
 ---
 apiVersion: v1
@@ -70,6 +70,6 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{- .Values.persistentVolumes.data.storageSize }}
+      storage: {{ .Values.persistentVolumes.data.storageSize }}
 {{ end }}
 {{ end }}
