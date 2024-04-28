@@ -5,8 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  pullPolicy: IfNotPresent
+  repository: machines/filestash
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -27,6 +27,12 @@ serviceAccount:
 
 podAnnotations: {}
 podLabels: {}
+
+env:
+  PUID: '1000'
+  PGID: '1000'
+  ONLYOFFICE_URL: 'http://onlyoffice'
+
 
 podSecurityContext: {}
   # fsGroup: 2000
