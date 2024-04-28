@@ -10,7 +10,7 @@ spec:
   accessModes:
     - ReadWriteMany
   local:
-    path: {{- .Values.persistentVolumes.config.path }}
+    path: {{ .Values.persistentVolumes.config.path }}
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -47,7 +47,7 @@ spec:
   accessModes:
     - ReadWriteMany
   local:
-    path: {{- .Values.persistentVolumes.data.path }}
+    path: {{ .Values.persistentVolumes.data.path }}
   nodeAffinity:
     required:
       nodeSelectorTerms:
