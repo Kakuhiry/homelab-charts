@@ -55,7 +55,7 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - {{- .Values.persistentVolumes.data.nodeName | default "egbp"  }}
+                - {{ .Values.persistentVolumes.data.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: jellyfin
