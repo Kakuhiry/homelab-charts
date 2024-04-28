@@ -39,15 +39,9 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-filestash:
-  service:
-    type: ClusterIP
-    targetPort: 8334
-    port: 80
-onlyoffice:
-  service:
-    type: ClusterIP
-    port: 80
+service:
+  type: ClusterIP
+  port: 80
 
 ingress:
   enabled: false
