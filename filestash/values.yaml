@@ -29,9 +29,9 @@ podAnnotations: {}
 podLabels: {}
 
 env:
-  PUID: 1000
-  PGID: 1000
-  ONLYOFFICE_URL: 'http://onlyoffice'
+  PUID: "1000"
+  PGID: "1000"
+  ONLYOFFICE_URL: "http://onlyoffice"
 
 
 podSecurityContext: {}
