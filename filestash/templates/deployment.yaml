@@ -1,0 +1,22 @@
+{{- include "common.deployment" -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: filestash
+  name: onlyoffice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: onlyoffice
+  template:
+    metadata:
+      labels:
+        app: onlyoffice
+    spec:
+      containers:
+        - name: onlyoffice
+          image: onlyoffice/documentserver
+          ports:
+            - containerPort: 80

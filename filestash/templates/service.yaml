@@ -1,0 +1,17 @@
+{{- include "common.service" -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "filestash.fullname" . }}
+  labels:
+    {{- include "filestash.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "filestash.selectorLabels" . | nindent 4 }}
