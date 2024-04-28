@@ -61,15 +61,6 @@ ingress:
   tls:
     - hosts:
        - enabled: true
-  className: "tailscale"
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: it-tools
-  tls:
-    - hosts:
-       - it-tools
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
