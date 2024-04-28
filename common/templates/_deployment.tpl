@@ -51,7 +51,7 @@ spec:
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
-              value: {{ $value }}
+              value: {{ quote $value | toString }}
             {{- end }}
           {{- end }}
           {{- with .Values.volumeMounts }}
