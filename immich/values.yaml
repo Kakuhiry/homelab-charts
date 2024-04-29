@@ -1,0 +1,122 @@
+# Default values for immich.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/imagegenius/immich
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.102.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP]
+  targetPort: 8080
+  port: 80
+
+envFrom:
+  - secretRef:
+      name: immich-secret
+
+ingress:
+  enabled: true
+  className: "tailscale"
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: immich
+  tls:
+    - hosts:
+       - immich
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+sealedSecrets:
+  enabled: true
+  secret:
+    DB_DATABASE_NAME: AgA3b8YpfOijSRu/CbdU/OLVzleGq+w1mjAzRx9CYAXeZOvOzyhTZhR1dpXDWXf6KbKDQ39itFJLsmBA8Hhg17dtl7J+keBhGtqmcZWgnXQRZIay0YTd5WyvYL7zLvW8ydUOOkXYY3dWhebHNfpcjOcBdurxJj1guDJFt+prbRocRjo9AkC5f0cTCwh00tc8EQx/NXm6FUIGscnVYjpsFU2WLMiD4Fo2Th9M94ACbZb27y282iXDNNEC5rGaLB9hBFCspdVaOAY+IovwhdJfH9vgo57PxKE1au5VZPE66M/VBprSWpU0KumV+X+ozt8ZSwlP6cc0Xw4HBN5ZSSob8k7njpz6vq0pmZeexP3jwwyzU9XipKYKMB/3RRP2ylH7EET6j4UiZzrRJCmingxe1VN20HvA/xdCxDD6W1deDGBQu5Mfx74UiE9eZ5nJCS0xSYfk7FpLvBMbLvxYKFNWluND67aZ9cpt4ZT217DJMSr1byIkt9s56xJAgSSwSlNl1TCn9mYSjcGYTolHoKdDaySHrZOLsRnZfKT+UgpfFvcshtlFHsr0Ozx/45RZKijYUvBT4+6Tjkq2sifZaHzoW1SQaSnHds0H/iM7bKFeoU55Fy+uAMZwHVi6aKKUJ0CE5E5f5O7+UHXvFT0GeyNYtHeNZCWBuM/xcmqkqEqph2/TBvgnQLODmNd9G96XtMHQ0ZpUxlFdzS0=
+    DB_HOSTNAME: AgBzCKn1jzfiWncqBLg77ea3+tjfwqjNaeUzj0Oqph6m/1nv6Q8uhoSMPsHljjNrxGQr4l+PtH//KndvTqAKir8NQV+iS4Hv/rQ10/8zztCxlJcB1CEla9VJANDLyx4GNnfMjp3zHuBDN73Rq/KszGHZVpzLUYQI1XyoTUL8FgvCMyG8LUYkHN2SFbaA7jhxb3+91LaG6pX1jUKy4gZm/7Xn6RZkE4+3TpCihH8IgxvKEe2zgT4gkNmxs9Wkzk7YVTweUSEQWjgfL1g4mPGClJ1ULU1Deag8ytiJXZvwnwDNFlWhZ94LR9spW7DTjtDyRZ6rs3RNzIHNsSq/zyjmWSl/qGSnC34PQgk7wUHkWO8j+YNiHzbzcQLnKb8GIJaB06JcJUT+dXT5yx2LdDr6aqQaWZZrAoIn+QkCS2BFPnMyrDRjvs6S9WXIZFZBY9lF7FNAQhFwlLKvlWwS5xPPDfcc6nmZjjV4g+Okaa/jOEl+Oe04fCD6REwEBXlYWPzFDmUnh8q1QaomIw0sPjfY03TDhDNh49wMSagu4SFVMQtjDpE9jrUHmrPGlM4ySiX7ogZo2+6ovS2WjYAf7t3Z8RYdDICSeTSyuvCyHccpfeYtvIflJ2yvpkAHnNoEp3UcgREbHSJ1AQwvMnnqR9QnnH8g6TxP4p0ugpf+MjC8pfuoZ3wtE5vZMI6iu3TEORvuh/kzxnRFWE2XQQ==
+    DB_PASSWORD: AgBt98YttUSAZHl+cD0zvTE/a1PRxo6nbrE0raulkikWVWijlg7aJxpnxu98EjLb18w1Eqoed9Ifm/DSyldsO8lpB+YaX/dwMDMQ1cxAtrbxkc9kV18Z73NS4XEjRhI/QAfdZhOvJj2ReSfjv0MWYbTEzJgyUxYuW7Ezu2u51+naZOfdGXzRHYpZTlh/ATylS9vnfB3SuEVLnas9xqvi//EMziAcd9CHA+OBa8iXiwx/Vke2c6K2UbjRNaeu3z33QTBs9UR06eyj5liKLU9oUB/CQm0kX16tk/hGTsM8OJrzg63mX/ZgYID37fTRsisCZ/Bw6Q62RYEPy8zROflZOW847CmBNV/gFNGi18XEGgw7dJ6aFyNo5lLfi9ufHm8nOIceB3tU6CBqVAGsJ3Nk71WXWSvgxRTiOr4NEN504q/nNEryF7pEmU2NW6eb9OyQPN3mjdo/I+L57t6PUyOmpzAXkvEFXw11+Ulau64x/rqFwK5r83Ok/6k9wFSoXkD82GAijMeuO2/zZUITqwfOkqA8ORJihjU2pG2mRv181q921nZ1ws1Yupk0FvNuJLkIwDsyPzPylAc7Pc5MT05Fo8T+u13+DL5ZRM10l6RMs74xFT4Ui945n8gB2azs6FTZ2Bas8svEmxSjhi6o6TKdsZnMPTxCtupmuSf/L29g8rnwFdipuIGjLbSFK+eShnEFTzh1njM0H+jtHA==
+    DB_PORT: AgB711peHysaoejWZur9vy5Dq2MYe+sU5KsAp2hVLJbMwWclqaYbYPTnVqHZzazE7ugj7chs8c+29CsdvRtIdB3S1cUS7Gcaganqy4uLLfdJofnnWVu8N+rlCDl16EgWRqMGLhps2/tOmxwrgzO6YgOIpfAD9IvNhhpfAA8/LVrlif9nZnr22zOVa8BEPTI0nrhXCFKl0bNS8LviThe3ZRdryPvAFig4VSIPM7X4Q9VO+SSAjNNGYZbIQfGbySEYiDO1r5vWrZLI32nFDetZvVa+5BAlDFjcvHb1c9p4DOk27/OoxMkCefBq00IP9aGUm4krFurjHXN86r39CxnLjOsHXpnKtt5vsuFEHF7yqQSeq+uFrhqbUWYmQ2hiBP3NmsBTif0byPkVFiL9z+EbGozbL5P16In1nSc1SeDPXYPTJWXGQ2yl4PClKGC4SJn+dFPjZP6tm+JDpTkytfHyrHSb3FW6yeNQ371xRxx6xwbCBbsK4V0kz1T6jfnBytuLkUHWyu7P1BsgYByuVdc5fS/SKk+CRYt+zqrDU2Tt5g6WnHp2g9OFfo/ak+wA4NuEkzSbq5uj6iNxqc+7Uizrx6BAokUW25GtiTGjzdwSzfciZXTKuC4lAFQ7ibDYXBO0QAbH/7dEIzK4zq5F7ZqcRFu0guEeYUk6HW9t09pwoga7HdTuPbxrLfaDwXVF3BfM8Q5dqPq2
+    DB_USERNAME: AgAIARDBOEpwL854D3XLPhi23gpWismk6yQtosaeTai47pCwZ0YxU6mtONyVeXL0BcNdJ/6O5CarLJomM1yjlhlv9Zl6QGKRg3Gy/iA19jU3VmKL4bCqz47PRVdpixomp5AqcqPkJSns6Xg6Z8t1wVCI7Z2NYI49ppARE7bnxIe1z7sGFKvoIbbk3B6WbwbsfvqHiIOQuWlDEbQCLgSMhtuKp4YdLFlqWSC62ivh6aowb/5pJYqlITi3B9Mp9BZyx5W6COZVe6AvJtK4QihMCDjcF1PFfPXL6MNR7D2tyw1cLY/LpyQpXikBLjxU6Hx58QgtgDNJJXBPv3Znb5GM7Z1pfT6AnukqHr1LCSWtZgXRVOnBl8K8/oiRnD9+h1JG3z7A1K8BFvSuoeMHIQRy2IY+HQkUZ8ai2YbniMvs2wwJwdj9ZDqIbckLMmVrpfciDGzZdAXB987Q3b4QQhIKc2nI1IdVlnUk6EU6p6d0iUQAtpMVV3vaNLNmG3kWUPhiu2at42kid6Qbq8awDJK2ewdWvROxVZxUj5CjIVVU4I1s7gIDN85apx8Nt+aczN/N5BCeqQhwIXdhCyFDTkNJgPc95kxynrpnQEVfDYa7AGxnmjgSnj1I1pdfIAzdRpv0zFU4/tMXldyZIv6nXRYbFn3A5PCyd+kQ/mmYHyOIS8KDPvkAj8ExM2MbZEtN5wK1Yf4wgvJ2SEAE4Q==
+    PGID: AgAxJeMybX3lyPLSydEw/lAQwcagOnMqRnKD9a8dUuAATTLD4FvS2pm44FrLVYGYm6ZetlP9Up0GGyXkGM691iEgIaJt0wPTOf8lkUOKGxB/7Q9AXTRKItCHpO4XTJFVMCtXFM6VGeq179JKe7dpGUDuv0VESkutlwdoBY7GC9RCnw2B24Qco1Godp7NeD/4dnF2CWFsrUSkX2OD9HsrPZ0nxkqtsDK+EemXR0QH7Z8t5AtJQh+IBvAn5TtCUHHbrs3J1vg0cPYzjGuiTBtuK043FdpLrQZfBJEjquGzGIlC7uF3n+cdvZgapXMB3hHfwKkMHQvK9pXhaxvKUFEbMu1iVOjSCXC86r/z9aYAvRmILfS4w931OgLxRz28o59WWU0mp8KP08kGKzNW1Cb47Tizp2ZglnUeA+rxpSZjxaFlO1KtUjL9RezgQnH36Cg845T/of4HJyX+vURUEgloyCSfmtshfCkuwKYgrCED2O3qldVOaSF+SUSEVfFYboZCNy11wC4sL5iVW6gHNgD5+o7FHGHdpgdbMkjQKACaT4QS4/MczT3FBM2V629B/5aCCp6JgaH4WcWIySz5+TbFRV0y/Ln01AyWhLIPYd50vUH5vxs4CyDqVuf5JVsecdvl7IyExge9IQZm78+Bwn/EjJCaEtQVf1ouHMydRblCd6NOf+RjK9msuhF2cm5iO5bxI4XU
+    PUID: AgAfIivPB0+XWFHoO05gnW8W05u7SvNVWU6a73z1xFrRzbnlcVJC2m3URKQYvCZp5qDqf5yicbNihHqolrDy/p4IxGGg76LOx2OnRW2EWvGvOntAMUYzpqUv+WucToMS6HKmnnfYBzLkSgIxZF94sno4/LLIAR/qBBj6xBMSDYB9snYty0rywvQcEzIYxT41IiJnP1vFif70ZiA72Qv3BMZtumUzNEpw0PnYrV6KP95IbJBJA6ojiCRTHUP5U7GLn8l616K2DpYS81E8IiEckFTaItoldw5+teipwRRTnnPpJtRyHzjO/E4KlV2IA2zMGpsbQK7Jp6+sUMHdAKZVqPwy7+JHlnwIVbj/G7rU3W/va1Zvksle3qeek+y3t5LPjzn0jbh+s1lKARwBtFImMffFog2rsxLMnT3gBJXLgMPaDub/DMdoIEk4r7YdD4bUHK5G3jO1l1nvsW2/ltxEW9affpBmKKpru9Rf4RzjYIj+YNe7SuL1Sm+vrjJOM54gRRz8vhMQwu+odYwo8Ftasjbever1cEE9C08PPXEuGHVwGLjXapIwy1e7W9eAStW7181C4JGotGXMKuZLK7A9nRKVt4JkzBnaoNh4lbK4Ctz2zCx7aZ9Kmnk3PvSiyULAEOkK41FyIESf0x08KzIiwHit17ASrn3FCSb+rhUyyfHpde5FkEbhZ4w2ZuUqzLmwVcZy
+    REDIS_HOSTNAME: AgCEjq2I2Ii9It0cwfycGTBouSdgalZyisYG+0tRbbi8H831zp9lkyQfjuSIs9Wep/1exBX7IHBxVgHjS/TzPMWhQ9MCvjX2PCcEJJUezg4qgAaSdMHAtIlgLPfXnKiZjy2M0d7eZDiG6RrKf45kNY3oZYqaKIz4Bojb2DE1wPv7FZqhrJtL+FOgldc5hPY1zlfLTRGrMovp7Y79KyICvPwPXX1zbXAd54zCpOrUvFEn2JezlS81dC89CYo0TvTXDCF0OaRyul2FhAB7WthLzD8JKPcq/0GDZi9ysn2HACfzt/92WfGzSi8luEkNqjRdBmhhvvoe1th/r6F3ENbYu5XcgpeaEkbPlT31CVx19ibA7UBbhSLGduBnRiTRToYTkWw0qIAOsDt0xR79aDQlqWavkmx5f7CiFnK4jVGQQ07xA2F8PWHfQw7Z93cZmTjGgifTKDfAKsCC8fCOzEFhi9LLKmiawLBFTFIzAel9peT6HuHod/gCF2Bi/SrkVpKx11UFWdxtoQKYMzBuj3KF8mElZ+6r5ydZAISbFAnDnoWW2fblpfOwFtaHuHe9Nmz5QYeSbkQcCcDd+qFuF/sMLZNb5fPwERb5j71WcmvwQ/r9+urJ4DUKqVt3zWx+FfjGyl7DUfCbRA6z2H5DF6VRI0h+cTp61ihBs3BJ/qgW+jqvjFUyXOBpA1c1rkuthIIUXTUBkU6hXQ==
+    REDIS_PORT: AgAw/4OhHYcO+cg/7YPTjt0OtF1XH6XEZUZXuB0sjhpog9MG7hRo/sNYqE1o1gggrMVWvAWQH3/XOnQ30G6Jde/albKMgBpkeIpjzkPLxdIJM/qGje9KXWR6sUUy0inWck2JjPQXC6nmdm2HU/SUVu7bXcsdxQWJKFOmNpOfai47sDCK1B4v3JJO4hor9+VbPmJEpyiC/kdSrqcjYMOUpLjoOmB0l/4Ds7yAYu+fpdWFnRSdlQUYrufDWNwZDg9lqO1XuZv6qqDSVCUos56JGoqdKkU/Yu19rkUCTBhTBvtIqEffggnt/MJR8BYPnNCgdZze5tJPux3RcqVGQ76jewYtntdxHxYpSBmajxwANqfrir8MosoJ2fH847mt6aYtDy1Qpmq+M4zkbL2pA/mqIcTNVmDrpdG/isFFjHB0B1XlpJcidxZCwwYbr88TT6+GaSaFaBo1ojI4TSI3JeqsuFh9RNYKoviItLtxQg8NO90eIG9cJmkFhdHdJDFDHdKk446LuKuFZdb7v4z6aYlBbL9B6a1MUB2NnVYxvtCNrM1b85Ov+Xpj+Lg+UrZslUTgXRLnmvPv9UvsJ/1r7HkJiHc1Xf+zxtQMJy4HC1DKlLCVidCAQn3E4rhcDTkcpVZRbfJQybCQZGdRx3/5JoZQla/jDLiCAPKmB7AGFmODvE2Q9iHOR/OUc2D758nB+6dnoCB+zBdQ
+    TZ: AgAz3VsuVyzbccGgADZAQtc/IK8gexTXuMKF7TB9i3c9pnUjIadQEoV871TAuYOYrSIX4gNt7/NpyYSX/5kkJEeZnO9MS3fzheUmL7dlu6jBhL5rEtblt4iyX4ufd3B76Nw6HcSbsGY1c5ZPeyuqjSkKLcjVK3YqHtBhJ3hillvtwGHbSx78p6eyos4dk5FM8KEUx7x0Z0+31RjViivJj8JMfNXwtKFCwqx6laSg+NhmMvut0BPUqth/nYn5mp/ZSaTg4w1prZiO0ROwT0s39c0z3RChzZVSRm2R0X4MwX9BEBpAyGy5iK9DprkWRldzBdd5PG1MSANeT260nXLmXFzgo3OtV3tHdA5Vi7xORq1IxoCHiJqxthpUlCpcJ5IPH9uanr76Qnv6a59Z+2Suf6mPCxM/B+NHMadbI6yD+VVNtz+2RIzozmZov8NfjCJ4Rx/8WifgHpbyT8ISHs0LoOJOYGyW7mq3CzDGlY2yxMmn+3qQClDWCnPMH50w26JjXITZ7OmLVLQwD1iYeJYx4qGn6YNNYIMgm2Dcyjw6CTZZ87IojKR6DeqCjB8dqaXNYWhfYI7SaVVbqKt49Gkz/3XrDA2+DMsguvo36+oB7nWSZjipAO/wtdI/h3pFfBSNAxtV7vKTk+CCQD9SaauQavb6eumDHyFChoQu1x+Tx6/+3EgKP7trJfJm7UY+OBw5ZIdm48IH2HeM
