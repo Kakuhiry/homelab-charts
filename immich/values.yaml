@@ -60,6 +60,16 @@ ingress:
     - hosts:
        - immich
 
+volumeMounts:
+  - mountPath: /photos
+    name: photos-storage
+  - mountPath: /config
+    name: config
+  - mountPath: /usr/src/app/external/downloads
+    name: stuff-storage
+  - mountPath: /usr/src/app/external/gphotos
+    name: gphotos
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -89,14 +99,24 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 # Additional volumes on the output Deployment definition.
-volumes: []
+volumes:
+  - name: photos-storage
+    persistentVolumeClaim:
+      claimName: immich-photos-pvc
+  - name: stuff-storage
+    persistentVolumeClaim:
+      claimName: stuff-pvc
+  - name: config
+    persistentVolumeClaim:
+      claimName: immich-config-pvc
+  - name: gphotos
+    persistentVolumeClaim:
+      claimName: photos-pvc
 # - name: foo
 #   secret:
 #     secretName: mysecret
 #     optional: false
 
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts: []
 # - name: foo
 #   mountPath: "/etc/foo"
 #   readOnly: true
