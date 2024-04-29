@@ -16,9 +16,19 @@ fullnameOverride: ""
 
 postgres:
   enabled: true
+  envFrom:
+    - secretRef: 
+        name: immich-postgres-secret
   image:
     repository: "tensorchord/pgvecto-rs"
     tag: pg14-v0.2.0
+  volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: postgres-storage
+  volumes:
+    - name: postgres-storage
+      persistentVolumeClaim:
+        claimName: immich-postgresql-new-pvc
   sealedSecrets:
     secret:
       POSTGRES_DB: AgBSB6hBn4JgDWdkMjPVmhl3qS9uEBCocCEsWTWsKEXlo8Rm16Xujs2C5o3drhRjrjza3hvsZfPKB4U78vhpJ07nWTNXwJPdoCj1PzAXxZua/5/pgACBCO5JWHn53T4C3h3r/xFkwPY1d0LORVi5+Vir/10HsLFGskLJvNNWlFhcB8g3JquL2IlcShyvqewYzd/QmVxOiAeHBuScJwvPiQoI5mZaNuVu0FZ4fRnY+l1eh/jHM/aWjd/FZzafKh7JwdWl0KwLGJrl8toZmDoJn7TReeSn3OABQg+eNFl59cIMwBCs5sms17pfN8T0ZcAf9OfQZPvTCIpUO6yFpnbKN/LDN25If+E+7Z8eySLX6MvnNmk20Dl2E8PwI7lAH66UVqO2q0tnAAFOnOC4l5y6Mp4LYeusfhDuwfJ0GPYV2WYNaEuS7yUQuLolYvdvAN/ekoYvGaZsdKr0AzH8eqCeD92Z1pRVoViztHxlXX54hdlDx+2QVYouFEe/oIapeV1STTFJSmc82mPPLza7Y3G/LBonA6dstCKQHQE7h6ed+mvEG4inRG3iQCUTOpvQGIecwm+xSLTcvrlDwdJI6gUMN9XPuNRLLn5w+kRI60V8By4oE0pWs/gf/2eSj546b0XVqtFuXdUZrngF0Zn3B9gpP5ghjxPREZ02saKlcik1o+nSyFFpyXr7Zsf65L88z1t8yIVOUcwy2zk=

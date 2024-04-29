@@ -49,8 +49,8 @@ spec:
             {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.envFrom }}
-          {{- with .Values.envFrom }}
+          {{- if .Values.postgres.envFrom }}
+          {{- with .Values.postgres.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -62,11 +62,11 @@ spec:
               value: {{ $value | quote | toString }}
             {{- end }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
+          {{- with .Values.postgres.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- with .Values.volumes }}
+      {{- with .Values.postgres.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
