@@ -121,6 +121,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 persistentVolumes:
+  enabled: true
   pvs:
     immich-photos:
       storageSize: 1T

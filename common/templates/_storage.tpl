@@ -23,15 +23,15 @@ spec:
                 - {{- $value.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
-    namespace: {{ include "common.fullname" . }}
-    name: {{ include "common.fullname" . }}-pvc
+    namespace: {{ include "common.fullname" $ }}
+    name: {{ include "common.fullname" $ }}-pvc
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "common.fullname" . }}-pvc
-  namespace: {{ include "common.fullname" . }}
+  name: {{ $keyId }}-pvc
+  namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
     - ReadWriteMany
