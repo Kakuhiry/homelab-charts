@@ -58,15 +58,6 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: 3003
-readinessProbe:
-  httpGet:
-    path: /
-    port: 3003
-
 podSecurityContext: {}
   # fsGroup: 2000
 
