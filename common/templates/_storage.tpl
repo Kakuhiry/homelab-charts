@@ -1,3 +1,5 @@
+{{- define "common.persistentVolumes" -}}
+{{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 ---
 apiVersion: v1
@@ -36,4 +38,6 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
+{{- end }}
 {{- end }}
