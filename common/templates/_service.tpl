@@ -13,6 +13,5 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "common.selectorLabels" . | nindent 4 }}
-    {{- include "common.fullname" . }}
+    {{- include "common.fullname" . | nindent 4 }}
 {{- end }}
