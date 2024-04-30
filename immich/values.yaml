@@ -127,7 +127,6 @@ persistentVolumes:
       storageSize: 1T
       path: /mount/immich/photos
       nodeName: egbp
-
     immich-config:
       storageSize: 3Gi
       path: /mount/immich/config

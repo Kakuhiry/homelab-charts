@@ -20,11 +20,11 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - {{- $value.nodeName }}
+                - {{ $value.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
-    name: {{ include "common.fullname" $ }}-pvc
+    name: {{ $keyId }}-pvc
 
 ---
 apiVersion: v1
