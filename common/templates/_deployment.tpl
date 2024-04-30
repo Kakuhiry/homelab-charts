@@ -11,7 +11,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "common.selectorLabels" . | nindent 6 }}
+      app: {{ include "common.fullname" . }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}

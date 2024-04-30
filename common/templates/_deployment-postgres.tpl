@@ -12,8 +12,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "common.selectorLabels" . | nindent 6 }}
-      kubernetes.app/name: {{ include "common.fullname" . }}-postgres
+      app: {{ include "common.fullname" . }}-postgres
   template:
     metadata:
       {{- with .Values.podAnnotations }}
