@@ -10,6 +10,5 @@ spec:
   ports:
     - port: 5432
   selector:
-    {{- include "common.selectorLabels" . | nindent 4 }}
-    kubernetes.app/name: {{ include "common.fullname" . }}-postgres
+    app: {{ include "common.fullname" . }}-postgres
 {{- end }}
