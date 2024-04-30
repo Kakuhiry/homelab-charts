@@ -74,10 +74,6 @@ persistentVolumes:
       storageSize: 1Gi
       path: /mount
       nodeName: egbp
-    bazarr-tv:
-      storageSize: 1Gi
-      path: '/mount/Media/TV Shows'
-      nodeName: egbp
 
 ingress:
   enabled: true
