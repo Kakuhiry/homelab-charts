@@ -5,7 +5,7 @@ kind: Deployment
 metadata:
   name: {{ include "common.fullname" . }}-postgres
   labels:
-    {{- include "common.labels" . | nindent 4 }}
+    app: {{ include "common.fullname" . }}-postgres
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
