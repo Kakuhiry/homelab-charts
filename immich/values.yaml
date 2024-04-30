@@ -15,6 +15,12 @@ nameOverride: ""
 fullnameOverride: ""
 
 postgres:
+  livenessProbe:
+    httpGet:
+      port: 5432
+  readinessProbe:
+    httpGet:
+      port: 5432
   enabled: true
   envFrom:
     - secretRef: 
@@ -51,6 +57,15 @@ serviceAccount:
 
 podAnnotations: {}
 podLabels: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 3003
+readinessProbe:
+  httpGet:
+    path: /
+    port: 3003
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -106,12 +121,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-livenessProbe:
-  httpGet:
-    port: 5432
-readinessProbe:
-  httpGet:
-    port: 5432
+
 
 autoscaling:
   enabled: false
