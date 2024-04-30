@@ -65,18 +65,19 @@ volumes:
 
 persistentVolumes:
   enabled: true
-  bazarr-data:
-    storageSize: 1Gi
-    path: /mount/bazarr/config
-    nodeName: egbp
-  bazarr-movies:
-    storageSize: 1Gi
-    path: /mount
-    nodeName: egbp
-  bazarr-tv:
-    storageSize: 1Gi
-    path: '/mount/Media/TV Shows'
-    nodeName: egbp
+  pvs:
+    bazarr-data:
+      storageSize: 1Gi
+      path: /mount/bazarr/config
+      nodeName: egbp
+    bazarr-movies:
+      storageSize: 1Gi
+      path: /mount
+      nodeName: egbp
+    bazarr-tv:
+      storageSize: 1Gi
+      path: '/mount/Media/TV Shows'
+      nodeName: egbp
 
 ingress:
   enabled: true
