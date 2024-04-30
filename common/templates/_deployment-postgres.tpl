@@ -20,7 +20,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app: {{ include "common.fullname" . }}
+        app: {{ include "common.fullname" . }}-postgres
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
