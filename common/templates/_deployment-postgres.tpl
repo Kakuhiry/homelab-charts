@@ -32,7 +32,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            {{- toYaml .Values.postgres.securityContext | nindent 12 }}
           image: "{{ .Values.postgres.image.repository | default "postgres" }}:{{ .Values.postgres.image.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:

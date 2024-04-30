@@ -15,6 +15,9 @@ nameOverride: ""
 fullnameOverride: ""
 
 postgres:
+  securityContext:
+    privileged: true
+    runAsUser: 999
   readinessProbe:
     exec:
       command: 
@@ -59,9 +62,7 @@ podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext:
-  privileged: true
-  runAsUser: 999
+securityContext: {}
 
 service:
   type: NodePort
