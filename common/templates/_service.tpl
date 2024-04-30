@@ -14,4 +14,5 @@ spec:
       name: http
   selector:
     {{- include "common.selectorLabels" . | nindent 4 }}
+    {{- include "common.fullname" . }}
 {{- end }}

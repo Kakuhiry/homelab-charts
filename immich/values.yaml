@@ -120,6 +120,26 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+persistentVolumes:
+  pvs:
+    immich-photos:
+      storageSize: 1T
+      path: /mount/immich/photos
+      nodeName: egbp
+
+    immich-config:
+      storageSize: 3Gi
+      path: /mount/immich/config
+      nodeName: egbp
+    photos:
+      storageSize: 300Gi
+      path: '/mount/Media/Google Photos'
+      nodeName: egbp
+    stuff:
+      storageSize: 60Gi
+      path: /mount/qBittorrent/downloads/downloads
+      nodeName: egbp
+
 # Additional volumes on the output Deployment definition.
 volumes:
   - name: photos-storage

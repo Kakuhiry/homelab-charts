@@ -1,16 +1,16 @@
-{{- if .Values.persistentVolumes.enabled }}
-{{- if .Values.persistentVolumes.config.enabled }}
+{{- range $keyId, $value := .Values.persistentVolumes.pvs }}
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ include "common.fullname" . }}-config
+  name: {{ $keyId }}
 spec:
   capacity:
-    storage: {{ .Values.persistentVolumes.storageSize }}
+    storage: {{ $value.storageSize }}
   accessModes:
     - ReadWriteMany
   local:
-    path: {{ .Values.persistentVolumes.config.path }}
+    path: {{ $value.path }}
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -18,58 +18,22 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - {{- .Values.persistentVolumes.config.nodeName }}
+                - {{- $value.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" . }}
-    name: {{ include "common.fullname" . }}-config-pvc
+    name: {{ include "common.fullname" . }}-pvc
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "common.fullname" . }}-config-pvc
+  name: {{ include "common.fullname" . }}-pvc
+  namespace: {{ include "common.fullname" . }}
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ .Values.persistentVolumes.config.storageSize }}
-{{- end}}
-{{- if .Values.persistentVolumes.data.enabled }}
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: {{ include "common.fullname" . }}-data
-spec:
-  capacity:
-    storage: {{ .Values.persistentVolumes.data.storageSize }}
-  accessModes:
-    - ReadWriteMany
-  local:
-    path: {{ .Values.persistentVolumes.data.path }}
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - {{ .Values.persistentVolumes.data.nodeName }}
-  persistentVolumeReclaimPolicy: Retain
-  claimRef:
-    namespace: {{ include "common.fullname" . }}
-    name: {{ include "common.fullname" . }}-data-pvc
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ include "common.fullname" . }}-data-pvc
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: {{ .Values.persistentVolumes.data.storageSize }}
-{{ end }}
-{{ end }}
+      storage: {{ $value.storageSize }}
+{{- end }}
