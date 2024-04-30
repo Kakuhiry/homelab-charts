@@ -15,12 +15,10 @@ nameOverride: ""
 fullnameOverride: ""
 
 postgres:
-  livenessProbe:
-    httpGet:
-      port: 5432
   readinessProbe:
-    httpGet:
-      port: 5432
+    exec:
+      command: 
+        - pg_isready
   enabled: true
   envFrom:
     - secretRef: 
