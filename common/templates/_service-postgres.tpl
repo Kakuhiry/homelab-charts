@@ -4,7 +4,7 @@ kind: Service
 metadata:
   name: {{ include "common.fullname" . }}-postgres
   labels:
-    {{ include "common.fullname" . }}-postgres
+    app: {{ include "common.fullname" . }}-postgres
 spec:
   type: ClusterIP
   ports:

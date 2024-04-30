@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: {{ include "common.fullname" . }}
   labels:
-    {{- include "common.labels" . | nindent 4 }}
+    app: {{ include "common.fullname" . }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
