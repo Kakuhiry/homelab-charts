@@ -2,14 +2,14 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "ariang.fullname" . }}
+  name: {{ include "aria2.fullname" . }}
   labels:
-    {{- include "ariang.labels" . | nindent 4 }}
+    {{- include "aria2.labels" . | nindent 4 }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "ariang.fullname" . }}
+    name: {{ include "aria2.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:
