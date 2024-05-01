@@ -112,7 +112,7 @@ volumeMounts:
     mountPath: /tv-shows
 
 persistentVolumes:
-  enabled: true
+  enabled: false
   pvs:
     sonarr-storage:
       storageSize: 3T
