@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: lscr.io/linuxserver/sonarr
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -55,6 +55,12 @@ ingress:
   tls:
     - hosts:
        - sonarr
+
+env:
+  TZ: "Etc/UTC"
+  PUID: "0"
+  PGID: "0"
+  UMASK: "002"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
