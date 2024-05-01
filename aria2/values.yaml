@@ -110,7 +110,7 @@ env:
   ARIA2RPCPORT: '443'
 
 nodeSelector:
-  kubernetes.app/hostname: egbp
+  kubernetes.io/hostname: egbp
 
 tolerations: []
 
