@@ -84,15 +84,6 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-livenessProbe:
-  httpGet:
-    path: /
-    port: http
-readinessProbe:
-  httpGet:
-    path: /
-    port: http
-
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -122,7 +113,8 @@ env:
   PGID: '1000'
   ARIA2RPCPORT: '443'
 
-nodeSelector: {}
+nodeSelector:
+  kubernetes.app/hostname: egbp
 
 tolerations: []
 
