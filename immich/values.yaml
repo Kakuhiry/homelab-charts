@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/imagegenius/immich
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.102.0"
+  tag: "1.103.1"
 
 imagePullSecrets: []
 nameOverride: ""
