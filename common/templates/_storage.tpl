@@ -10,7 +10,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   local:
     path: {{ $value.path }}
   nodeAffinity:
@@ -34,7 +34,7 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ $value.storageSize }}
