@@ -103,7 +103,7 @@ persistentVolumes:
       path: /mount
       nodeName: egbp
     radarr-config:
-      storageSize: 1T
+      storageSize: 5Gi
       path: /mount/radarr/config
       nodeName: egbp
 
