@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/immich-app/immich-server
+  repository: ghcr.io/imagegenius/immich
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.105.1"
+  tag: "1.105.0"
 
 imagePullSecrets: []
 nameOverride: ""
