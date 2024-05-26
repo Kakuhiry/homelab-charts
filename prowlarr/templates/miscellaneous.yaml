@@ -1,0 +1,3 @@
+{{ include "common.others.deployment" . }}
+---
+{{ include "common.others.service" . }}
