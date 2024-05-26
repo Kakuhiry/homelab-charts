@@ -20,6 +20,19 @@ spec:
       containers:
         - name: {{ $keyId }}
           image: "{{ $key.image.repository }}:{{ $key.image.tag }}"
+          {{- if .Values.envFrom }}
+          {{- with $key.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if $key.env }}
+          env:
+            {{- range $envKey, $envValue := $key.env }}
+            - name: {{ $envKey }}
+              value: {{ $envValue | quote | toString }}
+            {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ $key.service.targetPort | default 80 }}
