@@ -90,7 +90,7 @@ autoscaling:
 
 persistentVolumes:
   enabled: true
-  pvssasdqsd:
+  pvs:
     reiverr-config:
       storageSize: 3Gi
       path: /mount/reiver/config
