@@ -93,7 +93,7 @@ persistentVolumes:
   pvs:
     reiverr-config:
       storageSize: 3Gi
-      path: /mount/reiver/config
+      path: /mount/reiverr/config
       nodeName: egbp
 
 ingress:
@@ -103,10 +103,10 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: reiver
+    - host: reiverr
   tls:
     - hosts:
-       - reiver
+       - reiverr
 
 # Additional volumes on the output Deployment definition.
 volumes:
