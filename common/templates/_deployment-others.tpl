@@ -20,7 +20,7 @@ spec:
       containers:
         - name: {{ $keyId }}
           image: "{{ $key.image.repository }}:{{ $key.image.tag }}"
-          {{- if .Values.envFrom }}
+          {{- if $key.envFrom }}
           {{- with $key.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
