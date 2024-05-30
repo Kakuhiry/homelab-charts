@@ -1,22 +1,9 @@
-{{- define "common.ingress" -}}
+{{- define "common.ingressroute" -}}
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "common.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
-  {{- end }}
-{{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- else -}}
-apiVersion: extensions/v1beta1
-{{- end }}
-kind: Ingress
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
 metadata:
-  name: {{ $fullName }}
+  name: {{ include "common.fullname" . }}
   labels:
     {{- include "common.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -24,22 +11,14 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  defaultBackend:
-    service:
-      name: {{ include "common.fullname" . }}
-      port:
-        number: 80
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.ingress.className }}
-  {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls:
-    {{- range .Values.ingress.tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-    {{- end }}
-  {{- end }}
+  entryPoints:
+    entryPoints:
+      - websecure
+  routes:
+    - kind: Rule
+      match: Host("{{ include "common.fullname" . }}.gbklabs.com")
+      services:
+        - name: {{ .Values.service.name }}
+          port: {{ .Values.service.port }}
 {{- end }}
 {{- end }}
