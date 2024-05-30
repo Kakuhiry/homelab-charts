@@ -160,7 +160,14 @@ dnsConfig: {}
 dnsPolicy: ClusterFirst
 
 # -- Arbitrary extra volume definitions for the pod
-extraVolumes: []
+extraVolumes:
+  - name: data	
+    persistentVolumeClaim:	
+      claimName: jellyfin-storage-pvc
+  - name: config	
+    persistentVolumeClaim:	
+      claimName: jellyfin-config-new-pvc
+
 
 # -- Arbitrary extra volume mounts for the pod
 extraVolumeMounts: {}
