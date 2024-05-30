@@ -1,4 +1,4 @@
-{{- define "common.ingressroute" -}}
+{{- define "common.ingress" -}}
 {{- if .Values.ingress.enabled -}}
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
