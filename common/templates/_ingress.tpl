@@ -12,13 +12,12 @@ metadata:
   {{- end }}
 spec:
   entryPoints:
-    entryPoints:
-      - websecure
+    - websecure
   routes:
     - kind: Rule
       match: Host("{{ include "common.fullname" . }}.gbklabs.com")
       services:
-        - name: {{ .Values.service.name }}
+        - name: {{ default (include "common.fullname" .) .Values.service.name }}
           port: {{ .Values.service.port }}
 {{- end }}
 {{- end }}
