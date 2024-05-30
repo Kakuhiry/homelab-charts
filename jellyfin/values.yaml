@@ -6,6 +6,9 @@ service:
 image:
   tag: '10.8.3'
 
+serviceAccount:
+  create: false
+
 resources:
   limits:
     gpu.intel.com/i915: 1
