@@ -9,6 +9,9 @@ image:
 serviceAccount:
   create: false
 
+ingress:
+  enabled: true
+
 resources:
   limits:
     gpu.intel.com/i915: 1
