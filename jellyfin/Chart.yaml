@@ -3,10 +3,10 @@ annotations:
     - Complete rewrite
   artifacthub.io/images: |
     - name: linuxserver/jellyfin
-      image: docker.io/linuxserver/jellyfin:10.7.7
+      image: docker.io/linuxserver/jellyfin:10.8.3
   artifacthub.io/license: MIT
 apiVersion: v2
-appVersion: 10.7.7
+appVersion: 10.8.3
 description: Jellyfin Helm chart
 home: https://jellyfin.org
 icon: https://utkuozdemir.org/helm-charts/jellyfin.png
