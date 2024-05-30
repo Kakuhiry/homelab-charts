@@ -1,0 +1,34 @@
+annotations:
+  artifacthub.io/changes: |
+    - Complete rewrite
+  artifacthub.io/images: |
+    - name: linuxserver/jellyfin
+      image: docker.io/linuxserver/jellyfin:10.7.7
+  artifacthub.io/license: MIT
+apiVersion: v2
+appVersion: 10.7.7
+description: Jellyfin Helm chart
+home: https://jellyfin.org
+icon: https://utkuozdemir.org/helm-charts/jellyfin.png
+keywords:
+- jellyfin
+- media-server
+- streaming
+- tv
+- video
+- kodi
+maintainers:
+- email: uoz@protonmail.com
+  name: Utku Özdemir
+  url: https://utkuozdemir.org
+name: jellyfin
+sources:
+- https://github.com/linuxserver/docker-jellyfin
+- https://github.com/utkuozdemir/helm-charts
+type: application
+version: 2.0.0
+
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common
