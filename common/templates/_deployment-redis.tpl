@@ -8,7 +8,7 @@ metadata:
     app: {{ include "common.fullname" . }}-redis
 spec:
   {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   {{- end }}
   selector:
     matchLabels:
