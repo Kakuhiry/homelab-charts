@@ -115,7 +115,7 @@ autoscaling:
 
 # Additional volumes on the output Deployment definition.
 volumes:
-  - name: configJson
+  - name: config-json
     configMap: 
       name: puter
   - name: data
@@ -132,7 +132,7 @@ volumeMounts:
     mountPath: "/var/puter"
   - name: config
     mountPath: "/etc/puter"
-  - name: configJson
+  - name: config-json
     mountPath: "/etc/puter/config.json"
 
 nodeSelector: {}
