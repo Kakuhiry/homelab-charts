@@ -1,0 +1,14 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: puter
+  namespace: puter
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`puter.gbklabs.com`) && PathPrefix(`/app1`)
+      services:
+        - name: puter
+          port: 80
