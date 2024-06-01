@@ -71,11 +71,11 @@ configMapJson: |-
   {
     "config_name": "generated default config",
     "env": "dev",
-    "nginx_mode": true,
+    "nginx_mode": false,
     "server_id": "localhost",
     "http_port": "auto",
     "domain": "puter.gbklabs.com",
-    "protocol": "https",
+    "protocol": "http",
     "contact_email": "hey@example.com",
     "services": {
         "database": {
