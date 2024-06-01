@@ -75,7 +75,7 @@ readinessProbe:
     path: /
     port: http
 
-configMap: |
+configMap: |-
   {
     "config_name": "generated default config",
     "env": "dev",
