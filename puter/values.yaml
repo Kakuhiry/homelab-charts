@@ -75,7 +75,7 @@ configMapJson: |-
     "server_id": "localhost",
     "http_port": "auto",
     "domain": "puter.gbklabs.com",
-    "protocol": "https",
+    "protocol": "http",
     "contact_email": "hey@example.com",
     "services": {
         "database": {
