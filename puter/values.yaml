@@ -74,7 +74,7 @@ configMapJson: |-
     "server_id": "localhost",
     "http_port": "auto",
     "domain": "localhost",
-    "protocol": "https",
+    "protocol": "http",
     "contact_email": "hey@example.com",
     "services": {
         "database": {
