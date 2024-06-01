@@ -34,10 +34,6 @@ podSecurityContext: {}
 securityContext:
   runAsUser: 0
 
-envFrom:
-  - configMapRef:
-    name: puter
-
 env:
   PUID: 1000
   PGID: 1000
