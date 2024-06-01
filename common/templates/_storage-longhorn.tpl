@@ -1,6 +1,7 @@
 {{- define "common.longhornpvc" -}}
 {{- if .Values.longhorn.enabled }}
 {{- range $keyId, $value := .Values.longhorn.persistentVolumes }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
