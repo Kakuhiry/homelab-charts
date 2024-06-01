@@ -75,7 +75,7 @@ readinessProbe:
     path: /
     port: http
 
-configMap: |-
+configMapJson: |-
   {
     "config_name": "generated default config",
     "env": "dev",
@@ -134,6 +134,7 @@ volumeMounts:
     mountPath: "/etc/puter"
   - name: config-json
     mountPath: "/etc/puter/config.json"
+    subPath: config.json
 
 nodeSelector: {}
 
