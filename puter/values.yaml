@@ -119,6 +119,9 @@ autoscaling:
 
 # Additional volumes on the output Deployment definition.
 volumes:
+  - name: configJson
+    configMap: 
+      name: puter
   - name: data
     persistentVolumeClaim:
       claimName: puter-data-pvc
@@ -133,6 +136,8 @@ volumeMounts:
     mountPath: "/var/puter"
   - name: config
     mountPath: "/etc/puter"
+  - name: configJson
+    mountPath: "/etc/puter/config.json"
 
 nodeSelector: {}
 
