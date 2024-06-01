@@ -37,6 +37,7 @@ securityContext:
 env:
   PUID: 1000
   PGID: 1000
+  PORT: 4000
 
 longhorn:
   enabled: true
