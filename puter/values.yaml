@@ -37,7 +37,6 @@ securityContext:
 env:
   PUID: 1000
   PGID: 1000
-  PORT: 4000
 
 longhorn:
   enabled: true
@@ -71,11 +70,11 @@ configMapJson: |-
   {
     "config_name": "generated default config",
     "env": "dev",
-    "nginx_mode": false,
+    "nginx_mode": true,
     "server_id": "localhost",
     "http_port": "auto",
     "domain": "puter.gbklabs.com",
-    "protocol": "https",
+    "protocol": "http",
     "contact_email": "hey@example.com",
     "services": {
         "database": {
