@@ -104,7 +104,7 @@ configMap: |
     "jwt_secret": "8627b13d-fd33-48d4-a770-9ad3107db409",
     "url_signature_secret": "80f55516-d767-4531-95dd-1f680a35788d",
     "": null
-}
+  }
 
 autoscaling:
   enabled: false
