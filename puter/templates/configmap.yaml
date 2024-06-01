@@ -6,4 +6,4 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
 data:
   config.json: |
-    {{ .Values.configMapJson | indent 2 }}
+    {{- .Values.configMapJson | nindent 4 }}
