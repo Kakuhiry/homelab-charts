@@ -71,7 +71,7 @@ configMapJson: |-
   {
     "config_name": "generated default config",
     "env": "dev",
-    "nginx_mode": false,
+    "nginx_mode": true,
     "server_id": "localhost",
     "http_port": "auto",
     "domain": "puter.gbklabs.com",
