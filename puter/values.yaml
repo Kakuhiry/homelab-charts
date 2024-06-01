@@ -73,7 +73,7 @@ configMapJson: |-
     "nginx_mode": false,
     "server_id": "localhost",
     "http_port": "auto",
-    "domain": "localhost",
+    "domain": "puter.gbklabs.com",
     "protocol": "https",
     "contact_email": "hey@example.com",
     "services": {
