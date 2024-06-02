@@ -76,6 +76,7 @@ configMapJson: |-
     "domain": "puter.gbklabs.com",
     "protocol": "https",
     "contact_email": "hey@example.com",
+    "pub_port": "443",
     "services": {
         "database": {
             "engine": "sqlite",
