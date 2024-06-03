@@ -1,0 +1,12 @@
+{{- if .Values.configMapJson }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "common.fullname" . }}
+  labels:
+    {{- include "common.labels" . | nindent 4 }}
+data:
+  config.json: |
+    {{- .Values.configMapJson | nindent 4 }}
+{{- end }}
+
