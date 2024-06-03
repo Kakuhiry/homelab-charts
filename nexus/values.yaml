@@ -33,11 +33,6 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext:
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
   runAsUser: 0
 
 service:
