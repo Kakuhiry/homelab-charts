@@ -67,7 +67,7 @@ ingress:
   #      - chart-example.local
 
 others:
-  nexus-api:
+  docker:
     ingress:
       enabled: true
     service:
