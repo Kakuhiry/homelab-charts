@@ -70,6 +70,9 @@ others:
   docker:
     ingress:
       enabled: true
+      subdomain: docker
+      serviceName: nexus
+      port: 81
     service:
       port: 81
       targetPort: 8085

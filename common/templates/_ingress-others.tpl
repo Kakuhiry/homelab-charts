@@ -11,10 +11,10 @@ spec:
     - websecure
   routes:
     - kind: Rule
-      match: Host("{{ $keyId }}.gbklabs.com")
+      match: Host("{{ $key.ingress.subDomain }}.gbklabs.com")
       services:
-        - name: {{ $keyId }}
-          port: {{ $key.service.port }}
+        - name: {{ $key.ingress.serviceName }}
+          port: {{ $key.ingress.port }}
 {{- end }}
 {{- end }}
 {{- end}}
