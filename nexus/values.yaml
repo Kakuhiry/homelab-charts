@@ -68,6 +68,8 @@ ingress:
 
 others:
   nexus-api:
+    ingress:
+      enabled: true
     service:
       port: 81
       targetPort: 8085
