@@ -11,7 +11,7 @@ spec:
   type: {{ $key.service.type }}
   ports:
     - port: {{ $key.service.port }}
-      targetPort: {{ default "http" }}
+      targetPort: {{ $key.service.targetPort | default "http" }}
       protocol: TCP
       name: http
   selector:
