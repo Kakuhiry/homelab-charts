@@ -94,7 +94,7 @@ volumes:
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: data
-    mountPath: "/sonatype-work"
+    mountPath: "/nexus-data"
 
 nodeSelector: {}
 
