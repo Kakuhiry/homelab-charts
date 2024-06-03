@@ -66,37 +66,7 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-configMapJson: |-
-  {
-    "config_name": "generated default config",
-    "env": "dev",
-    "nginx_mode": false,
-    "server_id": "localhost",
-    "http_port": "auto",
-    "domain": "puter.gbklabs.com",
-    "protocol": "https",
-    "contact_email": "hey@example.com",
-    "pub_port": "443",
-    "services": {
-        "database": {
-            "engine": "sqlite",
-            "path": "puter-database.sqlite"
-        },
-        "thumbnails": {
-            "engine": "purejs"
-        },
-        "file-cache": {
-            "disk_limit": 16384,
-            "disk_max_size": 16384,
-            "precache_size": 16384,
-            "path": "./file-cache"
-        }
-    },
-    "cookie_name": "c35f9c08-1ba9-4f1a-b092-cc235057ca95",
-    "jwt_secret": "8627b13d-fd33-48d4-a770-9ad3107db409",
-    "url_signature_secret": "80f55516-d767-4531-95dd-1f680a35788d",
-    "": null
-  }
+
 
 autoscaling:
   enabled: false
