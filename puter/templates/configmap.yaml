@@ -9,3 +9,4 @@ data:
   config.json: |
     {{- .Values.configMapJson | nindent 4 }}
 {{- end }}
+
