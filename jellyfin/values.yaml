@@ -1,0 +1,35 @@
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8096
+
+image:
+  tag: '10.8.3'
+
+serviceAccount:
+  create: false
+
+ingress:
+  enabled: true
+
+resources:
+  limits:
+    gpu.intel.com/i915: 1
+
+# nodeSelector:
+#   kubernetes.io/hostname: "egbp"
+env:
+  PUID: "0"
+  PGID: "0"
+
+persistence:
+  config:
+    enabled: true
+    isPvc: true
+    existingClaim: jellyfin-config-new-pvc
+  data:
+    enabled: true
+    isPvc: true
+    existingClaim: jellyfin-storage-pvc
+
+#"dst":    ["autogroup:internet:*"],
