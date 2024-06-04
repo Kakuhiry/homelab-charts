@@ -4,7 +4,7 @@ service:
   targetPort: 8096
 
 image:
-  tag: '10.8.3'
+  tag: '10.9.4'
 
 serviceAccount:
   create: false
@@ -14,6 +14,8 @@ ingress:
 
 resources:
   limits:
+    cpu: "4"
+    memory: "6200Mi"
     gpu.intel.com/i915: 1
 
 # nodeSelector:
