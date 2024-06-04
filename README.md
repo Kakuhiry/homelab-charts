@@ -8,7 +8,7 @@ K3s homelab configuration
 |----------------------|-------|--------|---------------------------------------------------------|----------------|-------|
 | Lenovo ThinkCentre M700 | 1     | 16GB   | SSD 256GB | Ubuntu 22.04.4 LTS  | amd64 |
 | Raspberry Pi 4 | 1     | 8GB | MicroSD 128GB                                                 | Raspberry PI OS Lite        | amd64 |
-| Network Attached Storage (NAS)         | 1     | N/A | HHD 4TB (X2)                                               | Ubuntu 22.10        | amd64 |
+| Network Attached Storage (NAS)         | 1     | N/A | HDD 4TB (X2)                                               | Ubuntu 22.10        | amd64 |
 
 ## 📁 Repository structure
 
