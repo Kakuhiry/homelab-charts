@@ -1,0 +1,5 @@
+{{include "common.deployment.postgres" .}}
+
+---
+
+{{include "common.service.postgres" .}}
