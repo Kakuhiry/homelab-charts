@@ -39,7 +39,7 @@ longhorn:
 postgres:
   securityContext:
     privileged: true
-    runAsUser: 999
+    runAsUser: 0
   readinessProbe:
     exec:
       command: 
@@ -52,8 +52,10 @@ postgres:
     repository: "postgres"
     tag: 15
   volumeMounts:
-    - mountPath: /var/lib/postgresql/data/pgdata
+    - mountPath: /var/lib/postgresql/data
       name: postgres-data
+      subPath: postgres
+
   volumes:
     - name: postgres-data
       persistentVolumeClaim:
