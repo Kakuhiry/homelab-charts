@@ -30,7 +30,7 @@ podLabels: {}
 
 longhorn:
   enabled: true
-  pvs:
+  persistentVolumes:
     odoo-config:
       storageSize: 2G
     odoo-db:
