@@ -73,6 +73,10 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+envFrom:
+  - secretRef: 
+      name: odoo
+
 service:
   type: ClusterIP
   targetPort: 8069
