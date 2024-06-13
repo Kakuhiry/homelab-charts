@@ -178,7 +178,7 @@ livenessProbe: {}
 # -- Pod readiness probe
 readinessProbe:
   httpGet:
-    port: http
+    port: 8096
 
 # -- Init containers
 initContainers: []
