@@ -176,9 +176,7 @@ extraVolumeMounts: {}
 livenessProbe: {}
 
 # -- Pod readiness probe
-readinessProbe:
-  httpGet:
-    port: 8096
+readinessProbe: {}
 
 # -- Init containers
 initContainers: []
