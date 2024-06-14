@@ -12,6 +12,12 @@ serviceAccount:
 ingress:
   enabled: true
 
+longhorn:
+  enabled: true
+  persistentVolumes:
+    jellyfin-config:
+      storageSize: 90G
+
 resources:
   limits:
     cpu: "4"
@@ -28,7 +34,7 @@ persistence:
   config:
     enabled: true
     isPvc: true
-  #   existingClaim: jellyfin-config-new-pvc
+    existingClaim: jellyfin-config-pvc
   data:
     enabled: true
     isPvc: true
