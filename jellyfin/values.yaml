@@ -12,11 +12,6 @@ serviceAccount:
 ingress:
   enabled: true
 
-additionalPorts:
-  - port: 80
-    protocol: TCP
-    targetPort: 8096
-
 resources:
   limits:
     cpu: "4"
