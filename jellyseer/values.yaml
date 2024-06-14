@@ -8,7 +8,7 @@ image:
   repository: ghcr.io/hotio/jellyseerr
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "release-1.9.2"
 
 env:
   TZ: "Etc/UTC"
