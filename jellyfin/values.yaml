@@ -25,10 +25,10 @@ env:
   PGID: "0"
 
 persistence:
-  config:
-    enabled: true
-    isPvc: true
-    existingClaim: jellyfin-config-new-pvc
+  # config:
+  #   enabled: true
+  #   isPvc: true
+  #   existingClaim: jellyfin-config-new-pvc
   data:
     enabled: true
     isPvc: true
