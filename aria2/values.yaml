@@ -37,11 +37,11 @@ persistentVolumes:
     aria2-downloads:
       storageSize: 800Gi
       path: /mount/aria2/downloads
-      nodeName: egbp
+      nodeName: nuc-egbk
     aria2-config:
       storageSize: 2Gi
       path: /mount/aria2/config
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 securityContext: {}
   # capabilities:
@@ -110,7 +110,7 @@ env:
   ARIA2RPCPORT: '443'
 
 nodeSelector:
-  kubernetes.io/hostname: egbp
+  kubernetes.io/hostname: nuc-egbk
 
 tolerations: []
 

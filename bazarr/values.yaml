@@ -69,11 +69,11 @@ persistentVolumes:
     bazarr-data:
       storageSize: 1Gi
       path: /mount/bazarr/config
-      nodeName: egbp
+      nodeName: nuc-egbk
     bazarr-movies:
       storageSize: 1Gi
       path: /mount
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 ingress:
   enabled: true

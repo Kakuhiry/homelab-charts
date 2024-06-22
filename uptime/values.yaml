@@ -96,7 +96,7 @@ persistentVolumes:
     enabled: true
     storageSize: 5Gi
     path: /home/k8s/uptime/data
-    nodeName: egbp
+    nodeName: nuc-egbk
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:

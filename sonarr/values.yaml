@@ -117,15 +117,15 @@ persistentVolumes:
     sonarr-storage:
       storageSize: 3T
       path: /mount
-      nodeName: egbp
+      nodeName: nuc-egbk
     sonarr-config:
       storageSize: 5Gi
       path: /mount/sonarr/config
-      nodeName: egbp
+      nodeName: nuc-egbk
     sonarr-movies:
       storageSize: 500Gi
       path: /mount/Media
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 nodeSelector: {}
 
