@@ -101,11 +101,11 @@ persistentVolumes:
     radarr-storage:
       storageSize: 1T
       path: /mount
-      nodeName: egbp
+      nodeName: nuc-egbk
     radarr-config:
       storageSize: 5Gi
       path: /mount/radarr/config
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 nodeSelector: {}
 

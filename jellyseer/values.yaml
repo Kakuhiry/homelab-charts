@@ -65,7 +65,7 @@ persistentVolumes:
     jellyseer-config:
       storageSize: 5Gi
       path: /mount/jellyseer/config
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

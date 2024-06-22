@@ -134,19 +134,19 @@ persistentVolumes:
     immich-photos:
       storageSize: 1T
       path: /mount/immich/photos
-      nodeName: egbp
+      nodeName: nuc-egbkegbkegbkegbk
     immich-config:
       storageSize: 3Gi
       path: /mount/immich/config
-      nodeName: egbp
+      nodeName: nuc-egbk
     photos:
       storageSize: 300Gi
       path: '/mount/Media/Google Photos'
-      nodeName: egbp
+      nodeName: nuc-egbk
     stuff:
       storageSize: 60Gi
       path: /mount/qBittorrent/downloads/downloads
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 # Additional volumes on the output Deployment definition.
 volumes:

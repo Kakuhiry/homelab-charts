@@ -94,7 +94,7 @@ persistentVolumes:
     reiverr-config:
       storageSize: 3Gi
       path: /mount/reiverr/config
-      nodeName: egbp
+      nodeName: nuc-egbk
 
 ingress:
   enabled: true
