@@ -132,15 +132,15 @@ persistentVolumes:
   enabled: true
   pvs:
     immich-photos:
-      storageSize: 1T
+      storageSize: 400Gi
       path: /mount/immich/photos
-      nodeName: nuc-egbkegbkegbkegbk
+      nodeName: nuc-egbk
     immich-config:
       storageSize: 3Gi
       path: /mount/immich/config
       nodeName: nuc-egbk
     photos:
-      storageSize: 300Gi
+      storageSize: 200Gi
       path: '/mount/Media/Google Photos'
       nodeName: nuc-egbk
     stuff:
