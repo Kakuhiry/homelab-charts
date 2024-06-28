@@ -29,6 +29,14 @@ postgres:
   image:
     repository: "tensorchord/pgvecto-rs"
     tag: pg14-v0.2.0
+  persistentVolumes:
+    enabled: true
+    pvs:
+      immich-postgresql-new:
+        storageSize: /home/k8s/immich/postgres
+        path: /mount/immich/photos
+        nodeName: nuc-egbk
+        storageClassName: longhorn
   volumeMounts:
     - mountPath: /var/lib/postgresql/data
       name: postgres-storage
@@ -140,7 +148,7 @@ persistentVolumes:
       storageSize: 3Gi
       path: /mount/immich/config
       nodeName: nuc-egbk
-      storageClassName: local-path
+      storageClassName: longhorn
     photos:
       storageSize: 300Gi
       path: '/mount/Media/Google Photos'
