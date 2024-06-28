@@ -152,8 +152,8 @@ persistentVolumes:
       nodeName: nuc-egbk
       storageClassName: local-path
     immich-postgresql-new:
-      storageSize: /home/k8s/immich/postgres
-      path: /mount/immich/photos
+      storageSize: 3Gi
+      path: /home/k8s/immich/postgres
       nodeName: nuc-egbk
       storageClassName: longhorn
 
