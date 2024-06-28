@@ -13,9 +13,6 @@ spec:
     - ReadWriteOnce
   local:
     path: {{ $value.path }}
-  {{- if $value.storageClassName }}
-  storageClassName: {{ $value.storageClassName }}
-  {{- end }}
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -38,6 +35,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if $value.storageClassName }}
+  storageClassName: {{ $value.storageClassName }}
+  {{- end }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
