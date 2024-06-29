@@ -40,11 +40,13 @@ service:
   targetPort: 8081
   port: 80
 
-longhorn:
+persistentVolumes:
   enabled: true
-  persistentVolumes:
+  pvs:
     nexus-data:
       storageSize: 10G
+      path: /home/k8s/nexus/data
+      nodeName: nuc-egbk
 
 ingress:
   enabled: enable
