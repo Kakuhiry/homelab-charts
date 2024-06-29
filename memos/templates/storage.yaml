@@ -1,1 +1,1 @@
-{{ include "common.longhornpvc" .}}
+{{ include "common.persistentVolumes" . }}
