@@ -14,9 +14,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-longhorn:
+persistentVolumes:
   enabled: true
-  persistentVolumes:
+  pvs:
     memos-config:
       storageSize: 5Gi
 
