@@ -18,7 +18,9 @@ persistentVolumes:
   enabled: true
   pvs:
     memos-config:
-      storageSize: 5Gi
+      storageSize: 1Gi
+      path: /home/k8s/memos/config
+      nodeName: nuc-egbk
 
 serviceAccount:
   # Specifies whether a service account should be created
