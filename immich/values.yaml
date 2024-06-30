@@ -122,7 +122,7 @@ readinessProbe:
     port: 8080
 
 autoscaling:
-  enabled: false
+  enabled: true
   minReplicas: 1
   maxReplicas: 100
   targetCPUUtilizationPercentage: 80
