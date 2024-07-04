@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nfs-server
+  template:
+    metadata:
+      labels:
+        app: nfs-server
+      name: nfs-server
+    spec:
+      containers:
+      - env:
+        - name: SHARED_DIRECTORY
+          value: /exports
+        image: itsthenetwork/nfs-server-alpine:latest
+        imagePullPolicy: Always
+        name: nfs-server
+        ports:
+        - containerPort: 2049
+          name: tcp-2049
+          protocol: TCP
+        - containerPort: 111
+          name: udp-111
+          protocol: UDP
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /exports
+          name: nfs-vol
+        - mountPath: /media
+          name: nfs-media
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/hostname: nuc-egbk
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /mount
+          type: DirectoryOrCreate
+        name: nfs-vol
+      - hostPath:
+          path: /mount/Media
+          type: DirectoryOrCreate
+        name: nfs-media
