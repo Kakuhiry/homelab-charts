@@ -1,8 +1,8 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
-{{- if and (or (eq $value.storageClassName "") (eq $value.storageClassName "local-path")) (not (eq $value.storageClassName "longhorn")) }}
+
+{{- if eq $value.storageClassName "local-path" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -12,8 +12,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - {{ $accessModes }}
-  {{- if eq $value.storageClassName "local-path" }}
+    - ReadWriteOnce
   local:
     path: {{ $value.path }}
   nodeAffinity:
@@ -24,18 +23,50 @@ spec:
               operator: In
               values:
                 - {{ $value.nodeName | quote }}
-  {{- else if ne $value.storageClassName "" }}
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: {{ include "common.fullname" $ }}
+    name: {{ $keyId }}-pvc
+
+{{- else if eq $value.storageClassName "" }}
+{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $keyId }}
+spec:
+  capacity:
+    storage: {{ $value.storageSize }}
+  accessModes:
+    - {{ $accessModes }}
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
       server: nfs-server.default.svc.cluster.local
       share: {{ $value.path }}
     volumeHandle: nfs-server.default.svc.cluster.local/share##
-  {{- end }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+
+{{- else if not (or (eq $value.storageClassName "longhorn") (eq $value.storageClassName "longhorn-ssd") (eq $value.storageClassName "longhorn-alksdjas")) }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $keyId }}
+spec:
+  capacity:
+    storage: {{ $value.storageSize }}
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: {{ include "common.fullname" $ }}
+    name: {{ $keyId }}-pvc
+
 {{- end }}
 
 ---
@@ -47,12 +78,14 @@ metadata:
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if and $value.storageClassName (not (eq $value.storageClassName "longhorn")) }}
+  {{- if $value.storageClassName }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
