@@ -29,7 +29,7 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 {{- end }}
-{{- else if not (hasPrefix $value.storageClassName "longhorn-") }}
+{{- else }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -50,31 +50,4 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-
-{{- end }}
-
-{{- end }}
-{{- end }}
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ $keyId }}-pvc
-  namespace: {{ include "common.fullname" $ }}
-spec:
-  accessModes:
-    - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if or (eq $value.storageClassName "") (hasPrefix $value.storageClassName "longhorn-") }}
-  storageClassName: ""
-  {{- else }}
-  storageClassName: {{ $value.storageClassName }}
-  {{- end }}
-  resources:
-    requests:
-      storage: {{ $value.storageSize }}
-{{- end }}
-
-{{- end }}
-{{- end }}
-{{- end }}
+{{- 
