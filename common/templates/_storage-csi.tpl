@@ -1,8 +1,8 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 {{- if eq $value.storageClassName "" }}
+{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 {{- if eq $value.storageClassName "local-path" }}
 ---
 apiVersion: v1
@@ -28,7 +28,6 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-{{- end }}
 {{- else }}
 ---
 apiVersion: v1
@@ -50,6 +49,7 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+{{- end }}
 {{- end }}
 
 ---
