@@ -22,7 +22,7 @@ nfs:
   pvs:
     jellyfin-storage:
       storageSize: 1T
-      path: /mount
+      path: /mount/Media
       storageClassName: ""
       accessModes: ReadWriteMany
 
