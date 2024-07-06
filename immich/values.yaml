@@ -155,6 +155,7 @@ persistentVolumes:
       path: /home/k8s/immich/postgres
       nodeName: nuc-egbk
       storageClassName: local-path
+      accessModes: ReadWriteMany
 
 # Additional volumes on the output Deployment definition.
 volumes:

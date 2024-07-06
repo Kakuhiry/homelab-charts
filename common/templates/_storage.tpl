@@ -62,7 +62,7 @@ spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
   {{- if $value.storageClassName }}
-  storageClassName: {{ $value.storageClassName }}
+  storageClassName: {{ $value.storageClassName | default "" }}
   {{- end }}
   resources:
     requests:
