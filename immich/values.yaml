@@ -134,7 +134,6 @@ longhorn:
   persistentVolumes:
     immich-config:
       storageSize: 3Gi
-      storageClassName: longhorn-ssd
       accessModes: ReadWriteMany
 
 
