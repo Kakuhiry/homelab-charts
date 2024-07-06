@@ -62,10 +62,9 @@ ingress:
 persistentVolumes:
   enabled: true
   pvs:
-    jellyseer-config:
+    jellyseer-data:
       storageSize: 5Gi
-      path: /mount/jellyseer/config
-      nodeName: nuc-egbk
+      storageClassName: longhorn-ssd
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
