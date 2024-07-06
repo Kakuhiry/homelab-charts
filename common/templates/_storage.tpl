@@ -56,8 +56,6 @@ spec:
     requests:
       storage: {{ $value.storageSize }}
 {{- end }}
-
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
