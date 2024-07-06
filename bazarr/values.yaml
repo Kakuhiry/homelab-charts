@@ -58,7 +58,7 @@ volumeMounts:
 volumes:
   - name: config
     persistentVolumeClaim:
-      claimName: bazarr-data-pvc
+      claimName: bazarr-config-pvc
   - name: movies
     persistentVolumeClaim:
       claimName: bazarr-movies-pvc
