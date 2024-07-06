@@ -1,7 +1,7 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- $value.storageClassName "" }}
+{{- if $value.storageClassName "" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
