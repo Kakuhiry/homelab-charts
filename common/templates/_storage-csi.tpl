@@ -28,6 +28,7 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+{{- end }}
 {{- else }}
 ---
 apiVersion: v1
@@ -50,7 +51,6 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 {{- end }}
-{{- end }}
 
 ---
 apiVersion: v1
@@ -61,9 +61,7 @@ metadata:
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if $value.storageClassName "" }}
-  storageClassName: ""
-  {{- else}}
+  {{- if $value.storageClassName }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:

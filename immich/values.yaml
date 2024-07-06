@@ -128,6 +128,17 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+
+longhorn:
+  enabled: true
+  persistentVolumes:
+    immich-config:
+      storageSize: 3Gi
+      path: /immich/config
+      storageClassName: longhorn-ssd
+      accessModes: ReadWriteMany
+
+
 persistentVolumes:
   enabled: true
   pvs:
@@ -136,11 +147,7 @@ persistentVolumes:
       path: /immich/photos
       storageClassName: ""
       accessModes: ReadWriteMany
-    immich-config:
-      storageSize: 3Gi
-      path: /immich/config
-      storageClassName: longhorn-ssd
-      accessModes: ReadWriteMany
+
     photos:
       storageSize: 300Gi
       path: '/Media/Google Photos'
