@@ -51,7 +51,7 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 
-{{- else if not (or (eq $value.storageClassName "longhorn") (eq $value.storageClassName "longhorn-ssd") (eq $value.storageClassName "longhorn-alksdjas")) }}
+{{- else if and (not (eq $value.storageClassName "longhorn-ssd")) (not (hasPrefix $value.storageClassName "longhorn-"))) }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -69,21 +69,6 @@ spec:
 
 {{- end }}
 
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ $keyId }}-pvc
-  namespace: {{ include "common.fullname" $ }}
-spec:
-  accessModes:
-    - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if $value.storageClassName }}
-  storageClassName: {{ $value.storageClassName }}
-  {{- end }}
-  resources:
-    requests:
-      storage: {{ $value.storageSize }}
 {{- end }}
 {{- end }}
 {{- end }}
