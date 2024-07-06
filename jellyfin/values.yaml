@@ -16,7 +16,7 @@ longhorn:
   enabled: true
   persistentVolumes:
     jellyfin-conf:
-      storageSize: 536870912k
+      storageSize: '108447924224'
 
 resources:
   limits:
