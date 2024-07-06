@@ -128,9 +128,9 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-longhorn:
+persistentVolumes:
   enabled: true
-  persistentVolumes:
+  pvs:
     immich-photos:
       storageSize: 1T
       path: /mount/immich/photos
