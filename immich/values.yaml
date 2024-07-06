@@ -128,34 +128,33 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-persistentVolumes:
+longhorn:
   enabled: true
-  pvs:
+  persistentVolumes:
     immich-photos:
       storageSize: 1T
       path: /mount/immich/photos
-      nodeName: nuc-egbk
-      storageClassName: local-path
+      storageClassName: ""
+      accessModes: ReadWriteMany
     immich-config:
       storageSize: 3Gi
       path: /mount/immich/config
-      nodeName: nuc-egbk
-      storageClassName: longhorn
+      storageClassName: longhorn-ssd
+      accessModes: ReadWriteMany
     photos:
       storageSize: 300Gi
-      path: '/mount/Media/Google Photos'
-      nodeName: nuc-egbk
-      storageClassName: local-path
+      path: '/Media/Google Photos'
+      storageClassName: ""
+      accessModes: ReadWriteMany
     stuff:
       storageSize: 60Gi
-      path: /mount/qBittorrent/downloads/downloads
-      nodeName: nuc-egbk
-      storageClassName: local-path
+      path: /qBittorrent/downloads/downloads
+      storageClassName: ""
     immich-postgresql-new:
       storageSize: 3Gi
       path: /home/k8s/immich/postgres
       nodeName: nuc-egbk
-      storageClassName: longhorn
+      storageClassName: local-path
 
 # Additional volumes on the output Deployment definition.
 volumes:
