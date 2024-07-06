@@ -136,12 +136,12 @@ csi:
       path: /immich/photos
       storageClassName: ""
       accessModes: ReadWriteMany
-    photos-csi:
+    photos:
       storageSize: 300Gi
       path: '/Media/Google Photos'
       storageClassName: ""
       accessModes: ReadWriteMany
-    stuff-csi:
+    stuff:
       storageSize: 60Gi
       path: /qBittorrent/downloads/downloads
       storageClassName: ""
@@ -150,14 +150,14 @@ csi:
 longhorn:
   enabled: true
   persistentVolumes:
-    immich-data:
+    immich-config:
       storageSize: 3Gi
       accessModes: ReadWriteMany
 
 persistentVolumes:
   enabled: true
   pvs:
-    immich-postgresql-data:
+    immich-postgresql-new:
       storageSize: 3Gi
       path: /home/k8s/immich/postgres
       nodeName: nuc-egbk
