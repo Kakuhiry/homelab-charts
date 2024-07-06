@@ -3,6 +3,7 @@
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 {{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
+{{- if eq $value.storageClassName "local-path" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -12,7 +13,32 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - {{ $value.accessModes | default "ReadWriteOnce" }}
+    - {{ $accessModes }}
+  local:
+    path: {{ $value.path }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - {{ $value.nodeName | quote }}
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: {{ include "common.fullname" $ }}
+    name: {{ $keyId }}-pvc
+{{- else }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $keyId }}
+spec:
+  capacity:
+    storage: {{ $value.storageSize }}
+  accessModes:
+    - {{ $accessModes }}
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
@@ -23,7 +49,8 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-  {{- end }}
+{{- end }}
+{{- end }}
 
 ---
 apiVersion: v1
@@ -40,6 +67,7 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
