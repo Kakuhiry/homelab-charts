@@ -34,9 +34,9 @@ podLabels: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext: 
-  privileged: true
-  runAsUser: 0
+securityContext: {}
+  # privileged: true
+  # runAsUser: 1000
 
 service:
   type: NodePort
