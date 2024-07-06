@@ -2,6 +2,7 @@
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 ---
+{{- if $value.storageClassName '' }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -23,6 +24,7 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+{{- end }}
 
 ---
 apiVersion: v1
@@ -34,7 +36,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   {{- if $value.storageClassName }}
-  storageClassName: ''
+  storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:
     requests:
