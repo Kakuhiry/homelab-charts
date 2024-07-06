@@ -21,7 +21,7 @@ spec:
             - key: kubernetes.io/hostname
               operator: In
               values:
-                - {{ $value.nodeName | indent 16 }}
+                - {{ $value.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
