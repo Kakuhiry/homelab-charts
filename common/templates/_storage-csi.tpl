@@ -1,4 +1,4 @@
-{{- define "common.persistentVolumes" -}}
+{{- define "common.csi" -}}
 {{- if .Values.csi.enabled }}
 {{- range $keyId, $value := .Values.csi.pvs }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
