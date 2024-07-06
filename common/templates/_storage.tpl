@@ -2,6 +2,7 @@
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 {{- if eq $value.storageClassName "" }}
+{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -11,7 +12,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - ReadWriteOnce
+    - {{ $value.accessMode | default "ReadWriteOnce" }}
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
@@ -32,7 +33,7 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ $value.accessModes | default "ReadWriteOnce" }}
   {{- if $value.storageClassName }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
