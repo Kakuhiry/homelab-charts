@@ -36,7 +36,7 @@ podSecurityContext: {}
 
 securityContext: 
   privileged: true
-  runAsUser: 0
+  runAsUser: 1000
 
 service:
   type: NodePort
