@@ -39,7 +39,7 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 
-{{- else }}
+{{- else if not (hasPrefix $value.storageClassName "longhorn-") }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -56,6 +56,7 @@ spec:
     requests:
       storage: {{ $value.storageSize }}
 {{- end }}
+
 {{- end }}
 {{- end }}
 {{- end }}
