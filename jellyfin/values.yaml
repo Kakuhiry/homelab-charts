@@ -24,7 +24,7 @@ nfs:
     jellyfin-storage:
       storageSize: 1T
       path: /mount
-      storageClassName: "longhorn"
+      storageClassName: ""
       accessModes: ReadWriteMany
 
 resources:
