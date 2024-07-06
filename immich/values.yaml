@@ -150,6 +150,7 @@ persistentVolumes:
       storageSize: 60Gi
       path: /qBittorrent/downloads/downloads
       storageClassName: ""
+      accessModes: ReadWriteMany
     immich-postgresql-new:
       storageSize: 3Gi
       path: /home/k8s/immich/postgres
