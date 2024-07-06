@@ -1,6 +1,6 @@
-{{- define "common.csi" -}}
-{{- if .Values.csi.enabled }}
-{{- range $keyId, $value := .Values.csi.pvs }}
+{{- define "common.persistentVolumes" -}}
+{{- if .Values.persistentVolumes.enabled }}
+{{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 ---
 apiVersion: v1
@@ -17,9 +17,7 @@ spec:
     volumeAttributes:
       server: nfs-server.default.svc.cluster.local
       share: {{ $value.path }}
-    volumeHandle: {{ $keyId }}-handle
-  mountOptions:
-    - nfsvers=4.1
+    volumeHandle: nfs-server.default.svc.cluster.local/share##
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
@@ -33,11 +31,7 @@ metadata:
 spec:
   accessModes:
     - {{ $accessModes }}
-  {{- if eq $value.storageClassName "" }}
   storageClassName: ""
-  {{- else}}
-  storageClassName: {{ $value.storageClassName }}
-  {{- end }}
   resources:
     requests:
       storage: {{ $value.storageSize }}

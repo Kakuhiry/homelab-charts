@@ -1,5 +1,9 @@
 {{- define "common.persistentVolumes" -}}
+{{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
+{{- if eq $value.storageClassName "" }}
+{{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -9,7 +13,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - {{ $value.accessModes | default "ReadWriteOnce" }}
+    - {{ $accessModes }}
   local:
     path: {{ $value.path }}
   nodeAffinity:
@@ -24,7 +28,6 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -33,14 +36,11 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if eq $value.storageClassName "" }}
-  storageClassName: ""
-  {{- else}}
-  storageClassName: {{ $value.storageClassName }}
-  {{- end }}
+    - {{ $accessModes }}
+  storageClassName: {{ $value.storageClassName | default  }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
 {{- end }}
 {{- end }}
