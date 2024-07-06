@@ -12,7 +12,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - {{ $value.accessMode | default "ReadWriteOnce" }}
+    - {{ $value.accessModes | default "ReadWriteOnce" }}
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
