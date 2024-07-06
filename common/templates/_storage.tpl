@@ -1,10 +1,9 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-
-{{- if or (eq $value.storageClassName "local-path") (eq $value.storageClassName "") }}
+{{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
-
+{{- if eq $value.storageClassName "local-path" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -15,7 +14,6 @@ spec:
     storage: {{ $value.storageSize }}
   accessModes:
     - {{ $accessModes }}
-{{- if eq $value.storageClassName "local-path" }}
   local:
     path: {{ $value.path }}
   nodeAffinity:
@@ -26,20 +24,34 @@ spec:
               operator: In
               values:
                 - {{ $value.nodeName | quote }}
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: {{ include "common.fullname" $ }}
+    name: {{ $keyId }}-pvc
 {{- else }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ $keyId }}
+spec:
+  capacity:
+    storage: {{ $value.storageSize }}
+  accessModes:
+    - {{ $accessModes }}
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
       server: nfs-server.default.svc.cluster.local
       share: {{ $value.path }}
     volumeHandle: nfs-server.default.svc.cluster.local/share##
-{{- end }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+{{- end }}
+{{- end }}
 
-{{- else if not (hasPrefix $value.storageClassName "longhorn-") }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -55,8 +67,6 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
-{{- end }}
-
 {{- end }}
 {{- end }}
 {{- end }}
