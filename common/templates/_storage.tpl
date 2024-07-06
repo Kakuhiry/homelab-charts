@@ -51,7 +51,6 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 {{- end }}
-{{- end }}
 
 ---
 apiVersion: v1
