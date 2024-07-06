@@ -11,9 +11,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - ReadWriteMany
-  local:
-    path: {{ $value.path }}
+    - ReadWriteOnce
   csi:
     driver: nfs.csi.k8s.io
     volumeAttributes:
@@ -34,7 +32,7 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   {{- if $value.storageClassName }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
