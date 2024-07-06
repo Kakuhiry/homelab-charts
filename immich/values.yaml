@@ -134,7 +134,6 @@ longhorn:
   persistentVolumes:
     immich-config:
       storageSize: 3Gi
-      path: /immich/config
       storageClassName: longhorn-ssd
       accessModes: ReadWriteMany
 
@@ -147,7 +146,6 @@ persistentVolumes:
       path: /immich/photos
       storageClassName: ""
       accessModes: ReadWriteMany
-
     photos:
       storageSize: 300Gi
       path: '/Media/Google Photos'
