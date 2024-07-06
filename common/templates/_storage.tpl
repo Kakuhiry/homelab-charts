@@ -50,4 +50,25 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-{{- 
+{{- end }}
+{{- end }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $keyId }}-pvc
+  namespace: {{ include "common.fullname" $ }}
+spec:
+  accessModes:
+    - {{ $value.accessModes | default "ReadWriteOnce" }}
+  {{- if $value.storageClassName }}
+  storageClassName: {{ $value.storageClassName }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $value.storageSize }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
