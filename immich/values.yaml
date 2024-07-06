@@ -35,7 +35,7 @@ postgres:
   volumes:
     - name: postgres-storage
       persistentVolumeClaim:
-        claimName: immich-postgresql-new-pvc
+        claimName: immich-postgresql-data-pvc
   sealedSecrets:
     enabled: true
     name: immich-postgres-secret
