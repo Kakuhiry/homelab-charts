@@ -51,7 +51,7 @@ spec:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
 
-{{- else if and (not (eq $value.storageClassName "longhorn-ssd")) (not (hasPrefix $value.storageClassName "longhorn-"))) }}
+{{- else if and (not (eq $value.storageClassName "longhorn-ssd")) (not (hasPrefix $value.storageClassName "longhorn-")) }}
 ---
 apiVersion: v1
 kind: PersistentVolume
