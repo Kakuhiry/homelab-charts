@@ -13,14 +13,12 @@ spec:
     - ReadWriteOnce
   local:
     path: {{ $value.path }}
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - {{ $value.nodeName | indent 16 }}
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeAttributes:
+      server: nfs-server.default.svc.cluster.local
+      share: {{ $value.path }}
+    volumeHandle: nfs-server.default.svc.cluster.local/share##
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
@@ -36,7 +34,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   {{- if $value.storageClassName }}
-  storageClassName: {{ $value.storageClassName }}
+  storageClassName: ''
   {{- end }}
   resources:
     requests:
