@@ -133,12 +133,12 @@ persistentVolumes:
   pvs:
     immich-photos:
       storageSize: 1T
-      path: /mount/immich/photos
+      path: /immich/photos
       storageClassName: ""
       accessModes: ReadWriteMany
     immich-config:
       storageSize: 3Gi
-      path: /mount/immich/config
+      path: /immich/config
       storageClassName: longhorn-ssd
       accessModes: ReadWriteMany
     photos:
