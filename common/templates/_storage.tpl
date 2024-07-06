@@ -1,8 +1,8 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
+{{- if eq $value.storageClassName "" }}
 {{- if eq $value.storageClassName "local-path" }}
 ---
 apiVersion: v1
@@ -28,7 +28,8 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-{{- else }}
+{{- end }}
+{{- else if not (hasPrefix $value.storageClassName "longhorn-") }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -49,6 +50,9 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+
+{{- end }}
+
 {{- end }}
 {{- end }}
 
@@ -61,12 +65,16 @@ metadata:
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if $value.storageClassName }}
+  {{- if or (eq $value.storageClassName "") (hasPrefix $value.storageClassName "longhorn-") }}
+  storageClassName: ""
+  {{- else }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
+
 {{- end }}
 {{- end }}
 {{- end }}
