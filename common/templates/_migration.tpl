@@ -1,4 +1,4 @@
-{{- define "common.migration" -}}
+{{- define "common.migration" }}
 {{- if .Values.migration.enabled }}
 ---
 apiVersion: batch/v1
