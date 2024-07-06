@@ -1,5 +1,6 @@
 {{- define "common.migration" -}}
 {{- if .Values.migration.enabled }}
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -29,7 +30,7 @@ spec:
       volumes:
         - name: old-vol
           persistentVolumeClaim:
-            claimName: {{ .Values.migration.old-vol }} # change to data source pvc
+            claimName: {{ .Values.migration.old-vol }}
         - name: new-vol
           persistentVolumeClaim:
             claimName: {{ .Values.migration.new-vol }}
