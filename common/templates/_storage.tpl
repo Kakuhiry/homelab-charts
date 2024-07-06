@@ -11,7 +11,7 @@ spec:
   capacity:
     storage: {{ $value.storageSize }}
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   local:
     path: {{ $value.path }}
   csi:
@@ -34,7 +34,7 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   {{- if $value.storageClassName }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
