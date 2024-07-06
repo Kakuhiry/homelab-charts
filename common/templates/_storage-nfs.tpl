@@ -32,7 +32,7 @@ metadata:
 spec:
   accessModes:
     - {{ $accessModes }}
-  storageClassName: "local-path"
+  storageClassName: {{ $value.storageClassName | default "local-path" }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
