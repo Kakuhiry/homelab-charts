@@ -1,7 +1,6 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 ---
 apiVersion: v1
@@ -36,7 +35,7 @@ metadata:
 spec:
   accessModes:
     - {{ $accessModes }}
-  storageClassName: {{ $value.storageClassName | default  }}
+  storageClassName: {{ $value.storageClassName | default "" }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
