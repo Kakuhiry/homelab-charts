@@ -1,6 +1,6 @@
-{{- define "common.csi" -}}
-{{- if .Values.csi.enabled }}
-{{- range $keyId, $value := .Values.csi.pvs }}
+{{- define "common.nfs" -}}
+{{- if .Values.nfs.enabled }}
+{{- range $keyId, $value := .Values.nfs.pvs }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 ---
 apiVersion: v1
@@ -12,12 +12,13 @@ spec:
     storage: {{ $value.storageSize }}
   accessModes:
     - {{ $accessModes }}
-  csi:
-    driver: nfs.csi.k8s.io
-    volumeAttributes:
-      server: nfs-server.default.svc.cluster.local
-      share: {{ $value.path }}
-    volumeHandle: nfs-server.default.svc.cluster.local/share##
+  mountOptions:
+    - hard
+    - timeo=600
+    - nfsvers=4.1
+  nfs:
+    server: 10.0.0.23 # IP to our NFS server
+    path: {{ $value.path }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
@@ -31,7 +32,7 @@ metadata:
 spec:
   accessModes:
     - {{ $accessModes }}
-  storageClassName: ""
+  storageClassName: "local-path"
   resources:
     requests:
       storage: {{ $value.storageSize }}

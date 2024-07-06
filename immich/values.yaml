@@ -128,22 +128,22 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-csi:
+nfs:
   enabled: true
   pvs:
     immich-photos:
       storageSize: 1T
-      path: /immich/photos
+      path: /mount/immich/photos
       storageClassName: ""
       accessModes: ReadWriteMany
     photos:
       storageSize: 300Gi
-      path: '/Media/Google Photos'
+      path: '/mount/Media/Google Photos'
       storageClassName: ""
       accessModes: ReadWriteMany
     stuff:
       storageSize: 60Gi
-      path: /qBittorrent/downloads/downloads
+      path: /mount/qBittorrent/downloads/downloads
       storageClassName: ""
       accessModes: ReadWriteMany
 
