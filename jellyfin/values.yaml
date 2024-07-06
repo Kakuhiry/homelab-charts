@@ -17,6 +17,14 @@ longhorn:
   persistentVolumes:
     jellyfin-conf:
       storageSize: '108447924224'
+nfs:
+  enabled: true
+  pvs:
+    jellyfin-storage:
+      storageSize: 1T
+      path: /mount
+      storageClassName: ""
+      accessModes: ReadWriteMany
 
 resources:
   limits:
