@@ -1,6 +1,6 @@
-{{- define "common.persistentVolumes" -}}
-{{- if .Values.persistentVolumes.enabled }}
-{{- range $keyId, $value := .Values.persistentVolumes.pvs }}
+{{- define "common.csi" -}}
+{{- if .Values.csi.enabled }}
+{{- range $keyId, $value := .Values.csi.pvs }}
 {{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 {{- if eq $value.storageClassName "local-path" }}
@@ -14,16 +14,14 @@ spec:
     storage: {{ $value.storageSize }}
   accessModes:
     - {{ $accessModes }}
-  local:
-    path: {{ $value.path }}
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - {{ $value.nodeName | quote }}
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeAttributes:
+      server: nfs-server.default.svc.cluster.local
+      share: {{ $value.path }}
+    volumeHandle: nfs-server.default.svc.cluster.local/share##
+  mountOptions:
+    - nfsvers=4.1
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
