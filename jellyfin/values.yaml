@@ -15,7 +15,7 @@ ingress:
 longhorn:
   enabled: true
   persistentVolumes:
-    jellyfin-config:
+    jellyfin-conf:
       storageSize: 536870912k
 
 resources:
