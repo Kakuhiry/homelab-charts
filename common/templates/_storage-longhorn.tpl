@@ -13,7 +13,7 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
-  {{- if $value.storageClassName "" }}
+  {{- if eq $value.storageClassName "" }}
   storageClassName: ""
   {{- else }}
   storageClassName: {{ $value.storageClassName }}
