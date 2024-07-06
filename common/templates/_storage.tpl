@@ -2,7 +2,7 @@
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
-{{- if or (eq $value.storageClassName "") (eq $value.storageClassName "local-path") }}
+{{- if and (or (eq $value.storageClassName "") (eq $value.storageClassName "local-path")) (not (eq $value.storageClassName "longhorn")) }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -47,7 +47,7 @@ metadata:
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if $value.storageClassName }}
+  {{- if and $value.storageClassName (not (eq $value.storageClassName "longhorn")) }}
   storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:
