@@ -70,7 +70,7 @@ longhorn:
       storageSize: 5Gi
       storageClassName: longhorn-ssd
 
-persistentVolumes:
+nfs:
   enabled: true
   pvs:
     bazarr-movies:
