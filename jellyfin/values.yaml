@@ -24,8 +24,8 @@ resources:
     memory: "6200Mi"
     gpu.intel.com/i915: 1
 
-nodeSelector:
-  kubernetes.io/hostname: "nuc-egbk"
+nodeSelector: {}
+
 env:
   PUID: "0"
   PGID: "0"
