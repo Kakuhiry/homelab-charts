@@ -12,6 +12,8 @@ image:
 
 env:
   TZ: "Etc/UTC"
+  PUID: 1000
+  PGID: 1000
 
 imagePullSecrets: []
 nameOverride: ""
@@ -35,12 +37,6 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 service:
   type: NodePort
@@ -62,10 +58,9 @@ ingress:
 persistentVolumes:
   enabled: true
   pvs:
-    jellyseer-config:
+    jellyseer-data:
       storageSize: 5Gi
-      path: /mount/jellyseer/config
-      nodeName: nuc-egbk
+      storageClassName: longhorn-ssd
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -90,7 +85,7 @@ autoscaling:
 volumes:
   - name: config
     persistentVolumeClaim:
-      claimName: jellyseer-config-pvc
+      claimName: jellyseer-data-pvc
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:

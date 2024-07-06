@@ -13,7 +13,7 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
-  storageClassName: longhorn
+  storageClassName: {{ $value.storageClassName | default "longhorn-ssd" }}
 {{- end }}
 {{- end }}
 {{- end }}

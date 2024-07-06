@@ -1,6 +1,7 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
+{{- if eq $value.storageClassName "" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -11,20 +12,17 @@ spec:
     storage: {{ $value.storageSize }}
   accessModes:
     - ReadWriteOnce
-  local:
-    path: {{ $value.path }}
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - {{ $value.nodeName | indent 16 }}
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeAttributes:
+      server: nfs-server.default.svc.cluster.local
+      share: {{ $value.path }}
+    volumeHandle: nfs-server.default.svc.cluster.local/share##
   persistentVolumeReclaimPolicy: Retain
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
+  {{- end }}
 
 ---
 apiVersion: v1
