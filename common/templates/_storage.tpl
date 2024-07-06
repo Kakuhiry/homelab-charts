@@ -1,7 +1,7 @@
 {{- define "common.persistentVolumes" -}}
 {{- if .Values.persistentVolumes.enabled }}
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
-{{- if $value.storageClassName "" }}
+  {{- if eq $value.storageClassName "" }}
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -24,7 +24,7 @@ spec:
   claimRef:
     namespace: {{ include "common.fullname" $ }}
     name: {{ $keyId }}-pvc
-{{- end }}
+  {{- end }}
 
 ---
 apiVersion: v1
@@ -41,6 +41,7 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
