@@ -61,10 +61,10 @@ metadata:
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
-  {{- if $value.storageClassName }}
-  storageClassName: {{ $value.storageClassName }}
-  {{- else }}
+  {{- if eq $value.storageClassName "" }}
   storageClassName: ""
+  {{- else }}
+  storageClassName: {{ $value.storageClassName }}
   {{- end }}
   resources:
     requests:
