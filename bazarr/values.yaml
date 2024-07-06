@@ -66,7 +66,7 @@ volumes:
 longhorn:
   enabled: true
   persistentVolumes:
-    bazarr-data:
+    bazarr-config:
       storageSize: 5Gi
       storageClassName: longhorn-ssd
 
