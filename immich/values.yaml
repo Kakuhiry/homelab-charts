@@ -154,7 +154,7 @@ persistentVolumes:
       storageSize: 3Gi
       path: /home/k8s/immich/postgres
       nodeName: nuc-egbk
-      storageClassName: local-path
+      storageClassName: "local-path"
       accessModes: ReadWriteMany
 
 # Additional volumes on the output Deployment definition.
