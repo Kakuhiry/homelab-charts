@@ -3,7 +3,6 @@
 {{- range $keyId, $value := .Values.persistentVolumes.pvs }}
 {{- if eq $value.storageClassName "" }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
-
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -41,6 +40,7 @@ spec:
   resources:
     requests:
       storage: {{ $value.storageSize }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
