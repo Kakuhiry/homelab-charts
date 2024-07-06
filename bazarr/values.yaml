@@ -66,14 +66,14 @@ volumes:
 persistentVolumes:
   enabled: true
   pvs:
-    bazarr-data:
+    bazarr-config:
       storageSize: 1Gi
-      path: /mount/bazarr/config
-      nodeName: nuc-egbk
+      storageClassName: longhorn-ssd
+      # path: /mount/bazarr/config
     bazarr-movies:
       storageSize: 1Gi
-      path: /mount
-      nodeName: nuc-egbk
+      path: /
+      storageClassName: ''
 
 ingress:
   enabled: true
