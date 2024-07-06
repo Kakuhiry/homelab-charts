@@ -1,6 +1,6 @@
 {{- define "common.persistentVolumes" -}}
-{{- if .Values.persistentVolumes.enabled }}
-{{- range $keyId, $value := .Values.persistentVolumes.pvs }}
+{{- if .Values.csi.enabled }}
+{{- range $keyId, $value := .Values.csi.pvs }}
 {{- $accessModes := default "ReadWriteOnce" $value.accessModes }}
 ---
 apiVersion: v1
