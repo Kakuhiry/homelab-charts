@@ -67,7 +67,7 @@ persistentVolumes:
   enabled: true
   pvs:
     bazarr-config:
-      storageSize: 1Gi
+      storageSize: 5Gi
       storageClassName: longhorn-ssd
       # path: /mount/bazarr/config
     bazarr-movies:
