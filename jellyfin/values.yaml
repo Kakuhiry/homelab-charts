@@ -42,7 +42,7 @@ persistence:
   config:
     enabled: true
     isPvc: true
-    existingClaim: jellyfin-config-pvc
+    existingClaim: jellyfin-conf-pvc
   data:
     enabled: true
     isPvc: true
