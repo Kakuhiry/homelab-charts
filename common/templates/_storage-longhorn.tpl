@@ -9,7 +9,7 @@ metadata:
   namespace: {{ include "common.fullname" $ }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ $value.accessModes | default "ReadWriteOnce" }}
   resources:
     requests:
       storage: {{ $value.storageSize }}
