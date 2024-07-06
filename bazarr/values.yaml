@@ -63,13 +63,16 @@ volumes:
     persistentVolumeClaim:
       claimName: bazarr-movies-pvc
 
+longhorn:
+  enabled: true
+  persistentVolumes:
+    bazarr-data:
+      storageSize: 5Gi
+      storageClassName: longhorn-ssd
+
 persistentVolumes:
   enabled: true
   pvs:
-    bazarr-config:
-      storageSize: 5Gi
-      storageClassName: longhorn-ssd
-      # path: /mount/bazarr/config
     bazarr-movies:
       storageSize: 1Gi
       path: /
