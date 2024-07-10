@@ -32,18 +32,23 @@ podSecurityContext: {}
   # fsGroup: 2000
 
 
-persistentVolumes:
+longhorn:
+  enabled: true
+  persistentVolumes:
+    aria2-config:
+      storageSize: 2Gi
+      storageClassName: longhorn-ssd
+
+nfs:
   enabled: true
   pvs:
     aria2-downloads:
       storageSize: 800Gi
       path: /mount/aria2/downloads
       nodeName: nuc-egbk
-    aria2-config:
-      storageSize: 2Gi
-      path: /mount/aria2/config
-      nodeName: nuc-egbk
-      storageClassName: longhorn
+      storageClassName: ''
+
+    
 
 securityContext: {}
   # capabilities:
