@@ -104,7 +104,7 @@ autoscaling:
 volumes:
   - name: config
     persistentVolumeClaim:
-      claimName: memos-config-pvc
+      claimName: memos-data-pvc
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
