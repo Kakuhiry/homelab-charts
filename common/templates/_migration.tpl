@@ -1,3 +1,4 @@
+{{- define "common.migrate" -}}
 {{- if .Values.migrate.enabled }}
 apiVersion: batch/v1
 kind: Job
@@ -32,4 +33,5 @@ spec:
         - name: new-vol
           persistentVolumeClaim:
             claimName: {{ .Values.migrate.to }}
+{{- end }}
 {{- end }}
