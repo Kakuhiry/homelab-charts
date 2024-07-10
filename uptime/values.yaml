@@ -87,16 +87,19 @@ autoscaling:
 volumes:
   - name: data
     persistentVolumeClaim:
-      claimName: uptime-data-pvc
+      claimName: config-pvc
 
-persistentVolumes:
+migrate:
   enabled: true
-  config: {}
-  data:
-    enabled: true
-    storageSize: 5Gi
-    path: /home/k8s/uptime/data
-    nodeName: nuc-egbk
+  from: uptime-data-pvc
+  to: config-pvc
+
+longhorn:
+  enabled: true
+  persistentVolumes:
+    config:
+      storageSize: 5Gi
+      storageClassName: longhorn-ssd
 
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
