@@ -40,14 +40,17 @@ service:
   targetPort: 8081
   port: 80
 
-persistentVolumes:
+migrate:
   enabled: true
-  pvs:
-    nexus-data:
+  from: nexus-data-pvc
+  to: nexus-config-pvc 
+
+longhorn:
+  enabled: true
+  persistentVolumes:
+    nexus-config:
       storageSize: 10G
-      path: /home/k8s/nexus/data
-      nodeName: nuc-egbk
-      storageClassName: local-path
+      storageClassName: longhorn-ssd
 
 ingress:
   enabled: enable
