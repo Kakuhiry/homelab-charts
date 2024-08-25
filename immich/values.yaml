@@ -97,8 +97,8 @@ volumeMounts:
     name: config
   - mountPath: /usr/src/app/external/downloads
     name: stuff-storage
-  - mountPath: /usr/src/app/external/gphotos
-    name: gphotos
+  # - mountPath: /usr/src/app/external/gphotos
+  #   name: gphotos
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
