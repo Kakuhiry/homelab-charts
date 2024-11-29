@@ -10,7 +10,7 @@ metadata:
     gethomepage.dev/enabled: "true"
     gethomepage.dev/name: "{{ include "common.fullname" . }}"
     gethomepage.dev/group: "Apps"
-    gethomepage.dev/href: "{{ include "common.fullname" . }}.gbklabs.com"
+    gethomepage.dev/href: "https://{{ include "common.fullname" . }}.gbklabs.com"
     gethomepage.dev/icon: "{{ include "common.fullname" . }}.svg"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
