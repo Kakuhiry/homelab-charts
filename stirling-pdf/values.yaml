@@ -55,6 +55,7 @@ ingress:
     gethomepage.dev/name: "Stirling PDF"
     gethomepage.dev/description: "Easy to use tools to manage PDF files"
     gethomepage.dev/group: "Apps"
+    gethomepage.dev/href: 'https://stirling-pdf.gbklabs.com'
     gethomepage.dev/icon: "stirling-pdf.svg"
   hosts:
     - host: stirling-pdf
