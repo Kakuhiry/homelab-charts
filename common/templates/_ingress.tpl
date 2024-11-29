@@ -8,6 +8,11 @@ metadata:
     {{- include "common.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "{{ include "common.fullname" . }}"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/href: "{{ include "common.fullname" . }}.gbklabs.com"
+    gethomepage.dev/icon: "{{ include "common.fullname" . }}.svg"
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
