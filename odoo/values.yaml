@@ -28,17 +28,13 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-persistentVolumes:
+longhorn:
   enabled: true
-  pvs:
+  persistentVolumes:
     odoo-config:
-      storageSize: 2G
-      path: /home/k8s/odoo/config
-      nodeName: nuc-egbk
+      storageSize: 5G
     odoo-db:
       storageSize: 5G
-      path: /home/k8s/odoo/db
-      nodeName: nuc-egbk
 
 postgres:
   securityContext:
