@@ -7,6 +7,8 @@ service:
     traefik.ingress.kubernetes.io/service.sticky.cookie.name: jellyfin-session
     traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
 
+replicaCount: 2
+
 image:
   tag: '10.9.4'
 
