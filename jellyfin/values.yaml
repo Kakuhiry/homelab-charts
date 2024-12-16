@@ -35,8 +35,8 @@ nfs:
 
 resources:
   limits:
-    cpu: "4"
-    memory: "6200Mi"
+    # cpu: "4"
+    # memory: "6200Mi"
     gpu.intel.com/i915: 1
 
 nodeSelector: {}
