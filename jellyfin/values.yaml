@@ -2,6 +2,10 @@ service:
   type: NodePort
   port: 80
   targetPort: 8096
+  annotations:
+    traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+    traefik.ingress.kubernetes.io/service.sticky.cookie.name: jellyfin-session
+    traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
 
 image:
   tag: '10.9.4'
