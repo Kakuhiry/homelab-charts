@@ -47,7 +47,8 @@ service:
 ingress:
   enabled: false
   className: ""
-  annotations: {}
+  annotations:
+    gethomepage.dev/icon: https://app.yunohost.org/default/v3/logos/14c9d471b008d654ea11725308c0c436dbcb992db4082017fe26a560b34cf8bb.png
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
