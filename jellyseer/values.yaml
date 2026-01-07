@@ -59,7 +59,7 @@ persistentVolumes:
   enabled: true
   pvs:
     jellyseer-data:
-      storageSize: 5Gi
+      storageSize: 2Gi
       storageClassName: longhorn-ssd
 
 resources: {}
@@ -90,7 +90,7 @@ volumes:
 # Additional volumeMounts on the output Deployment definition.
 volumeMounts:
   - name: config
-    mountPath: /config
+    mountPath: /app/config
 
 nodeSelector: {}
 
