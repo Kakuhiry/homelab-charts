@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/egarcia-br/homelab-charts.git
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
     targetRevision: HEAD
     path: media-storage
   destination:
