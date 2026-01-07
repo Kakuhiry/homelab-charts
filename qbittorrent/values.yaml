@@ -71,10 +71,6 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-volumes:
-  - name: config
-    persistentVolumeClaim:
-      claimName: prowlarr-data-pvc
 
 volumeMounts:
   - name: config
