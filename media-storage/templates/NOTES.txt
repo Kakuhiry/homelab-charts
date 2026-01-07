@@ -1,0 +1,18 @@
+Shared Media Storage deployed successfully!
+
+The following PVCs have been created:
+{{- if .Values.longhorn.enabled }}
+{{- range $keyId, $value := .Values.longhorn.persistentVolumes }}
+  - {{ $keyId }}-pvc ({{ $value.storageSize }}, {{ $value.accessModes | default "ReadWriteMany" }})
+{{- end }}
+{{- end }}
+
+These PVCs are shared across media services:
+  - qbittorrent: uses media-downloads-pvc
+  - sonarr: uses media-downloads-pvc + media-tv-pvc
+  - radarr: uses media-downloads-pvc + media-movies-pvc
+  - jellyfin: uses media-tv-pvc + media-movies-pvc
+
+IMPORTANT: All media services must be deployed in the same namespace
+as this chart ({{ .Release.Namespace }}) to access these PVCs.
+

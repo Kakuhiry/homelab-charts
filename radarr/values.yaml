@@ -19,6 +19,7 @@ env:
   PGID: "0"
   UMASK: "002"
   TZ: "Etc/UTC"
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -81,26 +82,34 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# Volume configuration
+# - config: radarr-specific (Longhorn RWO)
+# - downloads: shared with qbittorrent (media-storage RWX)
+# - movies: shared with jellyfin (media-storage RWX)
 volumes:
   - name: config
     persistentVolumeClaim:
       claimName: radarr-config-pvc
-  - name: storage
+  - name: downloads
     persistentVolumeClaim:
-      claimName: radarr-storage-pvc
+      claimName: media-downloads-pvc
+  - name: movies
+    persistentVolumeClaim:
+      claimName: media-movies-pvc
 
 volumeMounts:
-  - name: storage
-    mountPath: /storage
   - name: config
     mountPath: /config
+  - name: downloads
+    mountPath: /downloads
+  - name: movies
+    mountPath: /movies
 
+# Only config PVC is managed by this chart (Longhorn RWO)
+# Shared media PVCs are managed by media-storage chart
 longhorn:
   enabled: true
   persistentVolumes:
-    radarr-storage:
-      storageSize: 300Gi
-      storageClassName: longhorn-ssd
     radarr-config:
       storageSize: 2Gi
       storageClassName: longhorn-ssd

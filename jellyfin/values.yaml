@@ -1,3 +1,30 @@
+replicaCount: 1
+
+hostNetwork: false
+
+port: 8096
+hostPort:
+  enabled: false
+  port: 8096
+
+image:
+  repository: docker.io/linuxserver/jellyfin
+  pullPolicy: IfNotPresent
+  tag: '10.9.4'
+
+serviceAccount:
+  create: false
+
+podSecurityContext: {}
+
+securityContext:
+  capabilities:
+    add:
+      - NET_ADMIN
+
+strategy:
+  type: Recreate
+
 service:
   type: NodePort
   port: 80
@@ -7,52 +34,61 @@ service:
     traefik.ingress.kubernetes.io/service.sticky.cookie.name: jellyfin-session
     traefik.ingress.kubernetes.io/service.sticky.cookie.secure: "true"
 
-replicaCount: 2
-
-image:
-  tag: '10.9.4'
-
-serviceAccount:
-  create: false
-
 ingress:
   enabled: true
 
+# Config PVC managed by this chart (Longhorn RWO)
 longhorn:
   enabled: true
   persistentVolumes:
-    jellyfin-conf:
-      storageSize: '108447924224'
-
-nfs:
-  enabled: true
-  pvs:
-    jellyfin-storage:
-      storageSize: 1T
-      path: /mount
-      storageClassName: ""
-      accessModes: ReadWriteMany
+    jellyfin-config:
+      storageSize: 100Gi
+      storageClassName: longhorn-ssd
 
 resources:
   limits:
-    # cpu: "4"
-    # memory: "6200Mi"
     gpu.intel.com/i915: 1
 
 nodeSelector: {}
+tolerations: []
+affinity: {}
 
 env:
   PUID: "0"
   PGID: "0"
 
+secretEnv: {}
+
+dnsConfig: {}
+dnsPolicy: ClusterFirst
+
+# Config persistence - jellyfin specific (Longhorn RWO)
 persistence:
   config:
     enabled: true
     isPvc: true
-    existingClaim: jellyfin-conf-pvc
+    existingClaim: jellyfin-config-pvc
   data:
-    enabled: true
-    isPvc: true
-    existingClaim: jellyfin-storage-pvc
+    enabled: false  # Using extraVolumes for shared media
 
-#"dst":    ["autogroup:internet:*"],
+# Shared media volumes from media-storage chart (Longhorn RWX)
+extraVolumes:
+  - name: tv
+    persistentVolumeClaim:
+      claimName: media-tv-pvc
+  - name: movies
+    persistentVolumeClaim:
+      claimName: media-movies-pvc
+
+extraVolumeMounts:
+  - name: tv
+    mountPath: /data/tvshows
+  - name: movies
+    mountPath: /data/movies
+
+livenessProbe: {}
+readinessProbe: {}
+initContainers: []
+sidecarContainers: []
+additionalPorts: []
+additionalServicePorts: []
