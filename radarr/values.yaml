@@ -95,17 +95,15 @@ volumeMounts:
   - name: config
     mountPath: /config
 
-persistentVolumes:
+longhorn:
   enabled: true
-  pvs:
+  persistentVolumes:
     radarr-storage:
-      storageSize: 1T
-      path: /mount
-      nodeName: nuc-egbk
+      storageSize: 300Gi
+      storageClassName: longhorn-ssd
     radarr-config:
-      storageSize: 5Gi
-      path: /mount/radarr/config
-      nodeName: nuc-egbk
+      storageSize: 2Gi
+      storageClassName: longhorn-ssd
 
 nodeSelector: {}
 
