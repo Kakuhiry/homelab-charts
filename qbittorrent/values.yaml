@@ -93,7 +93,7 @@ longhorn:
       storageSize: 5Gi
       storageClassName: longhorn-ssd
     data:
-      storageSize: 500Gi
+      storageSize: 200Gi
       storageClassName: longhorn-ssd
 
 nodeSelector: {}

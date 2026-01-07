@@ -121,7 +121,7 @@ longhorn:
       storageSize: 5Gi
       storageClassName: longhorn-ssd
     sonarr-movies:
-      storageSize: 500Gi
+      storageSize: 200Gi
       storageClassName: longhorn-ssd
 
 nodeSelector: {}
