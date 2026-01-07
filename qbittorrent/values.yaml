@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/hotio/qbittorrent
+  repository: lscr.io/linuxserver/prowlarr
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
@@ -41,35 +41,16 @@ securityContext: {}
 
 service:
   type: NodePort
-  targetPort: 8989
+  targetPort: 8080
   port: 80
 
 env:
   PUID: "1000"
   PGID: "1000"
   TZ: "Etc/UTC"
-  UMASK: "002"
-
-others:
-  prowlarr-flaresolver:
-    image:
-      repository: ghcr.io/flaresolverr/flaresolverr
-      tag: latest
-      pullPolicy: IfNotPresent
-    service:
-      port: 80
-      targetPort: 8191
-      type: NodePort
 
 ingress:
   enabled: true
-  className: "tailscale"
-  annotations: {}
-  hosts:
-    - host: prowlarr
-  tls:
-    - hosts:
-       - prowlarr
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -98,6 +79,26 @@ volumes:
 volumeMounts:
   - name: config
     mountPath: /config
+  - name: data
+    mountPath: /storage
+
+volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: data-pvc
+  - name: config
+    persistentVolumeClaim:
+      claimName: config-pvc
+
+longhorn:
+  enabled: true
+  persistentVolumes:
+    config:
+      storageSize: 5Gi
+      storageClassName: longhorn-ssd
+    data:
+      storageSize: 500Gi
+      storageClassName: longhorn-ssd
 
 nodeSelector: {}
 
