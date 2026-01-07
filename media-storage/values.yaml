@@ -1,0 +1,23 @@
+# Shared media storage configuration (Longhorn RWX)
+# This chart creates shared PVCs for media services:
+# - sonarr, radarr, qbittorrent, jellyfin
+#
+# All services must be deployed in the SAME namespace as this chart
+# to access these PVCs.
+
+longhorn:
+  enabled: true
+  storageClassName: longhorn-ssd
+  persistentVolumes:
+    # Shared downloads - qbittorrent writes, sonarr/radarr read
+    media-downloads:
+      storageSize: 300Gi
+      accessModes: ReadWriteMany
+    # TV Shows library - sonarr writes, jellyfin reads
+    media-tv:
+      storageSize: 300Gi
+      accessModes: ReadWriteMany
+    # Movies library - radarr writes, jellyfin reads
+    media-movies:
+      storageSize: 300Gi
+      accessModes: ReadWriteMany

@@ -71,29 +71,30 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
-
+# Volume configuration
+# - config: qbittorrent-specific (Longhorn RWO)
+# - downloads: shared with sonarr/radarr (media-storage RWX)
 volumeMounts:
   - name: config
     mountPath: /config
-  - name: data
-    mountPath: /storage
+  - name: downloads
+    mountPath: /downloads
 
 volumes:
-  - name: data
-    persistentVolumeClaim:
-      claimName: data-pvc
   - name: config
     persistentVolumeClaim:
-      claimName: config-pvc
+      claimName: qbittorrent-config-pvc
+  - name: downloads
+    persistentVolumeClaim:
+      claimName: media-downloads-pvc
 
+# Only config PVC is managed by this chart (Longhorn RWO)
+# Shared media PVCs are managed by media-storage chart
 longhorn:
   enabled: true
   persistentVolumes:
-    config:
+    qbittorrent-config:
       storageSize: 5Gi
-      storageClassName: longhorn-ssd
-    data:
-      storageSize: 200Gi
       storageClassName: longhorn-ssd
 
 nodeSelector: {}

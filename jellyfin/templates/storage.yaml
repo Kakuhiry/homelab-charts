@@ -1,3 +1,1 @@
-{{ include "common.longhornpvc" .}}
----
-{{ include "common.nfs" .}}
+{{ include "common.longhornpvc" . }}
