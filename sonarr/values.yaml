@@ -110,22 +110,19 @@ volumeMounts:
     mountPath: /config
   - name: shows
     mountPath: /tv-shows
-
-persistentVolumes:
-  enabled: false
-  pvs:
+    
+longhorn:
+  enabled: true
+  persistentVolumes:
     sonarr-storage:
-      storageSize: 3T
-      path: /mount
-      nodeName: nuc-egbk
+      storageSize: 5Gi
+      storageClassName: longhorn-ssd
     sonarr-config:
       storageSize: 5Gi
-      path: /mount/sonarr/config
-      nodeName: nuc-egbk
+      storageClassName: longhorn-ssd
     sonarr-movies:
       storageSize: 500Gi
-      path: /mount/Media
-      nodeName: nuc-egbk
+      storageClassName: longhorn-ssd
 
 nodeSelector: {}
 
