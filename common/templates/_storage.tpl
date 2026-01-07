@@ -24,14 +24,14 @@ spec:
                 - {{ $value.nodeName }}
   persistentVolumeReclaimPolicy: Retain
   claimRef:
-    namespace: {{ include "common.fullname" $ }}
+    namespace: {{ $.Release.Namespace }}
     name: {{ $keyId }}-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $keyId }}-pvc
-  namespace: {{ include "common.fullname" $ }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   accessModes:
     - {{ $accessModes }}

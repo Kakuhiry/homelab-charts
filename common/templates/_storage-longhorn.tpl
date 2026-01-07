@@ -6,7 +6,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ $keyId }}-pvc
-  namespace: {{ include "common.fullname" $ }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   accessModes:
     - {{ $value.accessModes | default "ReadWriteOnce" }}
