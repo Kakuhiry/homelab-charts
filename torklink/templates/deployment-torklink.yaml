@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: torklink
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: torklink
+  template:
+    metadata:
+      labels:
+        app: torklink
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.torklink.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.torklink.tolerations | nindent 8 }}
+      containers:
+        - name: torklink
+          image: {{ .Values.torklink.image | quote }}
+          imagePullPolicy: {{ .Values.torklink.pullPolicy }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              apt-get update -qq && apt-get install -y -qq curl
+              export npm_config_prefix=/data/.npm-global
+              export PATH=/data/.npm-global/bin:$PATH
+              if [ ! -f /data/.npm-global/bin/torlnk ]; then
+                npm install -g torlnk
+              fi
+              cat > /tools/run.sh << 'SCRIPT'
+              #!/bin/bash
+              export PATH=/data/.npm-global/bin:$PATH
+              while true; do
+                torlnk
+                printf '\n\033[33m[torlnk exited - restarting in 2s]\033[0m\n'
+                sleep 2
+              done
+              SCRIPT
+              chmod +x /tools/run.sh
+              exec /tools/ttyd -p 7681 /tools/run.sh
+          env:
+            - name: HOME
+              value: /data
+            - name: npm_config_cache
+              value: /data/.npm
+          ports:
+            - name: http
+              containerPort: 7681
+              protocol: TCP
+          volumeMounts:
+            - name: torklink-data
+              mountPath: /data
+            - name: tools
+              mountPath: /tools
+      volumes:
+        - name: torklink-data
+          persistentVolumeClaim:
+            claimName: torklink-data
+        - name: tools
+          emptyDir: {}

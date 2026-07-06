@@ -1,0 +1,19 @@
+torklink:
+  image: node:22-bullseye-slim
+  pullPolicy: IfNotPresent
+  # Pin to storage node (egbo) where the PVC is likely co-located
+  nodeSelector:
+    kubernetes.io/hostname: egbo
+  tolerations:
+    - key: StorageNode
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
+filebrowser:
+  image: filebrowser/filebrowser:latest
+  pullPolicy: Always
+
+persistence:
+  storageClass: longhorn-ssd
+  size: 30Gi

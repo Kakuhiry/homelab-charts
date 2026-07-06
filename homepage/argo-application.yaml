@@ -1,0 +1,179 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: homepage
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: default
+  source:
+    repoURL: https://jameswynn.github.io/helm-charts
+    chart: homepage
+    targetRevision: 2.0.1
+    helm:
+      values: |
+        config:
+          bookmarks:
+            - Developer:
+                - Kakuhiry's GitHub:
+                    - abbr: ""
+                      href: https://github.com/Kakuhiry
+          services:
+            - Widgets:
+              - Bazarr:
+                  icon: "https://user-images.githubusercontent.com/26902309/41456760-be00043e-7081-11e8-9646-1b724037b4ff.png"
+                  href: https://bazarr.gbklabs.com
+                  description: Request subtitles for movies and TV shows.
+                  widget:
+                    type: bazarr
+                    url: http://bazarr.bazarr.svc.cluster.local
+                    key: 2ceeebf57647be90955263b41b47db78
+              - Sonarr:
+                  icon: "https://avatars.githubusercontent.com/u/1082903?s=200&v=4"
+                  href: https://sonarr.gbklabs.com
+                  description: Request TV shows.
+                  fields: ["wanted", "queued", "series"]
+                  widget:
+                    type: sonarr
+                    url: http://sonarr.sonarr.svc.cluster.local
+                    key: 97684b987c3d43cc904e6117a066c713
+              - Radarr:
+                  icon: "https://avatars.githubusercontent.com/u/25025331?s=48&v=4"
+                  href: https://radarr.gbklabs.com
+                  description: Request Movies.
+                  fields: ["wanted", "missing", "queued", "movies"]
+                  widget:
+                    type: radarr
+                    url: http://radarr.radarr.svc.cluster.local
+                    key: f0d77076c3c940a6ac4332a7443e175c
+              - Prowlarr:
+                  icon: "https://prowlarr.com/logo/32.png"
+                  href: https://prowlarr.gbklabs.com
+                  description: Moves and TV shows source manager.
+                  fields: ["numberOfGrabs", "numberOfQueries", "numberOfFailGrabs", "numberOfFailQueries"]
+                  widget:
+                    type: prowlarr
+                    url: http://prowlarr.prowlarr.svc.cluster.local
+                    key: 5e7d6fdb794947cc80379563a78fbc1d
+              - Jellyseer:
+                  icon: "https://getumbrel.github.io/umbrel-apps-gallery/jellyseerr/icon.svg"
+                  href: https://jellyseer.gbklabs.com
+                  description: Request Movies and TV Shows.
+                  fields: ["pending", "approved", "available"]
+                  widget:
+                    type: jellyseerr
+                    url: http://jellyseer.jellyseer.svc.cluster.local
+                    key: MTcwODA1NDgzOTkwN2E2MTBiYzkxLTkzNjMtNDAzMC1iMmY4LTNkYTg4NjY0ZjkzNA==
+              - Jellyfin:
+                  icon: "https://avatars.githubusercontent.com/u/45698031?s=200&v=4"
+                  href: https://jellyfin.gbklabs.com
+                  description: Open source Media Server.
+                  fields: ["movies", "series", "episodes"]
+                  widget:
+                    type: jellyfin
+                    url: http://jellyfin.jellyfin.svc.cluster.local
+                    key: 0212f8dd5cbc4d50b2385be59c034b67
+                    enableBlocks: false
+                    enableNowPlaying: true
+                    enableUser: true
+                    showEpisodeNumber: true
+                    expandOneStreamToTwoRows: true
+              - Traefik:
+                    icon: traefik.svg
+                    href: https://traefik.gbklabs.com
+                    description: Reverse proxy
+                    widget:
+                      type: traefik
+                      url: http://traefik.kube-system.svc.cluster.local:9000
+              - Romm:
+                  icon: "https://romm.app/_ipx/q_80/images/blocks/logos/romm-dark.svg"
+                  href: https://romm.gbklabs.com
+                  description: Stores games, savefiles, and ROMS.
+                  fields: ["platforms", "totalRoms", "saves", "states"]
+                  widget:
+                    type: romm
+                    url: http://romm.romm
+                    username: egbp
+                    password: Mariom3m3m3m3
+              - qBittorrent:
+                  icon: "https://upload.wikimedia.org/wikipedia/commons/6/66/New_qBittorrent_Logo.svg"
+                  href: https://qbittorrent.gbklabs.com
+                  description: Torrent Client.
+                  widget:
+                    type: qbittorrent
+                    url: http://qbittorrent.qbittorrent.svc.cluster.local
+                    username: admin
+                    password: 263005
+                    enableLeechProgress: true
+              - CloudflareTunnels:
+                  icon: "https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png"
+                  description: Tunnels between your resources and Cloudflare's global network.
+                  fields: ["status", "origin_ip"]
+                  widget:
+                    type: cloudflared
+                    accountid: 2ad31587a71874bedc93e6a4bb2e6b35
+                    tunnelid: b3051f36-509b-4de0-9411-1c33cbb2cc4f
+                    key: _T4bQHbPoqjb18W1mFRRznXjdBOosfOUPD8nEnia
+
+            - Apps:
+                - aria2:
+                    icon: "https://raw.githubusercontent.com/biplobsd/OneClickRun/master/img/aria2-logo.png"
+                    href: https://aria2.gbklabs.com
+                    description: Download Manager.
+
+          widgets:
+            - kubernetes:
+                cluster:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
+                  label: "cluster"
+                nodes:
+                  show: true
+                  cpu: true
+                  memory: true
+                  showLabel: true
+            - search:
+                provider: google
+                focus: true
+                showSearchSuggestions: true
+                target: _blank
+          kubernetes:
+            mode: cluster
+          settings:
+            layout:
+              Widgets:
+                style: row
+                columns: 5
+              Apps:
+                style: row
+                columns: 5
+
+        serviceAccount:
+          create: true
+          name: homepage
+
+        enableRbac: true
+
+        ingress:
+          main:
+            enabled: true
+            annotations:
+              gethomepage.dev/enabled: "true"
+              gethomepage.dev/name: "Homepage"
+              gethomepage.dev/description: "Dynamically Detected Homepage"
+              gethomepage.dev/group: "Apps"
+              gethomepage.dev/icon: "homepage.png"
+            hosts:
+              - host: homepage.gbklabs.com
+                paths:
+                  - path: /
+                    pathType: Prefix
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: homepage
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
