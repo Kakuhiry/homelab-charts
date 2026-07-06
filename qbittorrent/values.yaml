@@ -7,8 +7,17 @@ replicaCount: 1
 image:
   repository: lscr.io/linuxserver/qbittorrent
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
+
+gluetun:
+  image: qmcgaw/gluetun:latest
+  pullPolicy: IfNotPresent
+  vpnProvider: protonvpn
+  serverCountries: Netherlands
+  firewallOutboundSubnets: "10.42.0.0/16,10.43.0.0/16"
+  # Secret must be created separately (Sealed Secret) with keys: privateKey, addresses
+  secretName: protonvpn-wg
+  portForwardingUpCommand: "/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data \"json={\\\"listen_port\\\":{{PORT}},\\\"random_port\\\":false,\\\"upnp\\\":false}\" http://127.0.0.1:8080/api/v2/app/setPreferences'"
 
 imagePullSecrets: []
 nameOverride: ""

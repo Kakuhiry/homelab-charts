@@ -1,1 +1,85 @@
-{{ include "common.deployment" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.fullname" . }}
+  labels:
+    app: {{ include "common.fullname" . }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ include "common.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "common.fullname" . }}
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: gluetun
+          image: {{ .Values.gluetun.image | quote }}
+          imagePullPolicy: {{ .Values.gluetun.pullPolicy }}
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          env:
+            - name: VPN_SERVICE_PROVIDER
+              value: {{ .Values.gluetun.vpnProvider | quote }}
+            - name: VPN_TYPE
+              value: wireguard
+            - name: WIREGUARD_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.gluetun.secretName }}
+                  key: privateKey
+            - name: WIREGUARD_ADDRESSES
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.gluetun.secretName }}
+                  key: addresses
+            - name: SERVER_COUNTRIES
+              value: {{ .Values.gluetun.serverCountries | quote }}
+            - name: VPN_PORT_FORWARDING
+              value: "on"
+            - name: FIREWALL_OUTBOUND_SUBNETS
+              value: {{ .Values.gluetun.firewallOutboundSubnets | quote }}
+            - name: HEALTH_SERVER_ADDRESS
+              value: ":9999"
+            - name: VPN_PORT_FORWARDING_UP_COMMAND
+              value: {{ .Values.gluetun.portForwardingUpCommand | quote }}
+          volumeMounts:
+            - name: dev-tun
+              mountPath: /dev/net/tun
+
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort | default 8080 }}
+              protocol: TCP
+          {{- if .Values.env }}
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote | toString }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+      volumes:
+        - name: dev-tun
+          hostPath:
+            path: /dev/net/tun
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}

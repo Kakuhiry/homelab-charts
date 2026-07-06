@@ -5,9 +5,8 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/hotio/qbittorrent
+  repository: lscr.io/linuxserver/prowlarr
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
 imagePullSecrets: []
@@ -93,7 +92,7 @@ autoscaling:
 volumes:
   - name: config
     persistentVolumeClaim:
-      claimName: prowlarr-data-pvc
+      claimName: prowlarr-config-pvc
 
 volumeMounts:
   - name: config
