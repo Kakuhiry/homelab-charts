@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+  template:
+    metadata:
+      labels:
+        app: pihole
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+      containers:
+        - name: pihole
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: FTLCONF_dns_listeningMode
+              value: ALL
+            - name: WEBPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-secret
+                  key: WEBPASSWORD
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: dns-tcp
+              containerPort: 53
+              protocol: TCP
+            - name: dns-udp
+              containerPort: 53
+              protocol: UDP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/pihole
+              subPath: pihole-config
+            - name: config
+              mountPath: /etc/dnsmasq.d
+              subPath: dnsmasq-config
+            - name: tmp
+              mountPath: /tmp
+            - name: var-run
+              mountPath: /var/run
+            - name: lighttpd-log
+              mountPath: /var/log/lighttpd
+            - name: php-sessions
+              mountPath: /var/lib/php/sessions
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: pihole-pvc
+        - name: tmp
+          emptyDir: {}
+        - name: var-run
+          emptyDir: {}
+        - name: lighttpd-log
+          emptyDir: {}
+        - name: php-sessions
+          emptyDir: {}

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filebrowser
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filebrowser
+  template:
+    metadata:
+      labels:
+        app: filebrowser
+    spec:
+      containers:
+        - name: filebrowser
+          image: {{ .Values.filebrowser.image | quote }}
+          imagePullPolicy: {{ .Values.filebrowser.pullPolicy }}
+          args:
+            - --root=/srv
+            - --database=/srv/.filebrowser.db
+            - --address=0.0.0.0
+            - --port=80
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: torklink-data
+              mountPath: /srv
+      volumes:
+        - name: torklink-data
+          persistentVolumeClaim:
+            claimName: torklink-data

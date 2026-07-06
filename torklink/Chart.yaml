@@ -1,0 +1,6 @@
+apiVersion: v2
+name: torklink
+description: Torklink terminal + Filebrowser for torrent/file management
+type: application
+version: 0.1.0
+appVersion: "latest"
