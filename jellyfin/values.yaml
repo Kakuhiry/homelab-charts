@@ -73,6 +73,9 @@ persistence:
 
 # Shared media volumes from media-storage chart (Longhorn RWX)
 extraVolumes:
+  - name: dri
+    hostPath:
+      path: /dev/dri
   - name: tv
     persistentVolumeClaim:
       claimName: media-tv-pvc
@@ -81,6 +84,8 @@ extraVolumes:
       claimName: media-movies-pvc
 
 extraVolumeMounts:
+  - name: dri
+    mountPath: /dev/dri
   - name: tv
     mountPath: /data/tvshows
   - name: movies
