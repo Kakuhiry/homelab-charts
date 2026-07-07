@@ -9,8 +9,8 @@ hostPort:
 
 image:
   repository: docker.io/linuxserver/jellyfin
-  pullPolicy: IfNotPresent
-  tag: '10.9.4'
+  pullPolicy: Always
+  tag: '10.11.11'
 
 serviceAccount:
   create: false
