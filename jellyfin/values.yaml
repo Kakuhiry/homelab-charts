@@ -59,6 +59,7 @@ affinity: {}
 env:
   PUID: "0"
   PGID: "0"
+  TZ: "Europe/London"
 
 secretEnv: {}
 
