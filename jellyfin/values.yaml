@@ -15,6 +15,9 @@ image:
 serviceAccount:
   create: false
 
+podAnnotations:
+  deploy-version: "10.11.11"
+
 podSecurityContext: {}
 
 securityContext:
