@@ -41,7 +41,7 @@ spec:
               done
               SCRIPT
               chmod +x /tools/run.sh
-              exec /tools/ttyd -p 7681 /tools/run.sh
+              exec /tools/ttyd -p 7681 --ping-interval 30 --writable /tools/run.sh
           env:
             - name: HOME
               value: /data
