@@ -1,0 +1,30 @@
+# NFS backup target hosted on egbo (10.0.0.29) using 64GB Kingston USB at /mnt/usb-backup
+# NFS server: nfs-kernel-server running on egbo node
+# Setup: /mnt/usb-backup *(rw,sync,no_subtree_check,no_root_squash)
+# The NVMe path (/mnt/nvme0/longhorn-backup) also exists as an NFS export and is used
+# for weekly rsync offload from the USB (cron: every Sunday 4am on egbo).
+backupTarget:
+  url: "nfs://10.0.0.29:/mnt/usb-backup"
+
+recurringJob:
+  name: backup-configs
+  # Daily at 3am
+  cron: "0 3 * * *"
+  task: backup
+  groups:
+    - config-backups
+  # Keep 14 backups (two weeks)
+  retain: 14
+  concurrency: 2
+
+# Longhorn volume names (PV UUIDs) to attach the recurring job to.
+# These are the config-only PVCs — media volumes intentionally excluded.
+volumes:
+  radarr-config:    pvc-10bd067b-8c8f-4fa0-9658-bea0d081cb62
+  jellyfin-config:  pvc-dd2e9f99-cb00-4381-878e-7c550ce7caa7
+  jellyseer-data:   pvc-a103e12f-bc55-4306-b063-24337af57e02
+  qbit-config:      pvc-13ac5166-b891-48f1-a134-60dad6ca71c4
+  sonarr-config:    pvc-86ff4dcc-9bc8-4a7d-a040-17a2d944aef3
+  prowlarr-config:  pvc-f39dc01f-d957-4a0c-acad-617cfc07afab
+  pihole:           pvc-a8d60c23-1e02-4020-9c0e-c56bc306af89
+  bazarr-config:    pvc-b1ccba22-fa9a-4cc8-8f47-840ad1a5d105

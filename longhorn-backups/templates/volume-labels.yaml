@@ -1,0 +1,17 @@
+{{/*
+  Labels each Longhorn volume to enroll it in the backup-configs recurring job.
+  Rendered as individual Volume patches — applied via server-side apply.
+*/}}
+{{- $jobName := .Values.recurringJob.name }}
+{{- $groupName := index .Values.recurringJob.groups 0 }}
+{{- range $alias, $volName := .Values.volumes }}
+---
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  name: {{ $volName }}
+  namespace: longhorn
+  labels:
+    recurringjob.longhorn.io/{{ $jobName }}: "enabled"
+    recurring-job-group.longhorn.io/{{ $groupName }}: "enabled"
+{{- end }}

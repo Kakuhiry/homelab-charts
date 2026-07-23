@@ -1,0 +1,13 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: {{ .Values.recurringJob.name }}
+  namespace: longhorn
+spec:
+  name: {{ .Values.recurringJob.name }}
+  cron: {{ .Values.recurringJob.cron | quote }}
+  task: {{ .Values.recurringJob.task }}
+  groups: {{ .Values.recurringJob.groups | toJson }}
+  retain: {{ .Values.recurringJob.retain }}
+  concurrency: {{ .Values.recurringJob.concurrency }}
+  labels: {}

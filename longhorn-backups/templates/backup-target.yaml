@@ -1,0 +1,10 @@
+apiVersion: longhorn.io/v1beta2
+kind: BackupTarget
+metadata:
+  name: default
+  namespace: longhorn
+spec:
+  backupTargetURL: {{ .Values.backupTarget.url | quote }}
+  credentialSecret: ""
+  pollInterval: "5m0s"
+  syncRequestedAt: ""
