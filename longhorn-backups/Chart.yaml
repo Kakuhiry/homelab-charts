@@ -1,0 +1,5 @@
+apiVersion: v2
+name: longhorn-backups
+description: Longhorn recurring backup jobs for sensitive service configs
+type: application
+version: 0.1.0
