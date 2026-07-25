@@ -49,6 +49,11 @@ loki:
             prefix: loki_index_
             period: 24h
 
+  # Enable env var substitution in Loki's config file.
+  # Without this flag, ${VAR} syntax in the config is treated as a literal string.
+  extraArgs:
+    - -config.expand-env=true
+
   # SingleBinary: one replica pod
   singleBinary:
     replicas: 1
