@@ -14,13 +14,14 @@ loki:
     # The bucket "loki" was pre-created by the MinIO chart.
     storage:
       type: s3
+      # bucketNames is parallel to s3 config, not nested inside it
+      bucketNames:
+        chunks: loki
+        ruler: loki
+        admin: loki
       s3:
         endpoint: http://minio.monitoring.svc.cluster.local:9000
         region: us-east-1        # MinIO ignores this but Loki requires a value
-        bucketNames:
-          chunks: loki
-          ruler: loki
-          admin: loki
         # ${} syntax passes through Helm unchanged and is substituted by Loki
         # at runtime using the env vars injected below via extraEnv.
         accessKeyId: "${MINIO_ACCESS_KEY}"
