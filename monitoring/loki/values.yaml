@@ -3,10 +3,10 @@ loki:
   # compactor, ruler). Perfect for homelab — no microservices complexity.
   deploymentMode: SingleBinary
 
-  # Auth disabled — single-tenant homelab, no need to pass X-Scope-OrgID headers.
-  auth_enabled: false
-
   loki:
+    # Auth disabled — single-tenant homelab, no need to pass X-Scope-OrgID headers.
+    auth_enabled: false
+
     commonConfig:
       replication_factor: 1
 
