@@ -1,0 +1,42 @@
+grafana:
+  # Pull admin credentials from a pre-existing Secret — nothing sensitive in git.
+  admin:
+    existingSecret: grafana-credentials
+    userKey: admin-user
+    passwordKey: admin-password
+
+  persistence:
+    enabled: true
+    storageClassName: longhorn-ssd
+    size: 2Gi
+
+  # Grafana's own ingress is disabled — we use a Traefik IngressRoute instead
+  # (defined in templates/ below) so it picks up the wildcard cert automatically.
+  ingress:
+    enabled: false
+
+  # Pre-configure Loki as a datasource so it's available immediately on first login.
+  # Grafana will auto-discover it — no manual setup in the UI needed.
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Loki
+          type: loki
+          url: http://loki.monitoring.svc.cluster.local:3100
+          access: proxy
+          isDefault: true
+
+  # Sidecar watches for ConfigMaps/Secrets with the grafana_dashboard label
+  # and auto-imports them as dashboards. Useful later for adding pre-built dashboards.
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi

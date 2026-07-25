@@ -1,0 +1,38 @@
+minio:
+  # Standalone mode — single pod, single drive. Fine for homelab.
+  mode: standalone
+
+  # Credentials pulled from a pre-existing Secret (created manually on the cluster,
+  # never committed to git). Secret name: minio-credentials in monitoring namespace.
+  existingSecret: minio-credentials
+
+  # Pre-create the bucket Loki will use to store log chunks.
+  buckets:
+    - name: loki
+      policy: none
+      purge: false
+
+  persistence:
+    enabled: true
+    storageClass: longhorn-ssd
+    size: 50Gi
+
+  # No ingress — MinIO is internal only, accessed by Loki via cluster DNS:
+  # http://minio.monitoring.svc.cluster.local:9000
+  ingress:
+    enabled: false
+
+  # Expose the console on port 9001 for manual inspection if needed (no public ingress)
+  consoleIngress:
+    enabled: false
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+
+  # MinIO needs to run as root to manage its data directory
+  securityContext:
+    enabled: false

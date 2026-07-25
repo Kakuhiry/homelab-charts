@@ -1,0 +1,37 @@
+promtail:
+  # Tell Promtail where to push logs.
+  # loki-write.monitoring.svc.cluster.local resolves to the Loki service inside
+  # the cluster — Promtail never needs to leave the cluster to reach Loki.
+  config:
+    clients:
+      - url: http://loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+
+  # k3s stores container logs at /var/log/pods and symlinks them from
+  # /var/log/containers — both paths need to be mounted.
+  # Promtail also needs /run/promtail for its position file (tracks where it
+  # left off reading so it doesn't re-ship logs after a pod restart).
+  extraVolumes:
+    - name: pods
+      hostPath:
+        path: /var/log/pods
+    - name: containers
+      hostPath:
+        path: /var/log/containers
+
+  extraVolumeMounts:
+    - name: pods
+      mountPath: /var/log/pods
+      readOnly: true
+    - name: containers
+      mountPath: /var/log/containers
+      readOnly: true
+
+  # Tolerate the control-plane node so Promtail runs on every node including
+  # the master, giving us logs from system components too.
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
