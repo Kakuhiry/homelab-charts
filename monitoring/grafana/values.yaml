@@ -28,11 +28,13 @@ grafana:
       datasources:
         - name: Loki
           type: loki
+          uid: loki
           url: http://loki.monitoring.svc.cluster.local:3100
           access: proxy
           isDefault: true
         - name: Prometheus
           type: prometheus
+          uid: prometheus
           url: http://kube-prometheus-stack-prometheus.kube-system.svc.cluster.local:9090
           access: proxy
 
