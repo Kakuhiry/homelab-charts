@@ -28,7 +28,7 @@ grafana:
           isDefault: true
         - name: Prometheus
           type: prometheus
-          url: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+          url: http://kube-prometheus-stack-prometheus.kube-system.svc.cluster.local:9090
           access: proxy
 
   # Sidecar watches for ConfigMaps/Secrets with the grafana_dashboard label
