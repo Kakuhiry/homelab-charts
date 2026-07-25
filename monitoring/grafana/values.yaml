@@ -1,4 +1,9 @@
 grafana:
+  # Recreate kills the old pod before starting the new one — required for RWO volumes
+  # (Longhorn RWO can only be mounted by one node at a time).
+  deploymentStrategy:
+    type: Recreate
+
   # Pull admin credentials from a pre-existing Secret — nothing sensitive in git.
   admin:
     existingSecret: grafana-credentials
