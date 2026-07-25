@@ -49,17 +49,16 @@ loki:
             prefix: loki_index_
             period: 24h
 
-  # Enable env var substitution in Loki's config file.
-  # Without this flag, ${VAR} syntax in the config is treated as a literal string.
-  extraArgs:
-    - -config.expand-env=true
-
   # SingleBinary: one replica pod
   singleBinary:
     replicas: 1
+    # Enable env var substitution in Loki's config file.
+    # Without this flag, ${VAR} syntax in the config is treated as a literal string.
+    extraArgs:
+      - -config.expand-env=true
     # Inject credentials from the pre-existing Secret into the pod as env vars.
-    # Loki's config file (rendered by the chart) uses ${MINIO_ACCESS_KEY} and
-    # ${MINIO_SECRET_KEY} which Loki substitutes at startup — nothing sensitive in git.
+    # Loki's config file uses ${MINIO_ACCESS_KEY} / ${MINIO_SECRET_KEY} which
+    # Loki substitutes at startup via the flag above — nothing sensitive in git.
     extraEnv:
       - name: MINIO_ACCESS_KEY
         valueFrom:
