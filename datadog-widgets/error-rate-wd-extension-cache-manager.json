@@ -1,0 +1,59 @@
+{
+    "title": "Error Rate % - wd-extension-cache-manager",
+    "type": "timeseries",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "alias": "Error Rate %",
+                    "formula": "(query1 / query2) * 100"
+                }
+            ],
+            "response_format": "timeseries",
+            "on_right_yaxis": false,
+            "queries": [
+                {
+                    "search": {
+                        "query": "service:wd-extension-cache-manager kube_cluster_name:wm-k8s-jx-prod kube_namespace:jx-production status:error"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": []
+                },
+                {
+                    "search": {
+                        "query": "service:wd-extension-cache-manager kube_cluster_name:wm-k8s-jx-prod kube_namespace:jx-production"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query2",
+                    "indexes": ["*"],
+                    "group_by": []
+                }
+            ],
+            "style": {
+                "palette": "warm",
+                "line_type": "solid",
+                "line_width": "normal"
+            },
+            "display_type": "line"
+        }
+    ],
+    "yaxis": {
+        "include_zero": true,
+        "scale": "linear",
+        "label": "",
+        "min": "auto",
+        "max": "auto"
+    },
+    "markers": []
+}
+
+
+

@@ -1,0 +1,56 @@
+{
+    "title": "MongoDB Errors by Issue Type",
+    "type": "timeseries",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "alias": "Errors",
+                    "formula": "query1"
+                }
+            ],
+            "response_format": "timeseries",
+            "on_right_yaxis": false,
+            "queries": [
+                {
+                    "search": {
+                        "query": "service:mongo env:jx-production status:error"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": [
+                        {
+                            "facet": "@issue.id",
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            },
+                            "limit": 10
+                        }
+                    ]
+                }
+            ],
+            "style": {
+                "palette": "warm",
+                "line_type": "solid",
+                "line_width": "normal"
+            },
+            "display_type": "bars"
+        }
+    ],
+    "yaxis": {
+        "include_zero": true,
+        "scale": "linear",
+        "label": "",
+        "min": "auto",
+        "max": "auto"
+    },
+    "markers": []
+}
+
+
+

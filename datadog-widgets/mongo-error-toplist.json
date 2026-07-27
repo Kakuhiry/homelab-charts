@@ -1,0 +1,44 @@
+{
+    "title": "MongoDB Top Errors (Last 24h)",
+    "type": "toplist",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "formula": "query1",
+                    "limit": {
+                        "count": 10,
+                        "order": "desc"
+                    }
+                }
+            ],
+            "response_format": "scalar",
+            "queries": [
+                {
+                    "search": {
+                        "query": "service:mongo env:jx-production status:error"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": [
+                        {
+                            "facet": "@error.message",
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            },
+                            "limit": 10
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+
+

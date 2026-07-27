@@ -1,0 +1,56 @@
+{
+    "title": "MongoDB Discovery - All Matching Logs",
+    "type": "timeseries",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "alias": "Logs with 'mongo'",
+                    "formula": "query1"
+                }
+            ],
+            "response_format": "timeseries",
+            "on_right_yaxis": false,
+            "queries": [
+                {
+                    "search": {
+                        "query": "*mongo* OR service:*mongo* OR host:*mongo*"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": [
+                        {
+                            "facet": "service",
+                            "sort": {
+                                "aggregation": "count",
+                                "order": "desc"
+                            },
+                            "limit": 10
+                        }
+                    ]
+                }
+            ],
+            "style": {
+                "palette": "dog_classic",
+                "line_type": "solid",
+                "line_width": "normal"
+            },
+            "display_type": "bars"
+        }
+    ],
+    "yaxis": {
+        "include_zero": true,
+        "scale": "linear",
+        "label": "",
+        "min": "auto",
+        "max": "auto"
+    },
+    "markers": []
+}
+
+
+
