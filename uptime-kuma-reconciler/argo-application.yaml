@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: uptime-kuma-reconciler
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
+    targetRevision: HEAD
+    path: uptime-kuma-reconciler
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: uptime
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

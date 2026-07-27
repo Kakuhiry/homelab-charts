@@ -1,0 +1,13 @@
+{{- if .Values.staticMonitors.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "uptime-kuma-reconciler.fullname" . }}-static-monitors
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "uptime-kuma-reconciler.labels" . | nindent 4 }}
+data:
+  monitors.yaml: |
+    monitors:
+      {{- toYaml .Values.staticMonitors.monitors | nindent 6 }}
+{{- end }}

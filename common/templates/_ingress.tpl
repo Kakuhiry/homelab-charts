@@ -12,6 +12,8 @@ metadata:
     gethomepage.dev/group: "{{ .Values.ingress.group | default "Apps" }}"
     gethomepage.dev/href: "https://{{ .Values.ingress.href | default (include "common.fullname" .) }}.gbklabs.com"
     gethomepage.dev/icon: "{{- if .Values.ingress.annotations }}{{- index .Values.ingress.annotations "gethomepage.dev/icon" | default (default (include "common.fullname" .) .Values.ingress.icon) }}.svg{{- else }}{{ default (include "common.fullname" .) .Values.ingress.icon }}.svg{{- end }}"
+    uptime-kuma.io/monitor: "true"
+    uptime-kuma.io/monitor-group: "{{ .Values.ingress.group | default "Apps" }}"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

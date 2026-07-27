@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "uptime-kuma-reconciler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "uptime-kuma-reconciler.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "uptime-kuma-reconciler.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "uptime-kuma-reconciler.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "uptime-kuma-reconciler.serviceAccountName" . }}
+      containers:
+        - name: reconciler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.image.useCustomImage }}
+          command: ["python", "-u", "/app/reconciler.py"]
+          {{- else }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install --no-cache-dir -r /app/requirements.txt &&
+              python -u /app/reconciler.py
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "uptime-kuma-reconciler.fullname" . }}-config
+          env:
+            - name: KUMA_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "uptime-kuma-reconciler.secretName" . }}
+                  key: username
+            - name: KUMA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "uptime-kuma-reconciler.secretName" . }}
+                  key: password
+          volumeMounts:
+            - name: reconciler-script
+              mountPath: /app
+            {{- if .Values.staticMonitors.enabled }}
+            - name: static-monitors
+              mountPath: /config
+            {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: reconciler-script
+          configMap:
+            name: {{ include "uptime-kuma-reconciler.fullname" . }}-script
+        {{- if .Values.staticMonitors.enabled }}
+        - name: static-monitors
+          configMap:
+            name: {{ include "uptime-kuma-reconciler.fullname" . }}-static-monitors
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
