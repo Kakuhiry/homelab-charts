@@ -276,13 +276,13 @@ def extract_url_from_resource(resource):
                 return f"{scheme}://{host}"
 
     elif kind == "IngressRoute":
+        entry_points = spec.get("entryPoints", [])
+        scheme = "https" if spec.get("tls") or "websecure" in entry_points else "http"
         for route in spec.get("routes") or []:
             match_str = route.get("match", "")
             if "Host(" in match_str:
                 host = match_str.split("Host(")[-1].split(")")[0].strip('"`\'')
                 if host:
-                    tls = spec.get("tls")
-                    scheme = "https" if tls else "http"
                     return f"{scheme}://{host}"
 
     elif kind == "HTTPRoute":
