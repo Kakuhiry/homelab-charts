@@ -1,0 +1,69 @@
+{
+    "title": "MongoDB Warnings + Errors",
+    "type": "timeseries",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "alias": "Errors",
+                    "formula": "query1",
+                    "style": {
+                        "palette": "warm"
+                    }
+                },
+                {
+                    "alias": "Warnings",
+                    "formula": "query2",
+                    "style": {
+                        "palette": "orange"
+                    }
+                }
+            ],
+            "response_format": "timeseries",
+            "on_right_yaxis": false,
+            "queries": [
+                {
+                    "search": {
+                        "query": "service:mongo env:jx-production status:error"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": []
+                },
+                {
+                    "search": {
+                        "query": "service:mongo env:jx-production status:warn"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query2",
+                    "indexes": ["*"],
+                    "group_by": []
+                }
+            ],
+            "style": {
+                "palette": "warm",
+                "line_type": "solid",
+                "line_width": "normal"
+            },
+            "display_type": "bars"
+        }
+    ],
+    "yaxis": {
+        "include_zero": true,
+        "scale": "linear",
+        "label": "",
+        "min": "auto",
+        "max": "auto"
+    },
+    "markers": []
+}
+
+
+

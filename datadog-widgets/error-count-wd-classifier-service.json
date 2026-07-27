@@ -1,0 +1,47 @@
+{
+    "title": "Error Count - wd-classifier-service",
+    "type": "timeseries",
+    "requests": [
+        {
+            "formulas": [
+                {
+                    "alias": "Error Count",
+                    "formula": "query1"
+                }
+            ],
+            "response_format": "timeseries",
+            "on_right_yaxis": false,
+            "queries": [
+                {
+                    "search": {
+                        "query": "service:wd-classifier-service kube_cluster_name:wm-k8s-jx-prod kube_namespace:jx-production status:error"
+                    },
+                    "data_source": "logs",
+                    "compute": {
+                        "aggregation": "count"
+                    },
+                    "name": "query1",
+                    "indexes": ["*"],
+                    "group_by": []
+                }
+            ],
+            "style": {
+                "palette": "warm",
+                "line_type": "solid",
+                "line_width": "normal"
+            },
+            "display_type": "bars"
+        }
+    ],
+    "yaxis": {
+        "include_zero": true,
+        "scale": "linear",
+        "label": "",
+        "min": "auto",
+        "max": "auto"
+    },
+    "markers": []
+}
+
+
+

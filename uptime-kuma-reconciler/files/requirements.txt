@@ -1,4 +1,0 @@
-kubernetes>=28.1.0
-python-socketio[client]>=5.11.0
-websocket-client>=1.7.0
-PyYAML>=6.0
