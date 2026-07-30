@@ -10,10 +10,11 @@ metadata:
     gethomepage.dev/href: "https://rdicidr.gbklabs.com"
 spec:
   entryPoints:
+    - web
     - websecure
   routes:
     - kind: Rule
-      match: Host(`rdicidr.gbklabs.com`)
+      match: Host(`rdicidr.gbklabs.com`) || Host(`fsl-challenge.me`)
       services:
         - name: rdicidr-service
           port: 8080
