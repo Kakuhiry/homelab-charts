@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: rdicidr
+  namespace: production
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "rdicidr"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/href: "https://rdicidr.gbklabs.com"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`rdicidr.gbklabs.com`)
+      services:
+        - name: rdicidr-service
+          port: 8080
