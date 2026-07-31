@@ -1,0 +1,144 @@
+# Default values for romm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: rommapp/romm
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "5.1.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "romm"
+
+serviceAccount:
+  create: false
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+# Non-secret app config. DB/auth/API credentials live in the romm-secret
+# Secret instead (see secret.yaml + the `secrets` block below) and are
+# wired in via envFrom.
+env:
+  ROMM_DB_DRIVER: "mariadb"
+  DB_HOST: "mariadb"
+  DB_PORT: "3306"
+  DB_NAME: "romm"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  ROMM_BASE_URL: "https://romm.gbklabs.com"
+  DISABLE_SETUP_WIZARD: "false"
+
+envFrom:
+  - secretRef:
+      name: romm-secret
+
+# Placeholder values only — DO NOT commit real secrets here.
+# Real values are set post-install directly on the live Secret, e.g.:
+#   kubectl create secret generic romm-secret -n romm \
+#     --from-literal=DB_USER=romm-user \
+#     --from-literal=DB_PASSWD=<generated> \
+#     --from-literal=MARIADB_USER=romm-user \
+#     --from-literal=MARIADB_PASSWORD=<same as DB_PASSWD> \
+#     --from-literal=MARIADB_ROOT_PASSWORD=<generated> \
+#     --from-literal=ROMM_AUTH_SECRET_KEY=<openssl rand -hex 32> \
+#     --from-literal=IGDB_CLIENT_ID= \
+#     --from-literal=IGDB_CLIENT_SECRET= \
+#     --from-literal=STEAMGRIDDB_API_KEY= \
+#     --dry-run=client -o yaml | kubectl apply -f -
+secrets:
+  DB_USER: "changeme"
+  DB_PASSWD: "changeme"
+  MARIADB_USER: "changeme"
+  MARIADB_PASSWORD: "changeme"
+  MARIADB_ROOT_PASSWORD: "changeme"
+  ROMM_AUTH_SECRET_KEY: "changeme"
+  IGDB_CLIENT_ID: ""
+  IGDB_CLIENT_SECRET: ""
+  STEAMGRIDDB_API_KEY: ""
+
+service:
+  type: NodePort
+  targetPort: 8080
+  port: 80
+
+ingress:
+  enabled: true
+  className: "tailscale"
+  annotations: {}
+  hosts:
+    - host: romm
+  tls:
+    - hosts:
+        - romm
+
+# The romm app container's own storage. resources-pvc/assets/library-pvc
+# already exist in-cluster from the prior install and hold real data
+# (fetched box art, uploaded saves, and the ROM library over NFS) — reused
+# as-is by name rather than recreated, so nothing here re-declares them as
+# chart-owned storage.
+volumeMounts:
+  - mountPath: /romm/resources
+    name: resources
+  - mountPath: /romm/assets
+    name: assets
+  - mountPath: /romm/library
+    name: library
+
+volumes:
+  - name: resources
+    persistentVolumeClaim:
+      claimName: resources-pvc
+  - name: assets
+    persistentVolumeClaim:
+      claimName: assets
+  - name: library
+    persistentVolumeClaim:
+      claimName: library-pvc
+
+resources: {}
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+
+# Only the MariaDB data volume is chart-managed. The prior "mariadb" PVC
+# (10Gi) is left alone/orphaned rather than reused, since its DB password
+# was lost with the original manifest — this is a deliberate fresh start,
+# not a migration. See the PR description for the recovery option that
+# was declined.
+longhorn:
+  enabled: true
+  persistentVolumes:
+    mariadb-data:
+      storageSize: 10Gi
+      storageClassName: longhorn-ssd
+
+mariadb:
+  image:
+    repository: mariadb
+    tag: "11.4"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
