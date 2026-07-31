@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # Matches the pre-existing "mariadb" ClusterIP Service so this gets
+  # adopted in place instead of creating a duplicate.
+  name: mariadb
+  labels:
+    app: mariadb
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql
+  selector:
+    app: mariadb
