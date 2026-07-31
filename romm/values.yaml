@@ -38,6 +38,11 @@ env:
   REDIS_PORT: "6379"
   ROMM_BASE_URL: "https://romm.gbklabs.com"
   DISABLE_SETUP_WIZARD: "false"
+  # Kubernetes auto-injects ROMM_PORT=tcp://<clusterIP>:80 as a service-link
+  # env var because the Service is named "romm" — collides with RomM's own
+  # ROMM_PORT (expects a bare port number) and breaks nginx. Explicit env
+  # entries here take precedence over the auto-injected ones.
+  ROMM_PORT: "8080"
 
 envFrom:
   - secretRef:
