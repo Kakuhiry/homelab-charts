@@ -1,0 +1,11 @@
+apiVersion: v2
+name: romm
+description: RomM - ROM manager, scraper and player
+type: application
+version: 0.1.0
+appVersion: "5.1.0"
+
+dependencies:
+  - name: common
+    version: 0.1.0
+    repository: file://../common
