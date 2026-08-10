@@ -40,7 +40,7 @@ securityContext: {}
 
 service:
   type: NodePort
-  targetPort: 8989
+  targetPort: 9696
   port: 80
 
 env:
