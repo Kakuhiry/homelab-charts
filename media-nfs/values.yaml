@@ -5,10 +5,19 @@ nfsServer:
   # Exports one directory tree; movies/ and tv/ are subdirectories under it,
   # consumers mount the subpath they need.
   sharedDirectory: /data
+  # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
+  # its memory *requests* were already at 99% allocated from existing pods
+  # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
+  # headroom. egbo has the same NVMe capacity and only 3% memory requested.
   nodeSelector:
-    kubernetes.io/hostname: egbp-nuc
-  # Hard ceiling -- egbp-nuc is also an etcd/control-plane node. Same lesson
-  # as the discord-bot OOM incident earlier: never run new workloads there
+    kubernetes.io/hostname: egbo
+  tolerations:
+    - key: StorageNode
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+  # Hard ceiling -- egbo is also an etcd/control-plane node. Same lesson as
+  # the discord-bot OOM incident earlier: never run new workloads there
   # without a resource limit protecting the rest of the node.
   resources:
     requests:

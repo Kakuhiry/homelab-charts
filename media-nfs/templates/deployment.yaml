@@ -17,6 +17,8 @@ spec:
     spec:
       nodeSelector:
         {{- toYaml .Values.nfsServer.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.nfsServer.tolerations | nindent 8 }}
       containers:
         - name: nfs-server
           image: {{ .Values.nfsServer.image | quote }}
