@@ -6,6 +6,9 @@ nfsServer:
   pullPolicy: IfNotPresent
   # Exports two named shares under /data: /data/movies and /data/tv.
   allowedClient: 10.42.0.0/16 # cluster pod CIDR -- any pod can mount
+  # Default of 4 nfsd threads serialized concurrent writes during the initial
+  # data migration far below available CPU/network headroom -- bumped up.
+  threadCount: 16
   exports:
     - movies
     - tv

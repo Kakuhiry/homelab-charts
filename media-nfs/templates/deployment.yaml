@@ -46,6 +46,8 @@ spec:
           env:
             - name: ALLOWED_CLIENT
               value: {{ .Values.nfsServer.allowedClient | quote }}
+            - name: NFS_SERVER_THREAD_COUNT
+              value: {{ .Values.nfsServer.threadCount | quote }}
             - name: NUMBER_OF_SHARES
               value: {{ .Values.nfsServer.exports | len | quote }}
             {{- range $i, $export := .Values.nfsServer.exports }}
