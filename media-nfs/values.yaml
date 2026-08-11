@@ -1,0 +1,23 @@
+nfsServer:
+  image: itsthenetwork/nfs-server-alpine:latest
+  pullPolicy: IfNotPresent
+  # NFSv4-only image (single port 2049, no rpcbind/mountd sprawl to expose).
+  # Exports one directory tree; movies/ and tv/ are subdirectories under it,
+  # consumers mount the subpath they need.
+  sharedDirectory: /data
+  nodeSelector:
+    kubernetes.io/hostname: egbp-nuc
+  # Hard ceiling -- egbp-nuc is also an etcd/control-plane node. Same lesson
+  # as the discord-bot OOM incident earlier: never run new workloads there
+  # without a resource limit protecting the rest of the node.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+
+persistence:
+  storageClass: longhorn-ssd
+  size: 800Gi

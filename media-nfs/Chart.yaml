@@ -1,0 +1,6 @@
+apiVersion: v2
+name: media-nfs
+description: Dedicated NFS server for the shared media library (replaces Longhorn RWX for media-movies/media-tv, which was intermittently throwing Remote I/O errors)
+type: application
+version: 0.1.0
+appVersion: "latest"

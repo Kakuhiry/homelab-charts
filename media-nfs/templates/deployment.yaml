@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-nfs
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO PVC
+  selector:
+    matchLabels:
+      app: media-nfs
+  template:
+    metadata:
+      labels:
+        app: media-nfs
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.nfsServer.nodeSelector | nindent 8 }}
+      containers:
+        - name: nfs-server
+          image: {{ .Values.nfsServer.image | quote }}
+          imagePullPolicy: {{ .Values.nfsServer.pullPolicy }}
+          securityContext:
+            privileged: true # required for the in-container NFS kernel server
+          resources:
+            {{- toYaml .Values.nfsServer.resources | nindent 12 }}
+          env:
+            - name: SHARED_DIRECTORY
+              value: {{ .Values.nfsServer.sharedDirectory | quote }}
+          ports:
+            - name: nfs
+              containerPort: 2049
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.nfsServer.sharedDirectory }}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: media-nfs-data
