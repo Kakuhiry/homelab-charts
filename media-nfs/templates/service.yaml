@@ -5,6 +5,11 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   type: ClusterIP
+  # Pinned: consumers mount this via the in-tree `nfs:` volume type, which
+  # kubelet mounts in the *node's* host network namespace -- not the pod's --
+  # so cluster DNS (svc.cluster.local) doesn't resolve there. Consumers must
+  # address this IP directly, so it needs to never drift.
+  clusterIP: 10.43.95.83
   selector:
     app: media-nfs
   ports:
