@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discord-bot
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discord-bot
+  template:
+    metadata:
+      labels:
+        app: discord-bot
+    spec:
+      containers:
+        - name: discord-bot
+          image: {{ .Values.bot.image | quote }}
+          imagePullPolicy: {{ .Values.bot.pullPolicy }}
+          env:
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bot.discordTokenSecretName }}
+                  key: token
+            - name: SAVE_PATH
+              value: {{ .Values.bot.savePath | quote }}
+            - name: TEMPORAL_HOST
+              value: {{ .Values.bot.temporalHost | quote }}
+          volumeMounts:
+            - name: shared-storage
+              mountPath: {{ .Values.bot.savePath }}
+      volumes:
+        - name: shared-storage
+          persistentVolumeClaim:
+            claimName: {{ .Values.bot.sharedPvcName }}

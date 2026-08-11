@@ -1,0 +1,6 @@
+apiVersion: v2
+name: discord-bot
+description: yt-dlp Discord bot (Temporal-backed downloads), sharing storage with the filestash instance in the same namespace
+type: application
+version: 0.1.0
+appVersion: "latest"

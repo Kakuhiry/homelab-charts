@@ -14,22 +14,6 @@ filebrowser:
   image: filebrowser/filebrowser:latest
   pullPolicy: Always
 
-bot:
-  image: kakuheiki/vd-downloader:temporal
-  pullPolicy: Always # mutable tag, rebuilt frequently during active development
-  nodeSelector:
-    kubernetes.io/hostname: egbo
-  tolerations:
-    - key: StorageNode
-      operator: Equal
-      value: "true"
-      effect: NoSchedule
-  savePath: /downloads
-  temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
-  # discord-token secret is created out-of-band (kubectl create secret),
-  # not committed to git -- see homelab-charts README for the command.
-  discordTokenSecretName: discord-bot-token
-
 persistence:
   storageClass: longhorn-ssd
   size: 30Gi

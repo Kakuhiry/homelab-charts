@@ -1,0 +1,12 @@
+bot:
+  image: kakuheiki/vd-downloader:temporal
+  pullPolicy: Always # mutable tag, rebuilt frequently during active development
+  savePath: /downloads
+  temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
+  # discord-token secret is created out-of-band (kubectl create secret),
+  # not committed to git.
+  discordTokenSecretName: discord-bot-token
+  # Same PVC filestash itself mounts at /storage -- downloads land here and
+  # show up there immediately, no sync step. Owned/managed outside this
+  # chart (filestash isn't GitOps-managed), referenced by name only.
+  sharedPvcName: filestash-storage-pvc
