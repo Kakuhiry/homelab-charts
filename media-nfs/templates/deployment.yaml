@@ -19,6 +19,22 @@ spec:
         {{- toYaml .Values.nfsServer.nodeSelector | nindent 8 }}
       tolerations:
         {{- toYaml .Values.nfsServer.tolerations | nindent 8 }}
+      initContainers:
+        - name: init-exports
+          # exportfs fails validation (and the container exits clean) if the
+          # export subdirectories don't already exist -- true on a fresh PVC.
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              set -ex
+              {{- range .Values.nfsServer.exports }}
+              mkdir -p /data/{{ . }}
+              {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
       containers:
         - name: nfs-server
           image: {{ .Values.nfsServer.image | quote }}
