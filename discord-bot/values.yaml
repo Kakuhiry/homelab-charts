@@ -1,6 +1,15 @@
 bot:
   image: kakuheiki/vd-downloader:temporal
   pullPolicy: Always # mutable tag, rebuilt frequently during active development
+  # Image is built GOARCH=arm64 only -- must land on an arm64 node or it's
+  # an exec format error. egbo also needs the StorageNode toleration.
+  nodeSelector:
+    kubernetes.io/hostname: egbo
+  tolerations:
+    - key: StorageNode
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
   savePath: /downloads
   temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
   # discord-token secret is created out-of-band (kubectl create secret),
