@@ -50,10 +50,10 @@ longhorn:
 
 resources:
   limits:
-    gpu.intel.com/i915: 1
+    nvidia.com/gpu: '1'
 
 nodeSelector:
-  kubernetes.io/hostname: egbp-nuc
+  kubernetes.io/hostname: egbp-pc
 tolerations: []
 affinity: {}
 
