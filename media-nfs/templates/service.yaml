@@ -12,3 +12,23 @@ spec:
       port: 2049
       targetPort: 2049
       protocol: TCP
+    - name: rpc
+      port: 111
+      targetPort: 111
+      protocol: TCP
+    - name: rpc-udp
+      port: 111
+      targetPort: 111
+      protocol: UDP
+    - name: aux1
+      port: 32765
+      targetPort: 32765
+      protocol: TCP
+    - name: aux2
+      port: 32766
+      targetPort: 32766
+      protocol: TCP
+    - name: aux3
+      port: 32767
+      targetPort: 32767
+      protocol: TCP

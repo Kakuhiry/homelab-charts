@@ -28,16 +28,43 @@ spec:
           resources:
             {{- toYaml .Values.nfsServer.resources | nindent 12 }}
           env:
-            - name: SHARED_DIRECTORY
-              value: {{ .Values.nfsServer.sharedDirectory | quote }}
+            - name: ALLOWED_CLIENT
+              value: {{ .Values.nfsServer.allowedClient | quote }}
+            - name: NUMBER_OF_SHARES
+              value: {{ .Values.nfsServer.exports | len | quote }}
+            {{- range $i, $export := .Values.nfsServer.exports }}
+            - name: NFS_EXPORT_{{ add $i 1 }}
+              value: {{ $export | quote }}
+            {{- end }}
           ports:
             - name: nfs
               containerPort: 2049
               protocol: TCP
+            - name: rpc
+              containerPort: 111
+              protocol: TCP
+            - name: rpc-udp
+              containerPort: 111
+              protocol: UDP
+            - name: aux1
+              containerPort: 32765
+              protocol: TCP
+            - name: aux2
+              containerPort: 32766
+              protocol: TCP
+            - name: aux3
+              containerPort: 32767
+              protocol: TCP
           volumeMounts:
             - name: data
-              mountPath: {{ .Values.nfsServer.sharedDirectory }}
+              mountPath: /data
+            - name: lib-modules
+              mountPath: /lib/modules
+              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: media-nfs-data
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules

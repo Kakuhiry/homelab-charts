@@ -1,10 +1,14 @@
 nfsServer:
-  image: itsthenetwork/nfs-server-alpine:latest
+  # itsthenetwork/nfs-server-alpine is amd64-only (confirmed via manifest
+  # inspection) and fails with "exec format error" on egbo (arm64). This
+  # fork is genuinely multi-arch (confirmed linux/arm64 in its manifest).
+  image: mekayelanik/nfs-server-alpine:latest
   pullPolicy: IfNotPresent
-  # NFSv4-only image (single port 2049, no rpcbind/mountd sprawl to expose).
-  # Exports one directory tree; movies/ and tv/ are subdirectories under it,
-  # consumers mount the subpath they need.
-  sharedDirectory: /data
+  # Exports two named shares under /data: /data/movies and /data/tv.
+  allowedClient: 10.42.0.0/16 # cluster pod CIDR -- any pod can mount
+  exports:
+    - movies
+    - tv
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
