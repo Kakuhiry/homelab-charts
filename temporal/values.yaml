@@ -1,0 +1,20 @@
+temporal:
+  image: temporalio/temporal:latest
+  pullPolicy: IfNotPresent
+  # Not HA and not meant to be -- this backs a single low-volume personal
+  # bot, not a production workload. If that ever changes, swap this chart
+  # for the official temporalio/helm-charts Postgres-backed deployment.
+  nodeSelector:
+    kubernetes.io/hostname: egbo
+  tolerations:
+    - key: StorageNode
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+
+persistence:
+  storageClass: longhorn-ssd
+  size: 5Gi
+
+webUI:
+  host: temporal.gbklabs.com

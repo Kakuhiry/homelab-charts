@@ -1,0 +1,6 @@
+apiVersion: v2
+name: temporal
+description: Lightweight single-binary Temporal server (dev-server mode, SQLite-backed) for the discord-bot download workflow
+type: application
+version: 0.1.0
+appVersion: "latest"

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discord-bot
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discord-bot
+  template:
+    metadata:
+      labels:
+        app: discord-bot
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.bot.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.bot.tolerations | nindent 8 }}
+      containers:
+        - name: discord-bot
+          image: {{ .Values.bot.image | quote }}
+          imagePullPolicy: {{ .Values.bot.pullPolicy }}
+          env:
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.bot.discordTokenSecretName }}
+                  key: token
+            - name: SAVE_PATH
+              value: {{ .Values.bot.savePath | quote }}
+            - name: TEMPORAL_HOST
+              value: {{ .Values.bot.temporalHost | quote }}
+          volumeMounts:
+            - name: torklink-data
+              mountPath: {{ .Values.bot.savePath }}
+      volumes:
+        - name: torklink-data
+          persistentVolumeClaim:
+            claimName: torklink-data

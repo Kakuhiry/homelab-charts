@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO PVC, avoid the same multi-attach deadlock a RollingUpdate would hit
+  selector:
+    matchLabels:
+      app: temporal
+  template:
+    metadata:
+      labels:
+        app: temporal
+    spec:
+      nodeSelector:
+        {{- toYaml .Values.temporal.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml .Values.temporal.tolerations | nindent 8 }}
+      containers:
+        - name: temporal
+          image: {{ .Values.temporal.image | quote }}
+          imagePullPolicy: {{ .Values.temporal.pullPolicy }}
+          args:
+            - server
+            - start-dev
+            - --ip
+            - "0.0.0.0"
+            - --db-filename
+            - /data/temporal.db
+          ports:
+            - name: grpc
+              containerPort: 7233
+              protocol: TCP
+            - name: web
+              containerPort: 8233
+              protocol: TCP
+          volumeMounts:
+            - name: temporal-data
+              mountPath: /data
+      volumes:
+        - name: temporal-data
+          persistentVolumeClaim:
+            claimName: temporal-data
