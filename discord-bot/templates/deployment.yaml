@@ -31,6 +31,8 @@ spec:
               value: {{ .Values.bot.savePath | quote }}
             - name: TEMPORAL_HOST
               value: {{ .Values.bot.temporalHost | quote }}
+          resources:
+            {{- toYaml .Values.bot.resources | nindent 12 }}
           volumeMounts:
             - name: shared-storage
               mountPath: {{ .Values.bot.savePath }}

@@ -10,6 +10,17 @@ bot:
       operator: Equal
       value: "true"
       effect: NoSchedule
+  # Hard ceiling: egbo also runs etcd + Longhorn storage duty for the whole
+  # cluster. A burst of yt-dlp/ffmpeg processes with no k8s-level limit is
+  # what took the node down (load average >200 on 4 cores). This leaves the
+  # rest of the node's capacity protected regardless of batch size.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
   savePath: /downloads
   temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
   # discord-token secret is created out-of-band (kubectl create secret),
