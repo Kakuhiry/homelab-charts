@@ -16,7 +16,7 @@ filebrowser:
 
 bot:
   image: kakuheiki/vd-downloader:temporal
-  pullPolicy: IfNotPresent
+  pullPolicy: Always # mutable tag, rebuilt frequently during active development
   nodeSelector:
     kubernetes.io/hostname: egbo
   tolerations:
