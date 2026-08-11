@@ -14,6 +14,33 @@ filebrowser:
   image: filebrowser/filebrowser:latest
   pullPolicy: Always
 
+bot:
+  image: kakuheiki/vd-downloader:temporal
+  pullPolicy: Always # mutable tag, rebuilt frequently during active development
+  # Image is built GOARCH=arm64 only -- must land on an arm64 node.
+  nodeSelector:
+    kubernetes.io/hostname: egbo
+  tolerations:
+    - key: StorageNode
+      operator: Equal
+      value: "true"
+      effect: NoSchedule
+  # Hard ceiling: egbo also runs etcd + Longhorn storage duty for the whole
+  # cluster -- see the batch-of-5 download change in the bot itself for the
+  # full story on why this exists.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  savePath: /downloads
+  temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
+  # discord-token secret is created out-of-band (kubectl create secret),
+  # not committed to git.
+  discordTokenSecretName: discord-bot-token
+
 persistence:
   storageClass: longhorn-ssd
   size: 30Gi

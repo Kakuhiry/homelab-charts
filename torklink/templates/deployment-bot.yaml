@@ -21,6 +21,8 @@ spec:
         - name: discord-bot
           image: {{ .Values.bot.image | quote }}
           imagePullPolicy: {{ .Values.bot.pullPolicy }}
+          resources:
+            {{- toYaml .Values.bot.resources | nindent 12 }}
           env:
             - name: DISCORD_TOKEN
               valueFrom:
@@ -31,12 +33,10 @@ spec:
               value: {{ .Values.bot.savePath | quote }}
             - name: TEMPORAL_HOST
               value: {{ .Values.bot.temporalHost | quote }}
-          resources:
-            {{- toYaml .Values.bot.resources | nindent 12 }}
           volumeMounts:
-            - name: shared-storage
+            - name: torklink-data
               mountPath: {{ .Values.bot.savePath }}
       volumes:
-        - name: shared-storage
+        - name: torklink-data
           persistentVolumeClaim:
-            claimName: {{ .Values.bot.sharedPvcName }}
+            claimName: torklink-data
