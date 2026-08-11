@@ -19,6 +19,8 @@ spec:
         {{- toYaml .Values.temporal.nodeSelector | nindent 8 }}
       tolerations:
         {{- toYaml .Values.temporal.tolerations | nindent 8 }}
+      securityContext:
+        runAsUser: 0 # the image's default non-root user can't write to the Longhorn-mounted PVC otherwise
       containers:
         - name: temporal
           image: {{ .Values.temporal.image | quote }}
