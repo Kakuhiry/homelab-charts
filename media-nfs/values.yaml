@@ -4,7 +4,7 @@ nfsServer:
   # fork is genuinely multi-arch (confirmed linux/arm64 in its manifest).
   image: mekayelanik/nfs-server-alpine:latest
   pullPolicy: IfNotPresent
-  # Exports two named shares under /data: /data/movies and /data/tv.
+  # Exports named shares under /data: /data/movies, /data/tv, /data/downloads.
   allowedClient: 10.42.0.0/16 # cluster pod CIDR -- any pod can mount
   # Default of 4 nfsd threads serialized concurrent writes during the initial
   # data migration far below available CPU/network headroom -- bumped up.
@@ -12,6 +12,7 @@ nfsServer:
   exports:
     - movies
     - tv
+    - downloads
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
@@ -36,4 +37,9 @@ nfsServer:
 
 persistence:
   storageClass: longhorn-ssd
-  size: 800Gi
+  # 800Gi -> 1400Gi: adding /downloads (qBittorrent reports ~243GiB live,
+  # via its own API rather than a filesystem walk -- more reliable than du
+  # against a volume prone to Remote I/O errors). Movies+tv already use
+  # ~522GB, so 800Gi left almost no room; 1400Gi gives real headroom for
+  # downloads churn/growth. egbo has >1TB free per NVMe, plenty of room.
+  size: 1400Gi
