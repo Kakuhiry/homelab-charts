@@ -76,17 +76,24 @@ persistence:
   data:
     enabled: false  # Using extraVolumes for shared media
 
-# Shared media volumes from media-storage chart (Longhorn RWX)
+# Shared media volumes, served by the dedicated media-nfs server (replaces
+# the old Longhorn RWX PVCs, which threw frequent Remote I/O errors -- see
+# media-nfs chart. NFSv4 pseudo-root means export paths are /movies and /tv,
+# not /data/movies or /data/tv. Server addressed by ClusterIP, not DNS,
+# since the in-tree nfs: volume type is mounted by kubelet in the node's
+# host network namespace where cluster DNS doesn't resolve.)
 extraVolumes:
   - name: dri
     hostPath:
       path: /dev/dri
   - name: tv
-    persistentVolumeClaim:
-      claimName: media-tv-pvc
+    nfs:
+      server: 10.43.95.83
+      path: /tv
   - name: movies
-    persistentVolumeClaim:
-      claimName: media-movies-pvc
+    nfs:
+      server: 10.43.95.83
+      path: /movies
 
 extraVolumeMounts:
   - name: dri
