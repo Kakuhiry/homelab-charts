@@ -12,6 +12,10 @@ spec:
   selector:
     matchLabels:
       app: {{ include "common.fullname" . }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}

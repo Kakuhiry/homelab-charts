@@ -4,6 +4,13 @@
 
 replicaCount: 1
 
+# RollingUpdate deadlocks here: the new pod can't attach the RWO
+# sonarr-config PVC while the old pod still holds it (same failure mode
+# hit with Pi-hole earlier). Recreate avoids the two-pods-want-one-RWO-PVC
+# standoff.
+strategy:
+  type: Recreate
+
 image:
   repository: lscr.io/linuxserver/sonarr
   pullPolicy: IfNotPresent
