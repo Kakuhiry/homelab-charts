@@ -1,30 +1,46 @@
 # NFS backup target hosted on egbo (10.0.0.29) using 64GB Kingston USB at /mnt/usb-backup
-# NFS server: nfs-kernel-server running on egbo node
-# Setup: /mnt/usb-backup *(rw,sync,no_subtree_check,no_root_squash)
-# The NVMe path (/mnt/nvme0/longhorn-backup) also exists as an NFS export and is used
-# for weekly rsync offload from the USB (cron: every Sunday 4am on egbo).
+# (57.7GB raw / ~54GB usable after ext4 format). NFS server: nfs-kernel-server
+# running on egbo node. Setup: /mnt/usb-backup *(rw,sync,no_subtree_check,no_root_squash)
+# The NVMe path (/mnt/nvme0/longhorn-backup, 1.8TB) also exists as an NFS export and
+# is used for a weekly rsync offload FROM the USB (cron: every Sunday 4am on egbo) --
+# a second copy in case the USB itself fails, since it's the sole live backup target.
 backupTarget:
   url: "nfs://10.0.0.29:/mnt/usb-backup"
 
-recurringJob:
-  name: backup-configs
-  # Daily at 3am
-  cron: "0 3 * * *"
-  task: backup
-  groups:
-    - config-backups
-  # Keep 14 backups (two weeks)
-  retain: 14
-  concurrency: 2
-
-# Longhorn volume names (PV UUIDs) to attach the recurring job to.
-# These are the config-only PVCs — media volumes intentionally excluded.
-volumes:
-  radarr-config:    pvc-10bd067b-8c8f-4fa0-9658-bea0d081cb62
-  jellyfin-config:  pvc-dd2e9f99-cb00-4381-878e-7c550ce7caa7
-  jellyseer-data:   pvc-a103e12f-bc55-4306-b063-24337af57e02
-  qbit-config:      pvc-13ac5166-b891-48f1-a134-60dad6ca71c4
-  sonarr-config:    pvc-86ff4dcc-9bc8-4a7d-a040-17a2d944aef3
-  prowlarr-config:  pvc-f39dc01f-d957-4a0c-acad-617cfc07afab
-  pihole:           pvc-a8d60c23-1e02-4020-9c0e-c56bc306af89
-  bazarr-config:    pvc-b1ccba22-fa9a-4cc8-8f47-840ad1a5d105
+# 2026-08-13: the USB filled to 100% and silently broke Longhorn's backup-target
+# sync (couldn't even write the lock file needed to prune old backups -> stuck
+# forever at whatever was retained when it filled). Root cause: jellyfin-config's
+# backups alone were 53GB of the 57GB drive (real data ~38GB + ~1GB/day churn from
+# metadata/image cache living in the same volume, not just settings), while the
+# other 7 config volumes combined only need ~3.5GB even at retain=14. Split
+# jellyfin into its own job with far lower retention so its outsized footprint
+# can't starve the others or refill the disk. See recurring-job.yaml /
+# volume-labels.yaml, which now render one Volume+RecurringJob pair per entry
+# in `recurringJobs` below instead of a single hardcoded job.
+recurringJobs:
+  - name: backup-configs
+    cron: "0 3 * * *" # daily at 3am
+    task: backup
+    group: config-backups
+    retain: 14 # ~3.5GB total for these 7 volumes, cheap
+    concurrency: 2
+    volumes:
+      radarr-config:    pvc-10bd067b-8c8f-4fa0-9658-bea0d081cb62
+      jellyseer-data:   pvc-a103e12f-bc55-4306-b063-24337af57e02
+      qbit-config:      pvc-13ac5166-b891-48f1-a134-60dad6ca71c4
+      sonarr-config:    pvc-86ff4dcc-9bc8-4a7d-a040-17a2d944aef3
+      prowlarr-config:  pvc-f39dc01f-d957-4a0c-acad-617cfc07afab
+      pihole:           pvc-a8d60c23-1e02-4020-9c0e-c56bc306af89
+      bazarr-config:    pvc-b1ccba22-fa9a-4cc8-8f47-840ad1a5d105
+  - name: backup-configs-jellyfin
+    cron: "0 3 * * *" # daily at 3am
+    task: backup
+    group: config-backups-jellyfin
+    # ~38GB base + ~1GB/day churn -> retain=5 is ~42GB, leaving ~12GB headroom
+    # for the other group + safety margin (target ~80% disk usage, not 100%,
+    # so we never hit the prune-deadlock again). Revisit if jellyfin's real
+    # config usage grows -- check `df`/backup sizes periodically.
+    retain: 5
+    concurrency: 1
+    volumes:
+      jellyfin-config: pvc-dd2e9f99-cb00-4381-878e-7c550ce7caa7
