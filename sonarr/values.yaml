@@ -99,7 +99,8 @@ autoscaling:
 
 # Volume configuration
 # - config: sonarr-specific (Longhorn RWO)
-# - downloads: shared with qbittorrent (media-storage RWX)
+# - downloads: shared with qbittorrent, served by the dedicated media-nfs
+#   server (replaces the old Longhorn RWX PVC, same reasoning as tv below)
 # - tv: shared with jellyfin, served by the dedicated media-nfs server
 #   (replaces the old Longhorn RWX PVC, which threw frequent Remote I/O
 #   errors -- see media-nfs chart. NFSv4 pseudo-root means the export path
@@ -111,8 +112,9 @@ volumes:
     persistentVolumeClaim:
       claimName: sonarr-config-pvc
   - name: downloads
-    persistentVolumeClaim:
-      claimName: media-downloads-pvc
+    nfs:
+      server: 10.43.95.83
+      path: /downloads
   - name: tv
     nfs:
       server: 10.43.95.83
