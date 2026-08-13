@@ -1,0 +1,101 @@
+{{- if .Values.slashFix.enabled }}
+# Cloudflare Tunnel (cloudflared) strips the trailing slash off directory
+# URLs (e.g. "/web/" -> "/web") before forwarding to the origin -- a Go
+# path-normalization quirk in the tunnel itself, confirmed via a raw
+# header capture, not something configurable on our side. Jellyfin's own
+# ASP.NET Core static-file middleware responds to a bare "/web" request
+# with a 301 redirect back to "/web/" (so relative asset paths resolve
+# correctly against the right directory) -- but that redirect's own
+# target gets its trailing slash stripped again on the way back through
+# the tunnel, so the client's next request arrives just as bare, and the
+# cycle repeats forever. This only affects jellyfin.gbklabs.com
+# (Cloudflare Tunnel); Traefik/LAN access was never affected since
+# Traefik doesn't touch the path.
+#
+# Fix: a tiny nginx relay sits in front of Jellyfin's real Service and
+# silently rewrites the exact bare "/web" path to "/web/" server-side
+# (proxy_pass, not an HTTP redirect) before it ever reaches Jellyfin, so
+# Jellyfin's own redirect logic never triggers. The chart's main Service
+# (the fixed name cloudflared's tunnel config targets) points at this
+# relay instead of the Jellyfin pods directly -- see templates/service.yaml.
+# "-real" is the actual Jellyfin pods, used only internally by the relay.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-real
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "jellyfin.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-slashfix-nginx
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 80;
+
+      location = /web {
+        proxy_pass http://{{ include "jellyfin.fullname" . }}-real.{{ .Release.Namespace }}.svc.cluster.local:80/web/;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $http_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+      }
+
+      location / {
+        proxy_pass http://{{ include "jellyfin.fullname" . }}-real.{{ .Release.Namespace }}.svc.cluster.local:80;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $http_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-slashfix
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "jellyfin.fullname" . }}-slashfix
+  template:
+    metadata:
+      labels:
+        app: {{ include "jellyfin.fullname" . }}-slashfix
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d
+          resources:
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 16Mi
+      volumes:
+        - name: conf
+          configMap:
+            name: {{ include "jellyfin.fullname" . }}-slashfix-nginx
+{{- end }}

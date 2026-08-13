@@ -40,6 +40,15 @@ service:
 ingress:
   enabled: true
 
+# See templates/slashfix.yaml for the full explanation: Cloudflare Tunnel
+# strips trailing slashes from request paths before they reach the
+# origin, which breaks Jellyfin's own /web -> /web/ redirect into an
+# infinite loop (confirmed via header capture, 2026-08-13). Only affects
+# jellyfin.gbklabs.com (Cloudflare Tunnel) -- LAN/Traefik access was never
+# affected. Inserts a tiny nginx relay to compensate.
+slashFix:
+  enabled: true
+
 # Config PVC managed by this chart (Longhorn RWO)
 longhorn:
   enabled: true

@@ -12,11 +12,21 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
+      {{- if .Values.slashFix.enabled }}
+      targetPort: 80
+      {{- else }}
       targetPort: http
+      {{- end }}
       protocol: TCP
       name: http
     {{- with .Values.additionalServicePorts }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   selector:
+    {{- if .Values.slashFix.enabled }}
+    # see templates/slashfix.yaml -- routes through the trailing-slash
+    # relay instead of the Jellyfin pods directly
+    app: {{ include "jellyfin.fullname" . }}-slashfix
+    {{- else }}
     {{- include "jellyfin.selectorLabels" . | nindent 4 }}
+    {{- end }}
