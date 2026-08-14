@@ -4,9 +4,16 @@
 # from qBittorrent's downloads folder -- see media-nfs/values.yaml
 # (general-downloads export) for why.
 #
-# Kept Tailscale-only (not behind Cloudflare like jellyfin/qbittorrent) --
-# same reasoning as prowlarr/radarr/sonarr: an admin tool that can be told
-# to fetch arbitrary URLs onto the server shouldn't be public.
+# Public at aria2.gbklabs.com via Cloudflare Tunnel + Access, same pattern
+# as jellyfin/qbittorrent -- NOT Tailscale (an earlier version of this
+# chart used tailscale.com/expose, on the mistaken assumption that
+# prowlarr/radarr/sonarr's `ingress.className: "tailscale"` reflected a
+# real "admin tools stay private" convention here. It doesn't -- that
+# setting is silently ignored by the common ingress template regardless of
+# chart, so those are actually already fully public with no gate at all.
+# Since there's no real private-by-default convention to match, this
+# follows the pattern that's actually proven working instead: public +
+# Cloudflare Access, matching jellyfin.
 
 replicaCount: 1
 
@@ -37,15 +44,17 @@ podLabels: {}
 podSecurityContext: {}
 securityContext: {}
 
-# service.yaml is a custom template (not common.service) -- Tailscale
-# exposure via tailscale.com/expose annotation, not an Ingress. See its
-# comment for why.
 service:
   type: ClusterIP
   targetPort: 8080
 
+# The actual Cloudflare Access policy gating aria2.gbklabs.com isn't
+# managed here -- it's Cloudflare account config, not a Kubernetes
+# resource. Needs a matching Access Application created same as jellyfin's
+# (see 2026-08-13 jellyfin fix commit for context on how that one's set
+# up). Until that policy exists, this route is public with no auth.
 ingress:
-  enabled: false
+  enabled: true
 
 env:
   PUID: "0"

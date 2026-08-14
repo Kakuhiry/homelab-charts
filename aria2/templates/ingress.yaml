@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ include "aria2.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aria2.labels" . | nindent 4 }}
+  annotations:
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "aria2"
+    gethomepage.dev/group: "Apps"
+    gethomepage.dev/href: "https://aria2.gbklabs.com"
+    gethomepage.dev/icon: "aria2.svg"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`aria2.gbklabs.com`)
+      services:
+        - name: {{ include "aria2.fullname" . }}
+          port: 80
+{{- end }}
