@@ -39,7 +39,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - mountPath: /config
+            - mountPath: /aria2/conf
               name: config
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}

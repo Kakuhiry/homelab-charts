@@ -14,7 +14,13 @@ strategy:
   type: Recreate
 
 image:
-  repository: lscr.io/linuxserver/aria2
+  # hurlenko/aria2-ariang: real, actively maintained, genuinely multi-arch
+  # (amd64/arm64/arm -- verified against Docker Hub's manifest, confirmed
+  # covers every node type in this cluster). lscr.io/linuxserver/aria2,
+  # what I tried first, doesn't exist -- LinuxServer.io has never published
+  # an aria2 image. Also what the prior (unfinished) attempt at this chart
+  # already used -- their choice was right.
+  repository: hurlenko/aria2-ariang
   pullPolicy: IfNotPresent
   tag: "latest"
 
@@ -36,7 +42,7 @@ securityContext: {}
 # comment for why.
 service:
   type: ClusterIP
-  targetPort: 6880
+  targetPort: 8080
 
 ingress:
   enabled: false
@@ -44,7 +50,13 @@ ingress:
 env:
   PUID: "0"
   PGID: "0"
-  TZ: "Etc/UTC"
+  # Tells AriaNg's client-side JS which port to make RPC calls back to.
+  # Tailscale's ingress terminates HTTPS and presents this on 443 to the
+  # browser (default HTTPS port, no :port needed in the URL) even though
+  # the Service/container are on 80/8080 internally -- has to match what
+  # the browser actually sees, not our internal port. Straight from the
+  # image's own docs example, which describes exactly this proxied setup.
+  ARIA2RPCPORT: "443"
 
 resources:
   requests:
@@ -91,7 +103,7 @@ extraVolumes:
 
 extraVolumeMounts:
   - name: downloads
-    mountPath: /downloads
+    mountPath: /aria2/data
 
 nodeSelector: {}
 tolerations: []
