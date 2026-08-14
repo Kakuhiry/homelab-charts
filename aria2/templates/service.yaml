@@ -1,1 +1,27 @@
-{{ include "common.service" . }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aria2.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aria2.labels" . | nindent 4 }}
+  annotations:
+    # Tailscale-only exposure -- verified against pihole's working chart,
+    # NOT the common library's ingress.yaml (its `ingress.className:
+    # "tailscale"` setting is silently ignored -- it always renders a
+    # public Traefik IngressRoute at <name>.gbklabs.com regardless. Found
+    # this out empirically while building this chart: prowlarr, which sets
+    # the same className, is actually fully public right now. Worth a
+    # separate look, but not blocking this chart -- this Service-level
+    # annotation is the real, confirmed-working mechanism.
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: aria2
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "aria2.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP

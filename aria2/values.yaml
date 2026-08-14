@@ -1,13 +1,21 @@
-# Default values for aria2.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
+# aria2 + AriaNg -- paste a direct link (HTTP/HTTPS/FTP/magnet/metalink) in
+# the web UI, it downloads server-side instead of to your machine, and you
+# pull the finished file over NFS whenever you want. Deliberately separate
+# from qBittorrent's downloads folder -- see media-nfs/values.yaml
+# (general-downloads export) for why.
+#
+# Kept Tailscale-only (not behind Cloudflare like jellyfin/qbittorrent) --
+# same reasoning as prowlarr/radarr/sonarr: an admin tool that can be told
+# to fetch arbitrary URLs onto the server shouldn't be public.
 
 replicaCount: 1
 
+strategy:
+  type: Recreate
+
 image:
-  repository: hurlenko/aria2-ariang
+  repository: lscr.io/linuxserver/aria2
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
 imagePullSecrets: []
@@ -15,22 +23,53 @@ nameOverride: ""
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
   create: false
-  # Automatically mount a ServiceAccount's API credentials?
-  automount: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
 
 podAnnotations: {}
 podLabels: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+securityContext: {}
 
+# service.yaml is a custom template (not common.service) -- Tailscale
+# exposure via tailscale.com/expose annotation, not an Ingress. See its
+# comment for why.
+service:
+  type: ClusterIP
+  targetPort: 6880
+
+ingress:
+  enabled: false
+
+env:
+  PUID: "0"
+  PGID: "0"
+  TZ: "Etc/UTC"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+# Config PVC: aria2's own settings + session file (what lets it resume
+# in-progress downloads across restarts). Small, Longhorn RWO -- same
+# pattern as every other *arr-style app's config volume.
+persistence:
+  config:
+    enabled: true
+    isPvc: true
+    existingClaim: aria2-config-pvc
+  data:
+    enabled: false
 
 longhorn:
   enabled: true
@@ -39,86 +78,21 @@ longhorn:
       storageSize: 2Gi
       storageClassName: longhorn-ssd
 
-nfs:
-  enabled: true
-  pvs:
-    aria2-downloads:
-      storageSize: 800Gi
-      path: /mount/aria2/downloads
-      nodeName: nuc-egbk
-      storageClassName: ''
-
-    
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: NodePort
-  targetPort: 8080
-  port: 80
-
-ingress:
-  enabled: true
-  className: "tailscale"
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: aria2
-  tls:
-    - hosts:
-       - aria2
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-# Additional volumes on the output Deployment definition.
-volumes:
+# Downloads land on media-nfs's dedicated general-downloads export (NOT the
+# qBittorrent/Radarr/Sonarr-managed `downloads` share -- see media-nfs
+# chart comment). Server addressed by ClusterIP, not DNS, since the
+# in-tree nfs: volume type is mounted by kubelet in the node's host
+# network namespace where cluster DNS doesn't resolve.
+extraVolumes:
   - name: downloads
-    persistentVolumeClaim:
-      claimName: aria2-downloads-pvc
-  - name: config
-    persistentVolumeClaim:
-      claimName: aria2-config-pvc
+    nfs:
+      server: 10.43.95.83
+      path: /general-downloads
 
-
-# Additional volumeMounts on the output Deployment definition.
-volumeMounts:
+extraVolumeMounts:
   - name: downloads
-    mountPath: /aria2/data
-  - name: config
-    mountPath: /aria2/conf
+    mountPath: /downloads
 
-env:
-  PUID: '1000'
-  PGID: '1000'
-  ARIA2RPCPORT: '443'
-
-nodeSelector:
-  kubernetes.io/hostname: nuc-egbk
-
+nodeSelector: {}
 tolerations: []
-
 affinity: {}

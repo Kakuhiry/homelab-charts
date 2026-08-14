@@ -4,8 +4,14 @@ nfsServer:
   # fork is genuinely multi-arch (confirmed linux/arm64 in its manifest).
   image: mekayelanik/nfs-server-alpine:latest
   pullPolicy: IfNotPresent
-  # Exports named shares under /data: /data/movies, /data/tv, /data/downloads.
-  allowedClient: 10.42.0.0/16 # cluster pod CIDR -- any pod can mount
+  # Exports named shares under /data: /data/movies, /data/tv, /data/downloads,
+  # /data/general-downloads.
+  # Was 10.42.0.0/16 (cluster pod CIDR only) -- widened to allow the LAN too
+  # (matches the trust posture already used by every other NFS export in
+  # this homelab -- USB/NVMe backup targets on egbo are unrestricted "*",
+  # no_root_squash). Without this, LAN clients (e.g. mounting from a
+  # laptop) can't mount any share here at all, pods or not.
+  allowedClient: "*"
   # Default of 4 nfsd threads serialized concurrent writes during the initial
   # data migration far below available CPU/network headroom -- bumped up.
   threadCount: 16
@@ -13,6 +19,11 @@ nfsServer:
     - movies
     - tv
     - downloads
+    # General-purpose direct-link downloads (aria2), deliberately separate
+    # from `downloads` -- that one is scanned/imported by Radarr/Sonarr and
+    # shared with qBittorrent; mixing in unrelated manual downloads risks
+    # tripping their import logic.
+    - general-downloads
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling

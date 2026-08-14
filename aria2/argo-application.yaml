@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aria2
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
+    targetRevision: HEAD
+    path: aria2
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: aria2
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
