@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cluster-assistant
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
+    targetRevision: HEAD
+    path: cluster-assistant
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: torklink
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cluster-assistant
+description: Discord bot (@-mention trigger) that answers cluster troubleshooting questions via Claude, read-only kubectl access
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

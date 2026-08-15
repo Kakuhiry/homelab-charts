@@ -1,0 +1,33 @@
+# Deployed into `torklink` namespace deliberately, not its own -- it
+# reuses the existing discord-bot-token Secret (same Discord Application
+# as the video-downloader bot, just a second process authenticating with
+# the same token; Discord allows multiple simultaneous connections per
+# bot token). Secrets can't be referenced cross-namespace, and this way
+# nothing about the existing bot needs to change at all.
+namespace: torklink
+
+image:
+  # Build and push yourself (see chart README) -- not on a public
+  # registry, no CI wired up for this one yet.
+  repository: docker.gbklabs.com/cluster-assistant
+  tag: "latest"
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+discordTokenSecret:
+  name: discord-bot-token
+  key: token
+
+# Not created by this chart -- apply it yourself:
+#   kubectl -n torklink create secret generic cluster-assistant-anthropic-key \
+#     --from-literal=api-key=<your key>
+anthropicKeySecret:
+  name: cluster-assistant-anthropic-key
+  key: api-key

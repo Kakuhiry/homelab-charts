@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-assistant
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: cluster-assistant
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cluster-assistant
+  template:
+    metadata:
+      labels:
+        app: cluster-assistant
+    spec:
+      serviceAccountName: cluster-assistant
+      containers:
+        - name: cluster-assistant
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DISCORD_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.discordTokenSecret.name }}
+                  key: {{ .Values.discordTokenSecret.key }}
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.anthropicKeySecret.name }}
+                  key: {{ .Values.anthropicKeySecret.key }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
