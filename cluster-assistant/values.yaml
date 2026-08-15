@@ -7,9 +7,12 @@
 namespace: torklink
 
 image:
-  # Build and push yourself (see chart README) -- not on a public
-  # registry, no CI wired up for this one yet.
-  repository: docker.gbklabs.com/cluster-assistant
+  # Multi-arch (linux/amd64 + linux/arm64) -- this cluster mixes both
+  # (egbo/raspberrypi are arm64), and this deployment has no nodeSelector,
+  # so it can land on either. Pushed to Docker Hub under the kakuheiki
+  # account; build/push yourself with `docker buildx build --platform
+  # linux/amd64,linux/arm64 -t kakuheiki/cluster-assistant:latest --push .`
+  repository: kakuheiki/cluster-assistant
   tag: "latest"
   pullPolicy: Always
 
