@@ -107,14 +107,14 @@
       "title": "Error Logs by Namespace",
       "datasource": {"type":"loki","uid":"loki"},
       "fieldConfig": {"defaults":{"custom":{"lineWidth":2,"fillOpacity":10},"color":{"fixedColor":"red","mode":"fixed"}}},
-      "targets": [{"expr":"sum by (namespace) (count_over_time({namespace=~\".+\"} |~ \"(?i)(error|exception|fatal|panic)\" [5m]))","legendFormat":"{{namespace}} errors"}]
+      "targets": [{"expr":"sum by (namespace) (count_over_time({namespace=~\".+\"} |~ \"(?i)(error|exception|fatal|panic)\" != \"level=info\" != \"caller=metrics.go\" [5m]))","legendFormat":"{{namespace}} errors"}]
     },
     {
       "id": 32, "type": "logs", "gridPos": {"x":0,"y":43,"w":24,"h":10},
       "title": "Recent Errors (all namespaces)",
       "datasource": {"type":"loki","uid":"loki"},
       "options": {"showTime":true,"showLabels":false,"wrapLogMessage":true,"dedupStrategy":"none"},
-      "targets": [{"expr":"{namespace=~\".+\"} |~ \"(?i)(error|exception|fatal|panic)\""}]
+      "targets": [{"expr":"{namespace=~\".+\"} |~ \"(?i)(error|exception|fatal|panic)\" != \"level=info\" != \"caller=metrics.go\""}]
     },
     {
       "id": 40, "type": "timeseries", "gridPos": {"x":0,"y":53,"w":12,"h":8},
