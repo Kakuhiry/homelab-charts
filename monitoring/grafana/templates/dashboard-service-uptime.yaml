@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-service-uptime
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  service-uptime.json: {{ .Files.Get "files/service-uptime-dashboard.json" | toJson }}
