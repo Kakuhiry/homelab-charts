@@ -1,3 +1,0 @@
-{{ include "common.persistentVolumes" . }}
-{{ include "common.longhornpvc" . }}
-{{ include "common.nfs" . }}
