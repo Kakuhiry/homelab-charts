@@ -39,6 +39,21 @@ spec:
         - name: nfs-server
           image: {{ .Values.nfsServer.image | quote }}
           imagePullPolicy: {{ .Values.nfsServer.pullPolicy }}
+          # rpc.nfsd exits non-zero when it can't set up NFSv4 client recovery
+          # tracking from inside a network namespace (kernel logs: "attempt to
+          # initialize ... client tracking in a container ignored" / "-22").
+          # That's expected and harmless in a container -- the nfsd kernel
+          # threads still start and serve fine -- but the image's own
+          # /usr/bin/nfsd.sh treats any non-zero exit from rpc.nfsd as fatal
+          # and tears the whole container down, causing a permanent crash
+          # loop even though NFS is actually working underneath. Patch that
+          # one call to warn instead of dying, then run the script normally.
+          command: ["bash", "-c"]
+          args:
+            - |
+              set -e
+              sed -i 's#boot_helper_start_daemon "starting rpc.nfsd.*#log "starting rpc.nfsd on port $port with $threads server thread(s)"; "$PATH_BIN_NFSD" "${args[@]}" || log_warning "rpc.nfsd exited non-zero (expected in a container -- NFSv4 client recovery tracking is restricted in a network namespace; nfsd kernel threads are already running)"#' /usr/bin/nfsd.sh
+              exec bash /usr/bin/nfsd.sh
           securityContext:
             privileged: true # required for the in-container NFS kernel server
           resources:
