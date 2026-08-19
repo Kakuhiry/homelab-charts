@@ -42,18 +42,61 @@ spec:
           # rpc.nfsd exits non-zero when it can't set up NFSv4 client recovery
           # tracking from inside a network namespace (kernel logs: "attempt to
           # initialize ... client tracking in a container ignored" / "-22").
-          # That's expected and harmless in a container -- the nfsd kernel
+          # That specific case is expected and harmless -- the nfsd kernel
           # threads still start and serve fine -- but the image's own
-          # /usr/bin/nfsd.sh treats any non-zero exit from rpc.nfsd as fatal
+          # /usr/bin/nfsd.sh treats ANY non-zero exit from rpc.nfsd as fatal
           # and tears the whole container down, causing a permanent crash
-          # loop even though NFS is actually working underneath. Patch that
-          # one call to warn instead of dying, then run the script normally.
+          # loop even when NFS is actually working underneath.
+          #
+          # rpc.nfsd can also exit non-zero for a genuinely fatal reason --
+          # e.g. ENOMEM writing to /proc/fs/nfsd/threads when the node's page
+          # cache has crowded out free memory (seen in practice after heavy
+          # Longhorn I/O). Blindly treating every non-zero exit as benign
+          # masks that case: the container reports "ready" while actually
+          # serving nothing, which is worse than crash-looping.
+          #
+          # So: override boot_main_nfsd to warn (not die) on a non-zero exit,
+          # then check /proc/fs/nfsd/threads for the real answer -- retry a
+          # few times (transient memory pressure clears on its own), and only
+          # then fail loudly if threads genuinely never came up.
           command: ["bash", "-c"]
           args:
             - |
               set -e
-              sed -i 's#boot_helper_start_daemon "starting rpc.nfsd.*#log "starting rpc.nfsd on port $port with $threads server thread(s)"; "$PATH_BIN_NFSD" "${args[@]}" || log_warning "rpc.nfsd exited non-zero (expected in a container -- NFSv4 client recovery tracking is restricted in a network namespace; nfsd kernel threads are already running)"#' /usr/bin/nfsd.sh
-              exec bash /usr/bin/nfsd.sh
+              sed '$d' /usr/bin/nfsd.sh > /tmp/nfsd-lib.sh
+              source /tmp/nfsd-lib.sh
+
+              boot_main_nfsd() {
+                local version_flags
+                read -r -a version_flags <<< "$(boot_helper_get_version_flags)"
+                local -r threads="${state[$STATE_NFSD_THREAD_COUNT]}"
+                local -r port="${state[$STATE_NFSD_PORT]}"
+                local args=('--tcp' '--udp' '--port' "$port" "${version_flags[@]}" "$threads")
+                is_logging_debug && args+=('--debug')
+
+                log "starting rpc.nfsd on port $port with $threads server thread(s)"
+                "$PATH_BIN_NFSD" "${args[@]}" || log_warning "rpc.nfsd exited non-zero -- checking whether nfsd threads actually started (benign if only client recovery tracking failed to init; fatal if the thread pool itself didn't come up)"
+
+                local running=0 attempt
+                for attempt in 1 2 3 4 5; do
+                  running=$(cat /proc/fs/nfsd/threads 2>/dev/null || echo 0)
+                  [[ "$running" -gt 0 ]] && break
+                  log_warning "nfsd thread count is 0 (attempt $attempt/5) -- retrying in 3s"
+                  sleep 3
+                  echo "$threads" > /proc/fs/nfsd/threads 2>/dev/null || true
+                done
+
+                if [[ "$running" -eq 0 ]]; then
+                  bail "rpc.nfsd never actually started any threads after retries -- this is a real failure (check dmesg on the host node for OOM/ENOMEM), not the benign recovery-tracking case"
+                fi
+                log "confirmed $running nfsd thread(s) running"
+
+                if ! is_nfs3_enabled; then
+                  term_process "$PATH_BIN_RPCBIND"
+                fi
+              }
+
+              main
           securityContext:
             privileged: true # required for the in-container NFS kernel server
           resources:
