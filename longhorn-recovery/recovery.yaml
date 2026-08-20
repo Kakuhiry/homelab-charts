@@ -29,15 +29,11 @@ subjects:
   name: longhorn-recovery
   namespace: longhorn
 
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: egbp-nuc-ssh-key
-  namespace: longhorn
-type: Opaque
-data:
-  id_ed25519: ***REMOVED-SSH-PRIVATE-KEY***
+# egbp-nuc-ssh-key Secret (id_ed25519 private key + sudo-password) is managed
+# via egbp-nuc-ssh-key.sops.yaml in this same directory (SOPS-encrypted).
+# It used to be a raw private key + a hardcoded sudo password in the script
+# below, committed in plaintext -- fixed to read both from the mounted
+# secret instead.
 
 ---
 apiVersion: batch/v1
@@ -96,7 +92,7 @@ spec:
 
               if [ "$RECOVERED" -eq 0 ]; then
                 echo "[$(date -u +%H:%M:%S)] still broken — restarting k3s-agent on egbp-nuc"
-                ssh -i /ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=10                   egbp@10.0.0.23 'echo ***REMOVED-SUDO-PASSWORD*** | sudo -S systemctl restart k3s-agent' 2>/dev/null || true
+                ssh -i /ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=10                   egbp@10.0.0.23 "echo $(cat /ssh/sudo-password) | sudo -S systemctl restart k3s-agent" 2>/dev/null || true
                 sleep 45
               fi
 

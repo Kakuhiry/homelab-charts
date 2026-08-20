@@ -1,0 +1,57 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale-operator
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://pkgs.tailscale.com/helmcharts
+      chart: tailscale-operator
+      targetRevision: 1.80.0
+      helm:
+        values: |
+          apiServerProxyConfig:
+            mode: "false"
+          imagePullSecrets: []
+          installCRDs: true
+          # oauth client id/secret intentionally left empty -- the chart
+          # falls back to a pre-existing Secret named operator-oauth (see
+          # ../secrets/operator-oauth.sops.yaml, decrypted in-cluster by
+          # sops-secrets-operator) when this block is unset.
+          oauth: {}
+          operatorConfig:
+            affinity: {}
+            defaultTags:
+              - tag:k8s-operator
+            hostname: tailscale-operator
+            image:
+              digest: ""
+              pullPolicy: Always
+              repository: tailscale/k8s-operator
+              tag: ""
+            logging: info
+            nodeSelector:
+              kubernetes.io/os: linux
+            podAnnotations: {}
+            podLabels: {}
+            podSecurityContext: {}
+            resources: {}
+            securityContext: {}
+            tolerations: []
+          proxyConfig:
+            defaultTags: tag:k8s
+            firewallMode: auto
+            image:
+              digest: ""
+              repository: tailscale/tailscale
+              tag: ""
+    - repoURL: git@github.com:Kakuhiry/homelab-charts.git
+      targetRevision: HEAD
+      path: tailscale-operator/secrets
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

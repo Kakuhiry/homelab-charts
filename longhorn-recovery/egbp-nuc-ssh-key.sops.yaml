@@ -1,0 +1,26 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: egbp-nuc-ssh-key
+    namespace: longhorn
+spec:
+    secretTemplates:
+        - name: egbp-nuc-ssh-key
+          stringData:
+            id_ed25519: ENC[AES256_GCM,data:kZaqk82mxSwf97sK453JPMghAF2To99E6dR2nhVdpqm19wpA9a53uIbilSbIsE0EI/9l7nadU2PA0yTeb5bVufykfS3mUWYyverl7Jvl1/8V7UNyDFTV+G+utpKR/t6eOeyIO0UHHD79WhB0dtM/FbVjt3nBEp9wVokMXm8jMlCs/4PCPPOnuWlfbe1IuD37qBK231LE+OVWecGWNMIHSLDZ4Jk7/Rzdh/25yLaDDmlbiu+G5+hWBfpySxjYU9qNEKvvYjziXX5FSrTKIPbKKEQgJkctNihDofhWsgD1/oYV71skI86Ungi9zuwhkTx3iUmvScdqOwlcqQU/FTGxAbGhqO9be14U0bbvb5vbrprK6RICeFjiazLWtImY5DZ66R0uRu58ihW/BhNwdluqi0AITISSGUG8vOs5qyG7u4oGwng/33HHeiQtogX6OubwroK9vrswY0t3sHi4qYtMy0/ilNNTvkGbfiUKjPoZOsdMqFal8TvwEzATIzFY0BjUoy6VEamnN3771g6wL5Qw5xIqvk9flB8m7xBDJ0dZFVGYhyg=,iv:ylPfUaTO3UPh/quVdJPorjEBZ+Bqsa8HuOSsNquRpr8=,tag:0hhiwK7clH9VKmjNkMrp3w==,type:str]
+            sudo-password: ENC[AES256_GCM,data:DXjkUA==,iv:LsQblvCGTiYt+tkJ3dm/qxsqc7i0Ql0Or4obYKlsQEk=,tag:gBo9ImrYS2jy0Y37FkjXhg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzMmVXY1ZqWldza3Z6ZFVK
+            T0xESkx1ZExuSGNmaFF3aFJSNVhYVFFWc1ZrCkNmbksrNHh5cUZZRENMZXMrNzl3
+            OW1SZWh3bUE2U3d1YnRVUU1nZzVZejAKLS0tIEpnYzIwMFlYeXBFeXU0OWUyaTJZ
+            dVA5TGlRSjFKZTVaSGxhdHBBVWQzQ1EKgISpy8qj1aDyQq+T6kKgoHMxkGUYjYYj
+            ccbrqyVqV/rxlgCZZqztA7bXSBAgX8n9I+0esX6pFXhTHEolS+pcWQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T23:16:50Z"
+    mac: ENC[AES256_GCM,data:+Ly3XpaoD3LlFZomBTflezGferZoVG8oBbhrttfa5xPcUBSXEDCkkBCzffjeGS2g2xYwZC+x/oAsaC2fTvBIVt+pAbIUGQdbQogx5iSAp6+F9TV1NMMZsH55vphgTD/961L+Du/oTdSQA8INo+56kls4RJDOs2lKzv2veXFUCrk=,iv:ddEQqKi+S9/TA0uk3LhKkf98SmhEE2o3v7KafiCogXk=,tag:W8CclLQDTTgJrN5ujmeVng==,type:str]
+    version: 3.13.3

@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: cluster-assistant-anthropic-key
+    namespace: torklink
+spec:
+    secretTemplates:
+        - name: cluster-assistant-anthropic-key
+          stringData:
+            api-key: ENC[AES256_GCM,data:bIiQl9Un/hlAI+lP60guG8G+71fCUJyDp0SVew+oyDHdpxCkO/N7ZurwY8odhDeq2NOrZE9QIPa70bU+JzEyRycXOv4K2sREDGQnrUL1gWxHRocD0a5UNqen3x55wgMwuBCnfp+hrD24f8sR,iv:CA5vfQ9uV9rw8j86oXFDOKKsCNF61F7N+2Q/w4EScxQ=,tag:9lzlzvUHxOYCbTquSsspUQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBVVnd1LzE1b2ZmUWVvYTNl
+            eDJveHVSd2EzK3hML1A2RHI3M3graHl3eUVvClgwdnc2SFpPSXVvbWJpQjRpNm9z
+            RVFWYmpBOTN5V0JkY0hGZHU3ZnNXWk0KLS0tIDNaMm80bXFBcmhrOEdQNjhjdU5N
+            YUMxbXQva0RYTmpvOTh4OXFpMkJva00K60qym+J+p/+0c12B2JcxL6AC/3nA52jg
+            AYO6GDTzaDU6TDbV0eCdE+ESXgOgGaVUSiAYRck3IXBVjL7i9xwXhA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T22:44:38Z"
+    mac: ENC[AES256_GCM,data:GUAjr5vzmUhFW1oiyTDG/+4bs7Q/ahGMR3oSOC6iWYO8G0Z553rgGkSDYgb0dWw9nDbJSFMYrV/z8KHNbAf3gXr213hxK87j0K0HNXOvFJEHoQibe7jpPaGxyeN7MTlC5XBI7buMFwTNdCXo3JxEPfGM62/LctP/nVaw915k+EA=,iv:cRpisaBPPThgzPR+L9Fe1TwfCs7Ue7rbhhOAkb70zU8=,tag:Saim9q514ixVW3nDkF9CjQ==,type:str]
+    version: 3.13.3

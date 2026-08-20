@@ -8,6 +8,10 @@ metadata:
     app: mariadb
 spec:
   replicas: 1
+  strategy:
+    type: Recreate # single RWO PVC -- RollingUpdate deadlocks (new pod can't
+                    # attach until old releases, old won't terminate until
+                    # new is ready)
   selector:
     matchLabels:
       app: mariadb

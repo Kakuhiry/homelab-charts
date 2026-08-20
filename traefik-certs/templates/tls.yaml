@@ -1,12 +1,9 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: cloudflare-api-token
-  namespace: cert-manager
-type: Opaque
-stringData:
-  api-token: {{ .Values.cloudflare.apiToken }}
----
+# cloudflare-api-token Secret is managed via cloudflare-api-token.sops.yaml
+# in this same templates/ dir (SOPS-encrypted). It used to be templated here
+# from .Values.cloudflare.apiToken, but that value was never actually set
+# anywhere in git -- meaning a full re-sync of this chart would have
+# rendered an empty token and silently clobbered the real (out-of-band)
+# secret. Removed in favor of the SopsSecret.
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

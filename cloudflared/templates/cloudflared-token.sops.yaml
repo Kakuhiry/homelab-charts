@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: cloudflared
+    namespace: cloudflared
+spec:
+    secretTemplates:
+        - name: cloudflared
+          stringData:
+            token: ENC[AES256_GCM,data:NUO44F/uofq/yJFYY2Irzjbn8LZ6pURkeyXxGD4OP3U7RTvioKp89pKFEhH5HS720J4NKnRpW5qiBQ3E1sKP4rUQm+Q5nFb+o8PLQMYhad0IwK8OrOlH1m5lbQE2YpH7zMc+BrfAdv4kMbuR8e7A6fHyQlznqpyfnOHe6+OfEdZd7Q8NYxCwDXdlUN8FU9M31HZUlhNsp7sauvaFkjJayTCJWmzL2KPRshJBQn9dYsw4g8HYH7dXZg==,iv:dxNDhyr3rYNhbEcofQcFzeccxyqUm1goPY1Et72Iuu8=,tag:OyHE34ohX7cW+RFr8JNEJg==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBQWTVIQURQRUhQeWNkb2h2
+            Rlgzd0d6L3BQMTN6ZjVDWWx1VUpCOURiUmprClJLVkpWcUJpZWhaU3NsU2NrdStn
+            TTU1U2g5RW1GaTc2ZjlIbEZ5eHgzaXMKLS0tIEY5RGR1QjQwWGRQdERoZC9BM201
+            aGtkMDEyclk4L2lHbHR3cFBUT05NNGcKMBKIjHF+3l2ZWLKX53I6EgMl06oPszFB
+            HgkzrXN0x+wW6XKjNH120qgJm0g+ZBo4nO+QP7rZtO/r2G/QfgWoow==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T23:11:57Z"
+    mac: ENC[AES256_GCM,data:8mS8ohKFZ3SbrgjnTbVARbyq3Jcsj9lqev79l1k8SrpqyalDq2w4S1xMpFVkHpKYp5nfXrQfl/z/0PUiEtCQG7J8CR34GcrfIHpdo7CFFD64EZlHWnI0ATbWcS0UxLsBfAOd9j6DlFR3xZyHd9tucovWCzNReLoJEz7A2poARGc=,iv:HHutXgaDWaAEfVUOhMICjiVybya8GZyNMxodsMUYQWU=,tag:Pa27EChD/iYwdhnPkfQHJw==,type:str]
+    version: 3.13.3

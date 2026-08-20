@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: cloudflare-api-token
+    namespace: cert-manager
+spec:
+    secretTemplates:
+        - name: cloudflare-api-token
+          stringData:
+            api-token: ENC[AES256_GCM,data:p2DSpfYFOT1bFQhtmMSMIGXoXrm/6zbQbuWm/tT4ayIsSaK54iRp+Q==,iv:FOUNROCChkLfU//boFV5j1y+Om3Bw//C5dWngFQpo9Q=,tag:qeiiTBVCeKI7bSAHL8SCxQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBMZkZEY3ErOHlvcXAzNENS
+            M3l6cXVPMEtsc2VaN3dtcDZSMmh1VkV2VldzCkR4STZnUFdRR0VOYWtUenl2YkNG
+            ZWxtckM4RUF5VkVTK2cxMG1rak1jL3MKLS0tIHE3U2pPQ3hKSlpYS01zOTdUdWRj
+            N2RmYUJvSENmODFBb29HcVg3Tm9xajAKvKudZ6eWkp25MScZGqKBoNQNuUdKO3V9
+            9bAaFasH/pdw4MORwN3C/6y/1Y0NiC5updb6C34zOSAOtqWs8fG6sg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T23:11:04Z"
+    mac: ENC[AES256_GCM,data:dy3NCulHPHF21SZND2aewzUJh5m74pCU+U0JPXiXzukTPn8dLKBNNle0m3sHz1jhqxzJEZvQQO9NMQPZlKsnKbfzuHulDS9QFT8+K9RzpnOVgUEh7medT2xNbasFMdZZXZVOJTGidII2Q7DRExA05alYC+3suWjpS2Ke6l87BuM=,iv:ldCYX5d1wJWBFE7cyJHVhWn64Z3SB49QzbvSC3mBVcs=,tag:v2VMLqrRU2mEa2uCJQ0wHA==,type:str]
+    version: 3.13.3
