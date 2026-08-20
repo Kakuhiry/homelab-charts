@@ -25,8 +25,8 @@ bot:
       memory: 2Gi
   savePath: /downloads
   temporalHost: temporal-frontend.temporal.svc.cluster.local:7233
-  # discord-token secret is created out-of-band (kubectl create secret),
-  # not committed to git.
+  # discord-token secret is managed via templates/discord-bot-token.sops.yaml
+  # (SOPS-encrypted, decrypted in-cluster by sops-secrets-operator).
   discordTokenSecretName: discord-bot-token
 
 persistence:

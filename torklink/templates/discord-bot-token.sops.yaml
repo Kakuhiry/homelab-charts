@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: discord-bot-token
+    namespace: torklink
+spec:
+    secretTemplates:
+        - name: discord-bot-token
+          stringData:
+            token: ENC[AES256_GCM,data:mbiGqMSglCTt6Ume06RDQ6QdxccQCOkJ7zIS/+7GQN06eH8TsiFXwdtJnAL/Bvgk4bjINRHs14jOd4ApyVM9durkEmdtzBbB,iv:3nj3UjQ7vw5oh8xb6m4p7GAqQX2XRUROO2UKaAXnbBU=,tag:LbFwXihVveBKqCTzI2gSqQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBXbm1JTWlqaG9FcmNheDVl
+            emhnTyt2eGZ1bjBLZTZHOHk2anp1OTBpRkhRCnhjcTRNVnhNUitnam55YXQvcTNr
+            UGFNS296V1pxb0REclp6Q3pGRUFPSkEKLS0tIGs4NHEvRTRIRUhJQmJRYmg2Nk1a
+            U21HU2wyTy9BWjhQNnBBZ01zazV4NjAKnqxZ3l7CKiVV/MDCoDOIWiY280IhPXPM
+            y+0gEYu3W9QOdpEvH1g/lDo6NZ95aYVwrqHczIiba/x1Pqcual3Y2Q==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T22:02:59Z"
+    mac: ENC[AES256_GCM,data:OOqycUqj597zgJSBrRNTdbeUwRsweDAi1Y1OI+ydQbGp2VqCNTPiudseKQi4k/HbRGGfpB43DOOR79k+Mmy4Bl9ul3aevnYIEAgYNYaqnApl9cL4kYsGibwW/3EjKb6cgOlFdI9bPCuaClewUTT0cXSec8GSu4X3ltVt2kisgKs=,iv:todBk+q6VGyiCM7XXAwsV42TlavON+4Kk4w09qKu/D8=,tag:lEnxVVB4PtFtJ9tDpMpeIg==,type:str]
+    version: 3.13.3
