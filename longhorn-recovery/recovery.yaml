@@ -92,6 +92,10 @@ spec:
 
               if [ "$RECOVERED" -eq 0 ]; then
                 echo "[$(date -u +%H:%M:%S)] still broken — restarting k3s-agent on egbp-nuc"
+                # alpine/k8s has no ssh client baked in -- install it here
+                # (only on this fallback path, not on every run) rather than
+                # switching base images.
+                apk add --no-cache --quiet openssh-client >/dev/null 2>&1
                 ssh -i /ssh/id_ed25519 -o StrictHostKeyChecking=no -o ConnectTimeout=10                   egbp@10.0.0.23 "echo $(cat /ssh/sudo-password) | sudo -S systemctl restart k3s-agent" 2>/dev/null || true
                 sleep 45
               fi
