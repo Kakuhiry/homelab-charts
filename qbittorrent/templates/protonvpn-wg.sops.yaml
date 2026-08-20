@@ -1,0 +1,26 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: protonvpn-wg
+    namespace: media
+spec:
+    secretTemplates:
+        - name: protonvpn-wg
+          stringData:
+            addresses: ENC[AES256_GCM,data:YG4fPQ5uu3n49rw=,iv:WIDzxkkGeFwAWnNaqNOKADhDBU/iWYpMaJwH1ziujC8=,tag:A2svRWuQgDni91vvmONGhg==,type:str]
+            privateKey: ENC[AES256_GCM,data:NWUfw73/jp0hC+GGCuta/5J39Yina1fMZKoaoSKpzn2GSwjAH8vGIST63hE=,iv:+1qhDyAPinPI7rJI2WQTNpQXa3BAQvJRnUWNPu8o4Xk=,tag:u2g4I24gMrMYhwbzNJ9wuw==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBDRUlIMmg1UUdpWmVFYitZ
+            NE9QMTMya3REYkVqYmVYVGFVajdxWWF4bXpZCjdSS0ZVd3JDZmpxbHVMTTZTMit4
+            djM0NEN1SXB0bVk4dmowK2FFWjFlbXcKLS0tIDlNTDFkYXdSVnkyT1RVZlUrUjNY
+            NWxqTm5xdWF3dFdRbGNNQm9jY21CQUEKQlNrSs/xv6MOfMItq1021HIq6KFRVVtg
+            leduIinA6+ZYhAToxvD2+9gCG8o5trOo49wFQCbV29mm08YITo6nLA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-20T23:56:45Z"
+    mac: ENC[AES256_GCM,data:14+fShLZjZ7hvyszkQO6SIhCRAoSIaX1/L0KjNCefNNMtJMgYx6upCGOspXYX0T7sPxIhaU3soyDKiCB70A04j/boXwd/Px6u19rp2jvdb+D6RL2YLcgFRxtrGWp1T2OjTmbE3CWdHlgjFJA8C76DY7C6Itq5FYd5YKpf3V3KiQ=,iv:EbGZ1/KoW4t7SKS6j9oSrY6PxcaUFGsVJHvoMX7m/3E=,tag:nfqVgPOCjNv8vjBf61zeag==,type:str]
+    version: 3.13.3
