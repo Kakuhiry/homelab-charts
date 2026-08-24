@@ -1,19 +1,45 @@
+{{/*
+Secondary (passive) Jellyfin Deployment, pinned to egbp-nuc's Intel iGPU.
+
+replicas is intentionally hardcoded to 0 here (not driven by
+.Values.replicaCount -- that's the primary's) so ArgoCD's declared state
+always represents "failover not engaged". It is scaled 0<->1 exclusively by
+the jellyfin-failover CronJob (../../jellyfin-failover/) in response to
+egbp-pc node health. This is safe only because the jellyfin ArgoCD
+Application has syncPolicy.automated.selfHeal: false (see
+argo-application.yaml) -- if that ever changes, ArgoCD will fight the
+CronJob's live replica changes on every reconcile. Do not "fix" that.
+
+Carries the same app.kubernetes.io/name + app.kubernetes.io/instance labels
+as the primary so the jellyfin-real Service (templates/service.yaml,
+selector = jellyfin.selectorLabels only) routes to whichever Deployment is
+actually scaled up -- but adds variant: secondary (mirrored by
+variant: primary on the primary, see deployment.yaml) so the two
+Deployments' own spec.selector.matchLabels stay disjoint, per Kubernetes'
+warning against two Deployments both trying to own the same pods.
+
+Mounts the same jellyfin-config-pvc as the primary (via the shared
+.Values.persistence.config), so library/users/watch-history/settings are
+identical across failover -- only one pod can hold this RWO PVC at a time,
+which the failover CronJob's cleanup step accounts for.
+*/}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "jellyfin.fullname" . }}
+  name: {{ include "jellyfin.fullname" . }}-secondary
   labels:
     {{- include "jellyfin.labels" . | nindent 4 }}
+    variant: secondary
 spec:
   {{- with .Values.strategy }}
   strategy:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: 0
   selector:
     matchLabels:
       {{- include "jellyfin.selectorLabels" . | nindent 6 }}
-      variant: primary
+      variant: secondary
   template:
     metadata:
       annotations:
@@ -24,7 +50,7 @@ spec:
         {{- end }}
       labels:
         {{- include "jellyfin.selectorLabels" . | nindent 8 }}
-        variant: primary
+        variant: secondary
     spec:
       hostNetwork: {{ .Values.hostNetwork }}
       {{- with .Values.imagePullSecrets }}
@@ -32,9 +58,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "jellyfin.serviceAccountName" . }}
-      {{- with .Values.runtimeClassName }}
-      runtimeClassName: {{ . }}
-      {{- end }}
+      {{- /* No runtimeClassName: Intel iGPU passthrough via /dev/dri needs no special container runtime, unlike NVIDIA on the primary. */}}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       dnsPolicy: {{ .Values.dnsPolicy }}
@@ -84,14 +108,12 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.secondary.resources | nindent 12 }}
       {{- with .Values.sidecarContainers }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- toYaml .Values.secondary.nodeSelector | nindent 8 }}
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}

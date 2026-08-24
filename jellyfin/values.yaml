@@ -61,10 +61,34 @@ resources:
   limits:
     nvidia.com/gpu: '1'
 
+# Formalizes what was previously live-only drift: someone kubectl-edited this
+# onto the running Deployment (needed for NVIDIA GPU passthrough) but it was
+# never committed here. Safe to have drifted since jellyfin's ArgoCD
+# Application has selfHeal: false (see argo-application.yaml) -- but if this
+# chart were ever recreated from git alone, GPU transcoding would silently
+# stop working without this.
+runtimeClassName: nvidia
+
 nodeSelector:
   kubernetes.io/hostname: egbp-pc
 tolerations: []
 affinity: {}
+
+# Passive secondary (egbp-nuc, Intel iGPU) -- used only by
+# templates/deployment-secondary.yaml, scaled 0<->1 exclusively by the
+# jellyfin-failover CronJob (../jellyfin-failover/) based on egbp-pc's node
+# health. Only the fields that actually differ from the primary live here;
+# everything else (image, env, extraVolumes, persistence.config -- same
+# jellyfin-config-pvc, strategy, probes) is reused directly from the shared
+# values above, same as deployment.yaml does. Deliberately no
+# runtimeClassName -- Intel iGPU passthrough via /dev/dri needs no special
+# container runtime, unlike NVIDIA.
+secondary:
+  nodeSelector:
+    kubernetes.io/hostname: egbp-nuc
+  resources:
+    limits:
+      gpu.intel.com/i915: '1'
 
 env:
   PUID: "0"

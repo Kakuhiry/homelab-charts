@@ -1,0 +1,237 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jellyfin-failover
+  namespace: media
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jellyfin-failover
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list"]
+- apiGroups: ["storage.k8s.io"]
+  resources: ["volumeattachments"]
+  verbs: ["get", "list", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jellyfin-failover
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jellyfin-failover
+subjects:
+- kind: ServiceAccount
+  name: jellyfin-failover
+  namespace: media
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: jellyfin-failover
+  namespace: media
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "delete"]
+- apiGroups: [""]
+  resources: ["persistentvolumeclaims"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: jellyfin-failover
+  namespace: media
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: jellyfin-failover
+subjects:
+- kind: ServiceAccount
+  name: jellyfin-failover
+  namespace: media
+
+---
+# Scales the jellyfin/jellyfin-secondary Deployments (defined in ../jellyfin/)
+# based on egbp-pc's node health -- see ../jellyfin/values.yaml and
+# ../jellyfin/templates/deployment-secondary.yaml for the two pod specs this
+# switches between (NVIDIA on egbp-pc vs Intel iGPU on egbp-nuc).
+#
+# Uses kubectl patch (not kubectl scale) throughout, deliberately: kubectl
+# scale writes through the deployments/scale subresource, which needs its
+# own separate RBAC grant. kubectl patch deployment ... -p '{"spec":
+# {"replicas":N}}' only needs get+patch on deployments itself (see Role
+# above).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: jellyfin-failover
+  namespace: media
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 120
+      template:
+        spec:
+          serviceAccountName: jellyfin-failover
+          nodeSelector:
+            kubernetes.io/hostname: egbp
+          restartPolicy: Never
+          containers:
+          - name: failover
+            image: alpine/k8s:1.27.13
+            env:
+            # Sustained-NotReady duration required before failing over.
+            # Comfortably past k8s's own ~40s node-monitor grace period and
+            # 5m pod-eviction-timeout (not racing k8s's own eviction
+            # machinery), and long enough not to trip on a routine
+            # reboot/driver update on egbp-pc.
+            - name: FAILOVER_THRESHOLD_MIN
+              value: "10"
+            # Sustained-Ready duration required before failing back.
+            # Deliberately longer than the failover threshold: getting
+            # service back up after an outage is urgent, but failing back
+            # (which risks interrupting an active stream on the secondary)
+            # is not, so we wait longer to be sure egbp-pc is actually
+            # stable and not flapping through a boot sequence.
+            - name: FAILBACK_THRESHOLD_MIN
+              value: "15"
+            # Set to "true" to log intended actions without executing any
+            # mutating kubectl call. Used for the initial live test.
+            - name: DRY_RUN
+              value: "false"
+            command:
+            - /bin/sh
+            - -c
+            - |
+              NS=media
+              PRIMARY_NODE=egbp-pc
+              SECONDARY_NODE=egbp-nuc
+              PRIMARY_DEPLOY=jellyfin
+              SECONDARY_DEPLOY=jellyfin-secondary
+              PVC=jellyfin-config-pvc
+
+              run() {
+                if [ "$DRY_RUN" = "true" ]; then
+                  echo "[DRY_RUN] would run: $*"
+                else
+                  "$@"
+                fi
+              }
+
+              READY_STATUS=$(kubectl get node "$PRIMARY_NODE" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null || echo "")
+              READY_SINCE=$(kubectl get node "$PRIMARY_NODE" -o jsonpath='{.status.conditions[?(@.type=="Ready")].lastTransitionTime}' 2>/dev/null || echo "")
+
+              if [ -z "$READY_SINCE" ]; then
+                echo "[$(date -u +%H:%M:%S)] could not read $PRIMARY_NODE Ready condition -- skipping this run"
+                exit 0
+              fi
+
+              since_epoch=$(python3 -c 'import sys,calendar,time; print(calendar.timegm(time.strptime(sys.argv[1], "%Y-%m-%dT%H:%M:%SZ")))' "$READY_SINCE")
+              now_epoch=$(date -u +%s)
+              elapsed_min=$(( (now_epoch - since_epoch) / 60 ))
+
+              DESIRED=""
+              if [ "$READY_STATUS" != "True" ] && [ "$elapsed_min" -ge "$FAILOVER_THRESHOLD_MIN" ]; then
+                DESIRED="secondary"
+              elif [ "$READY_STATUS" = "True" ] && [ "$elapsed_min" -ge "$FAILBACK_THRESHOLD_MIN" ]; then
+                DESIRED="primary"
+              fi
+
+              if [ -z "$DESIRED" ]; then
+                echo "[$(date -u +%H:%M:%S)] $PRIMARY_NODE Ready=$READY_STATUS for ${elapsed_min}m -- below threshold, no action"
+                exit 0
+              fi
+
+              PRIMARY_REPLICAS=$(kubectl get deployment "$PRIMARY_DEPLOY" -n "$NS" -o jsonpath='{.spec.replicas}' 2>/dev/null || echo 0)
+              SECONDARY_REPLICAS=$(kubectl get deployment "$SECONDARY_DEPLOY" -n "$NS" -o jsonpath='{.spec.replicas}' 2>/dev/null || echo 0)
+
+              if [ "$DESIRED" = "secondary" ] && [ "$PRIMARY_REPLICAS" = "0" ] && [ "$SECONDARY_REPLICAS" = "1" ]; then
+                echo "[$(date -u +%H:%M:%S)] already failed over to secondary -- no-op"
+                exit 0
+              fi
+              if [ "$DESIRED" = "primary" ] && [ "$PRIMARY_REPLICAS" = "1" ] && [ "$SECONDARY_REPLICAS" = "0" ]; then
+                echo "[$(date -u +%H:%M:%S)] already on primary -- no-op"
+                exit 0
+              fi
+
+              PV=$(kubectl get pvc "$PVC" -n "$NS" -o jsonpath='{.spec.volumeName}')
+
+              # Find pod names for a given variant stuck on a given node, and
+              # stale VolumeAttachment names for our PVC pinned to that node.
+              # Done via python3 (present in alpine/k8s) rather than shell
+              # jsonpath filter expressions, which get unreliable once a
+              # shell variable needs to land inside a [?(@...)] filter.
+              pods_stuck_on_node() {
+                variant=$1
+                dead_node=$2
+                kubectl get pods -n "$NS" -l "app.kubernetes.io/name=jellyfin,variant=$variant" -o json 2>/dev/null | \
+                  python3 -c "
+              import json, sys
+              d = json.load(sys.stdin)
+              dead_node = sys.argv[1]
+              for p in d.get('items', []):
+                  if p.get('spec', {}).get('nodeName') == dead_node:
+                      print(p['metadata']['name'])
+              " "$dead_node"
+              }
+
+              stale_volumeattachments() {
+                dead_node=$1
+                pv=$2
+                kubectl get volumeattachments -o json 2>/dev/null | \
+                  python3 -c "
+              import json, sys
+              d = json.load(sys.stdin)
+              dead_node, pv = sys.argv[1], sys.argv[2]
+              for va in d.get('items', []):
+                  spec = va.get('spec', {})
+                  if spec.get('nodeName') == dead_node and spec.get('source', {}).get('persistentVolumeName') == pv:
+                      print(va['metadata']['name'])
+              " "$dead_node" "$pv"
+              }
+
+              cleanup_stuck() {
+                variant=$1
+                dead_node=$2
+                echo "[$(date -u +%H:%M:%S)] cleaning up variant=$variant pods stuck on $dead_node"
+                pods_stuck_on_node "$variant" "$dead_node" | while read -r pod; do
+                  [ -n "$pod" ] && run kubectl delete pod "$pod" -n "$NS" --force --grace-period=0
+                done
+
+                echo "[$(date -u +%H:%M:%S)] cleaning up stale VolumeAttachments for $PV on $dead_node"
+                stale_volumeattachments "$dead_node" "$PV" | while read -r va; do
+                  [ -n "$va" ] && run kubectl delete volumeattachment "$va"
+                done
+              }
+
+              if [ "$DESIRED" = "secondary" ]; then
+                echo "[$(date -u +%H:%M:%S)] $PRIMARY_NODE NotReady for ${elapsed_min}m -- failing over to secondary ($SECONDARY_NODE)"
+                run kubectl patch deployment "$PRIMARY_DEPLOY" -n "$NS" --type merge -p '{"spec":{"replicas":0}}'
+                cleanup_stuck primary "$PRIMARY_NODE"
+                run kubectl patch deployment "$SECONDARY_DEPLOY" -n "$NS" --type merge -p '{"spec":{"replicas":1}}'
+                echo "[$(date -u +%H:%M:%S)] failover complete"
+              else
+                echo "[$(date -u +%H:%M:%S)] $PRIMARY_NODE healthy for ${elapsed_min}m -- failing back to primary"
+                run kubectl patch deployment "$SECONDARY_DEPLOY" -n "$NS" --type merge -p '{"spec":{"replicas":0}}'
+                cleanup_stuck secondary "$SECONDARY_NODE"
+                run kubectl patch deployment "$PRIMARY_DEPLOY" -n "$NS" --type merge -p '{"spec":{"replicas":1}}'
+                echo "[$(date -u +%H:%M:%S)] failback complete"
+              fi

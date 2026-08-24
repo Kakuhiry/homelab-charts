@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jellyfin-failover
+  namespace: argocd
+  annotations:
+    # After jellyfin's own wave (1), purely for readability/intent -- not a
+    # hard dependency since RBAC/CronJob creation doesn't require the
+    # jellyfin Deployments to already exist.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
+    targetRevision: HEAD
+    path: jellyfin-failover
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: media
+  syncPolicy:
+    automated:
+      prune: true
+      # Safe to leave true here -- unlike jellyfin's own Application, this
+      # CronJob mutates the *jellyfin* chart's Deployments (a different
+      # release), never anything in this directory's own manifest set, so
+      # there's no drift for ArgoCD to fight.
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

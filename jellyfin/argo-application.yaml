@@ -17,6 +17,11 @@ spec:
   syncPolicy:
     automated:
       prune: true
+      # Must stay false: the jellyfin-failover CronJob (../jellyfin-failover/)
+      # scales this chart's two Deployments (jellyfin <-> jellyfin-secondary)
+      # live, outside of git, based on egbp-pc node health. If this were
+      # true, ArgoCD would revert those scale operations on its next
+      # ~3-minute reconcile and silently break automated failover.
       selfHeal: false
     syncOptions:
       - CreateNamespace=true
