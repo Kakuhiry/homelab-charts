@@ -74,6 +74,12 @@ nodeSelector:
 tolerations: []
 affinity: {}
 
+# Forced into encoding.xml's HardwareAccelerationType on every container
+# start by templates/configmap-hwaccel-init.yaml, since jellyfin-config-pvc
+# is shared with the secondary (Intel) variant -- see that file's comment
+# for the full why. Must match the actual GPU on nodeSelector's node above.
+hwaccelType: nvenc
+
 # Passive secondary (egbp-nuc, Intel iGPU) -- used only by
 # templates/deployment-secondary.yaml, scaled 0<->1 exclusively by the
 # jellyfin-failover CronJob (../jellyfin-failover/) based on egbp-pc's node
@@ -89,6 +95,8 @@ secondary:
   resources:
     limits:
       gpu.intel.com/i915: '1'
+  # See hwaccelType above -- Intel QuickSync backend, matches egbp-nuc's iGPU.
+  hwaccelType: qsv
 
 env:
   PUID: "0"

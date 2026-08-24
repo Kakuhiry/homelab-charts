@@ -45,6 +45,7 @@ spec:
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/hwaccel-init: {{ include (print $.Template.BasePath "/configmap-hwaccel-init.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -81,9 +82,14 @@ spec:
               name: config
             - mountPath: /data
               name: data
+            - mountPath: /custom-cont-init.d
+              name: hwaccel-init
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          env:
+            - name: JELLYFIN_HWACCEL_TYPE
+              value: {{ .Values.secondary.hwaccelType | quote }}
           envFrom:
             - configMapRef:
                 name: {{ include "jellyfin.fullname" . }}
@@ -149,6 +155,10 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
+        - name: hwaccel-init
+          configMap:
+            name: {{ include "jellyfin.fullname" . }}-hwaccel-init
+            defaultMode: 0755
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

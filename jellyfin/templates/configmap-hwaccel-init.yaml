@@ -1,0 +1,62 @@
+# Provides the linuxserver.io custom-cont-init.d script (see
+# https://docs.linuxserver.io/general/container-customization/#custom-init-scripts)
+# that force-corrects EncodingOptions.HardwareAccelerationType in
+# /config/encoding.xml on every container start, per JELLYFIN_HWACCEL_TYPE
+# (set differently per variant -- see deployment.yaml / deployment-secondary.yaml
+# and .Values.hwaccelType / .Values.secondary.hwaccelType).
+#
+# Why this is needed: jellyfin-config-pvc (Longhorn RWO) is the SAME volume
+# mounted by both the primary (egbp-pc, NVIDIA/nvenc) and secondary
+# (egbp-nuc, Intel/qsv) Deployments -- only one is ever scaled up at a time
+# (see ../jellyfin-failover/), but Jellyfin's own encoding.xml has no concept
+# of "which node am I on right now": whichever variant the Admin UI was last
+# used on wins for BOTH, silently breaking hardware transcoding on the other
+# variant after the next failover/fail-back. Confirmed live 2026-08-24: the
+# primary (egbp-pc, NVIDIA) had HardwareAccelerationType=qsv left over from
+# testing the secondary earlier that session.
+#
+# Only corrects HardwareAccelerationType itself -- that's the one field that
+# actually selects the transcode backend. VaapiDevice/QsvDevice are left
+# alone: their stock values (renderD128 / auto-detect) already work
+# correctly on whichever node has /dev/dri, and are simply unused/inert
+# whenever HardwareAccelerationType picks a different backend (nvenc).
+#
+# No-ops safely if encoding.xml doesn't exist yet (fresh install, before the
+# user has ever opened Admin -> Playback -> Transcoding) -- nothing to
+# correct until Jellyfin itself creates the file.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "jellyfin.fullname" . }}-hwaccel-init
+  labels:
+    {{- include "jellyfin.labels" . | nindent 4 }}
+data:
+  10-hwaccel-fixup.sh: |
+    #!/usr/bin/with-contenv bash
+    set -uo pipefail
+
+    ENCODING_XML=/config/encoding.xml
+
+    if [[ -z "${JELLYFIN_HWACCEL_TYPE:-}" ]]; then
+      echo "[hwaccel-fixup] JELLYFIN_HWACCEL_TYPE not set, skipping"
+      exit 0
+    fi
+
+    if [[ ! -f "${ENCODING_XML}" ]]; then
+      echo "[hwaccel-fixup] ${ENCODING_XML} does not exist yet (not configured via Admin UI yet), skipping"
+      exit 0
+    fi
+
+    CURRENT=$(xmlstarlet sel -t -v '/EncodingOptions/HardwareAccelerationType' "${ENCODING_XML}" 2>/dev/null || echo "")
+
+    if [[ "${CURRENT}" == "${JELLYFIN_HWACCEL_TYPE}" ]]; then
+      echo "[hwaccel-fixup] HardwareAccelerationType already '${JELLYFIN_HWACCEL_TYPE}', no change needed"
+      exit 0
+    fi
+
+    echo "[hwaccel-fixup] HardwareAccelerationType was '${CURRENT}', correcting to '${JELLYFIN_HWACCEL_TYPE}' for this node"
+    if xmlstarlet ed --inplace -u '/EncodingOptions/HardwareAccelerationType' -v "${JELLYFIN_HWACCEL_TYPE}" "${ENCODING_XML}"; then
+      echo "[hwaccel-fixup] done"
+    else
+      echo "[hwaccel-fixup] WARNING: xmlstarlet edit failed, leaving encoding.xml untouched"
+    fi
