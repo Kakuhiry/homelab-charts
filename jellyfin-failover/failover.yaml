@@ -81,7 +81,7 @@ metadata:
   name: jellyfin-failover
   namespace: media
 spec:
-  schedule: "*/2 * * * *"
+  schedule: "* * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -99,12 +99,17 @@ spec:
             image: alpine/k8s:1.27.13
             env:
             # Sustained-NotReady duration required before failing over.
-            # Comfortably past k8s's own ~40s node-monitor grace period and
-            # 5m pod-eviction-timeout (not racing k8s's own eviction
-            # machinery), and long enough not to trip on a routine
-            # reboot/driver update on egbp-pc.
+            # Lowered from 10min to 1min at explicit user request (2026-08-24):
+            # prioritizes fast recovery during a real outage over flap
+            # protection on routine reboots. Combined with the 1-minute
+            # CronJob schedule above (was */2), realistic worst-case latency
+            # is ~1-2.5min, not exactly 60s: k8s's own node-monitor grace
+            # period (~40s, not controlled by this script) has to elapse
+            # before the node even shows NotReady, then this poll's own
+            # 1-minute cadence adds up to another minute on top before this
+            # threshold is checked at all.
             - name: FAILOVER_THRESHOLD_MIN
-              value: "10"
+              value: "1"
             # Sustained-Ready duration required before failing back.
             # Deliberately longer than the failover threshold: getting
             # service back up after an outage is urgent, but failing back
