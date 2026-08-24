@@ -111,13 +111,14 @@ spec:
             - name: FAILOVER_THRESHOLD_MIN
               value: "1"
             # Sustained-Ready duration required before failing back.
-            # Deliberately longer than the failover threshold: getting
-            # service back up after an outage is urgent, but failing back
-            # (which risks interrupting an active stream on the secondary)
-            # is not, so we wait longer to be sure egbp-pc is actually
-            # stable and not flapping through a boot sequence.
+            # Lowered from 15min to 1min at explicit user request (2026-08-24):
+            # switch back as soon as egbp-pc is seen healthy, symmetric with
+            # FAILOVER_THRESHOLD_MIN above. Trade-off accepted: an active
+            # stream on the secondary right when egbp-pc comes back could get
+            # interrupted -- that risk was the original reason this was set
+            # higher than the failover threshold.
             - name: FAILBACK_THRESHOLD_MIN
-              value: "15"
+              value: "1"
             # Set to "true" to log intended actions without executing any
             # mutating kubectl call. Used for the initial live test.
             - name: DRY_RUN
