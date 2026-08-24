@@ -66,6 +66,18 @@ spec:
           env:
             - name: JELLYFIN_HWACCEL_TYPE
               value: {{ .Values.hwaccelType | quote }}
+            # Legacy nvidia-container-runtime device-injection trigger.
+            # Live-drift discovered 2026-08-21 (k8slens edit) on the
+            # pre-failover Deployment, alongside runtimeClassName/resources
+            # below -- but never carried into this chart, so it was silently
+            # dropped during the variant:primary selector migration
+            # (2026-08-24). This is what actually made GPU passthrough work
+            # before: it triggers nvidia-container-runtime's hook-based
+            # legacy injection directly, independent of the device plugin's
+            # DEVICE_LIST_STRATEGY/CDI wiring (see jellyfin-failover notes
+            # and this chart's git history for the CDI investigation).
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "all"
           envFrom:
             - configMapRef:
                 name: {{ include "jellyfin.fullname" . }}
