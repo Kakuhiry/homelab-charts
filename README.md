@@ -2,6 +2,12 @@
 
 K3s homelab configuration
 
+## 🗺️ Overview diagram
+
+[`docs/overview.html`](docs/overview.html) — a snapshot of the cluster (nodes, storage, GitOps setup,
+recent work), generated from a live audit rather than kept manually in sync. Open the file directly
+in a browser to view it.
+
 ## 💻 Hardware
 
 | Device               | Count | RAM    | Disks                                                   | OS             | Arch  |

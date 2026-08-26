@@ -1,0 +1,247 @@
+<title>Homelab Overview</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --border: #e4e4e7;      /* zinc-200 */
+    --ink: #000000;
+    --ink-soft: #71717a;    /* zinc-500 */
+    --ink-faint: #a1a1aa;   /* zinc-400 */
+    --ink-faintest: #d4d4d8;/* zinc-300 */
+    --chip-bg: #ffffff;
+    --orange: #fb923c;      /* orange-400, the site's one accent */
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0a0a;
+      --surface: #0a0a0a;
+      --border: #27272a;     /* zinc-800 */
+      --ink: #fafafa;
+      --ink-soft: #a1a1aa;   /* zinc-400 */
+      --ink-faint: #71717a;  /* zinc-500 */
+      --ink-faintest: #52525b;/* zinc-600 */
+      --chip-bg: #0a0a0a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0a;
+    --surface: #0a0a0a;
+    --border: #27272a;
+    --ink: #fafafa;
+    --ink-soft: #a1a1aa;
+    --ink-faint: #71717a;
+    --ink-faintest: #52525b;
+    --chip-bg: #0a0a0a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 768px; margin: 0 auto; padding: 56px 24px 80px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    color: var(--ink-faint);
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    margin: 0 0 12px;
+  }
+  h1.title {
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    margin: 8px 0 40px;
+  }
+
+  .dot { position: relative; width: 12px; height: 12px; display: inline-flex; align-items: center; justify-content: center; }
+  .dot span { position: absolute; border-radius: 50%; background: var(--orange); }
+  .dot .ping1 { width: 100%; height: 100%; opacity: 0.75; animation: ping 1.8s ease-out infinite; }
+  .dot .ping2 { width: 100%; height: 100%; opacity: 0.5; animation: ping 1.8s ease-out 0.6s infinite; }
+  .dot .core { width: 8px; height: 8px; background: var(--ink); }
+  @keyframes ping { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ping1, .ping2 { animation: none; } }
+
+  section { margin-bottom: 48px; }
+  h2.section-title {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 10px;
+    border: 1px solid var(--ink);
+    border-radius: 999px;
+    color: var(--ink);
+  }
+
+  p.desc { color: var(--ink-soft); font-size: 14px; line-height: 1.7; margin: 0 0 20px; }
+
+  /* node / stat grid, matching the site's existing pattern exactly */
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+  @media (max-width: 640px) { .grid4 { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .stat-card .role { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin: 0 0 4px; }
+  .stat-card .name { font-size: 14px; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 0; }
+  .stat-card .detail { font-size: 11px; color: var(--ink-faint); margin: 4px 0 0; line-height: 1.3; }
+
+  ul.bullets { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  ul.bullets li { display: flex; gap: 8px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+  ul.bullets li .tri { color: var(--ink-faintest); flex-shrink: 0; margin-top: 2px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .tag {
+    font-family: var(--mono); font-size: 12px; padding: 2px 8px;
+    background: var(--chip-bg); color: var(--ink-faint);
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+
+  .foot-row {
+    display: flex; align-items: center; gap: 12px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .foot-row .flex1 { flex: 1; }
+  .foot-row .label { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); margin: 0; }
+  .foot-row .value { font-family: var(--mono); font-size: 12px; color: var(--ink-faintest); margin: 0; }
+  .btn-black {
+    font-family: var(--mono); font-size: 12px; padding: 8px 16px;
+    background: var(--ink); color: var(--bg);
+    border-radius: 8px; text-decoration: none; white-space: nowrap;
+  }
+
+  /* Plain bordered card, used for GitOps / storage / observability blocks */
+  .card { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; }
+  .card + .card { margin-top: 10px; }
+  .card b { display: block; font-size: 14px; margin-bottom: 4px; }
+  .card span { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .card-grid { grid-template-columns: 1fr; } }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); }
+  .legend-item .sw { width: 8px; height: 8px; border-radius: 2px; background: var(--ink); }
+  .legend-item.accent .sw { background: var(--orange); }
+
+  a.repo-link { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); text-decoration: none; }
+  a.repo-link:hover { color: var(--ink); }
+
+  footer.note { text-align: left; font-size: 12px; color: var(--ink-faintest); margin-top: 8px; }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">// homelab</p>
+  <h1 class="title">
+    Overview
+    <span class="dot"><span class="ping1"></span><span class="ping2"></span><span class="core"></span></span>
+  </h1>
+  <p class="sub">5 bare-metal nodes, k3s, no hypervisor. GitOps end to end, verified against the live cluster.</p>
+
+  <section>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <h2 class="section-title" style="margin-bottom:0;">Cluster</h2>
+      <span class="status-pill">5 nodes</span>
+      <a class="repo-link" style="margin-left:auto" href="https://github.com/Kakuhiry/homelab-charts" target="_blank" rel="noopener">homelab-charts &#8599;</a>
+    </div>
+    <p class="desc">3-node embedded-etcd HA control plane, plus 2 agent-only workers. Heterogeneous consumer hardware end to end &mdash; no two nodes are the same spec.</p>
+
+    <div class="grid4">
+      <div class="stat-card">
+        <p class="role">Control Plane</p>
+        <p class="name">egbo</p>
+        <p class="detail">etcd &middot; media-nfs &amp; backup server</p>
+      </div>
+      <div class="stat-card">
+        <p class="role">Control Plane</p>
+        <p class="name">egbp</p>
+        <p class="detail">etcd &middot; failover controller host</p>
+      </div>
+      <div class="stat-card">
+        <p class="role">Control Plane</p>
+        <p class="name">egbp-nuc</p>
+        <p class="detail">etcd &middot; Intel iGPU (QSV)</p>
+      </div>
+      <div class="stat-card">
+        <p class="role">Worker</p>
+        <p class="name">egbp-pc</p>
+        <p class="detail">NVIDIA GTX 1050 Ti</p>
+      </div>
+    </div>
+    <div class="grid4" style="grid-template-columns: 1fr;">
+      <div class="stat-card">
+        <p class="role">Worker</p>
+        <p class="name">raspberrypi</p>
+        <p class="detail">Lightweight / edge workloads</p>
+      </div>
+    </div>
+
+    <ul class="bullets">
+      <li><span class="tri">&#9656;</span><span>Automatic GPU failover &mdash; Jellyfin moves NVENC (egbp-pc) &#8644; QSV (egbp-nuc) within ~1&ndash;2.5 min of a real node outage, and self-corrects the hardware-acceleration config on every boot regardless of which node it lands on.</span></li>
+      <li><span class="tri">&#9656;</span><span>Longhorn distributed block storage plus one purpose-built NFS server for large media files &mdash; migrated off Longhorn's RWX mode after it proved unreliable under sustained read load.</span></li>
+      <li><span class="tri">&#9656;</span><span>Every app is a local Helm chart in one git repo, synced by ArgoCD &mdash; direct kubectl/Helm changes are treated as drift to be formalized, not the steady state.</span></li>
+    </ul>
+
+    <div class="tags">
+      <span class="tag">k3s</span><span class="tag">ArgoCD</span><span class="tag">Longhorn</span><span class="tag">Helm</span>
+      <span class="tag">SOPS</span><span class="tag">Cloudflare Tunnels</span><span class="tag">cert-manager</span>
+      <span class="tag">NVIDIA GPU Operator</span><span class="tag">Traefik</span><span class="tag">Jellyfin</span>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Platform</h2>
+    <div class="card-grid">
+      <div class="card">
+        <b>GitOps</b>
+        <span>One Application per chart in ArgoCD, automated sync by default. A couple of apps deliberately run with self-heal off, where a controller mutates live replicas outside of git.</span>
+      </div>
+      <div class="card">
+        <b>Secrets</b>
+        <span>SOPS-encrypted at rest in git, decrypted in-cluster. Migrated across 10 apps in one pass, including a full history scrub for anything leaked before that.</span>
+      </div>
+      <div class="card">
+        <b>Storage</b>
+        <span>Longhorn for replicated block storage; a dedicated NFS server for the media library and Longhorn's own backup target.</span>
+      </div>
+      <div class="card">
+        <b>Observability</b>
+        <span>Prometheus + Grafana for metrics, Loki + Promtail for logs, Uptime Kuma for external checks.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">Recently shipped</h2>
+    <ul class="bullets">
+      <li><span class="tri">&#9656;</span><span>Diagnosed and fixed Longhorn backups failing outright &mdash; two independent NFS servers were fighting over the same host's kernel-level export table.</span></li>
+      <li><span class="tri">&#9656;</span><span>Built and live-tested the GPU failover system above, both directions, including real hardware transcode verification.</span></li>
+      <li><span class="tri">&#9656;</span><span>Migrated a Discord-bot download volume off a flaky Longhorn RWX mount after it silently broke a new media-library import.</span></li>
+    </ul>
+  </section>
+
+  <div class="legend">
+    <span class="legend-item accent"><span class="sw"></span>live / active</span>
+    <span class="legend-item"><span class="sw"></span>git-tracked</span>
+  </div>
+  <footer class="note">Reflects a live cluster audit, not aspirational architecture.</footer>
+</div>
