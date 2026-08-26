@@ -24,7 +24,6 @@ bot:
   # discord-token secret is managed via templates/discord-bot-token.sops.yaml
   # (SOPS-encrypted, decrypted in-cluster by sops-secrets-operator).
   discordTokenSecretName: discord-bot-token
-
-persistence:
-  storageClass: longhorn-ssd
-  size: 30Gi
+  # media-nfs's ClusterIP (same server already used by jellyfin/radarr/
+  # sonarr for movies/tv/downloads -- see ../jellyfin/values.yaml).
+  nfsServer: 10.43.95.83

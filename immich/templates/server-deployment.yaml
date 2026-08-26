@@ -46,9 +46,10 @@ spec:
           volumeMounts:
             - name: upload
               mountPath: /data
-            # Read-only: this is torklink's own PVC (owned by ../torklink,
-            # not this chart) -- Immich should browse/play what the bot
-            # downloads, never write into or manage that volume's lifecycle.
+            # Read-only: this is torklink's own storage (owned by
+            # ../torklink, not this chart) -- Immich should browse/play what
+            # the bot downloads, never write into or manage that volume's
+            # lifecycle.
             - name: torklink-downloads
               mountPath: {{ .Values.externalLibrary.mountPath }}
               readOnly: true
@@ -71,8 +72,9 @@ spec:
           persistentVolumeClaim:
             claimName: immich-upload-pvc
         - name: torklink-downloads
-          persistentVolumeClaim:
-            claimName: {{ .Values.externalLibrary.existingClaim }}
+          nfs:
+            server: {{ .Values.externalLibrary.nfsServer }}
+            path: {{ .Values.externalLibrary.nfsPath }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

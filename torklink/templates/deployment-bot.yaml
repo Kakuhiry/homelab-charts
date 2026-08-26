@@ -37,6 +37,11 @@ spec:
             - name: torklink-data
               mountPath: {{ .Values.bot.savePath }}
       volumes:
+        # Migrated off a Longhorn RWX PVC (2026-08-26) -- that storage class
+        # hit the same "Remote I/O error" failure class already documented
+        # for media-nfs's other shares, surfaced when Immich tried to scan
+        # it. Same NFS server everything else already uses.
         - name: torklink-data
-          persistentVolumeClaim:
-            claimName: torklink-data
+          nfs:
+            server: {{ .Values.bot.nfsServer }}
+            path: /torklink-videos

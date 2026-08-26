@@ -33,14 +33,16 @@ redis:
 ingress:
   host: immich.gbklabs.com
 
-# torklink-data already exists in this namespace (RWX Longhorn PVC, owned by
-# the torklink chart -- see ../torklink/templates/pvc.yaml) and holds
-# whatever the Discord bot has downloaded. Mounted read-only here and
-# registered as an Immich External Library (one-time manual step via the
-# Admin UI after first login -- see NOTES.txt) rather than re-imported into
-# Immich's own upload storage.
+# Same media-nfs export the torklink Discord bot writes to (see
+# ../torklink/values.yaml bot.nfsServer) -- migrated off a Longhorn RWX PVC
+# (2026-08-26) after it hit "Remote I/O error" mid-scan, the same failure
+# class already documented for media-nfs's other shares. Mounted read-only
+# here and registered as an Immich External Library (one-time manual step
+# via the Admin UI after first login -- see NOTES.txt) rather than
+# re-imported into Immich's own upload storage.
 externalLibrary:
-  existingClaim: torklink-data
+  nfsServer: 10.43.95.83
+  nfsPath: /torklink-videos
   mountPath: /mnt/torklink-downloads
 
 longhorn:
