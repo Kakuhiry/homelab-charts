@@ -137,6 +137,12 @@ spec:
             - name: lib-modules
               mountPath: /lib/modules
               readOnly: true
+            # Real host directory, not a PVC subdirectory -- shadows the
+            # (harmlessly empty, init-container-created) /data/usb-backup
+            # path inside the media-nfs-data PVC. See values.yaml's
+            # nfsServer.exports comment for the full why.
+            - name: usb-backup
+              mountPath: /data/usb-backup
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -144,3 +150,7 @@ spec:
         - name: lib-modules
           hostPath:
             path: /lib/modules
+        - name: usb-backup
+          hostPath:
+            path: /mnt/usb-backup
+            type: Directory

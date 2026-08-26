@@ -24,6 +24,20 @@ nfsServer:
     # shared with qBittorrent; mixing in unrelated manual downloads risks
     # tripping their import logic.
     - general-downloads
+    # Longhorn's NFS backup target. This container drives the host's kernel
+    # nfsd directly (privileged: true, /lib/modules mounted) -- Linux's nfsd
+    # export table is a single global kernel resource, not per-namespace, so
+    # this is the ONE nfsd on egbo that can safely own it. The host's own
+    # separate systemd nfs-server.service (serving /mnt/usb-backup et al from
+    # /etc/exports) was getting silently clobbered every time this pod
+    # restarted, since its boot script re-asserts only its own exports into
+    # that same shared kernel table -- confirmed as the reason Longhorn
+    # backups had been failing outright (found 2026-08-26). Moving the backup
+    # export in here, rather than fighting over the shared kernel resource,
+    # is the actual fix. usb-backup below is a hostPath mount of the real
+    # /mnt/usb-backup directory on egbo (not a PVC subdirectory) -- see
+    # templates/deployment.yaml.
+    - usb-backup
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
