@@ -38,6 +38,11 @@ nfsServer:
     # /mnt/usb-backup directory on egbo (not a PVC subdirectory) -- see
     # templates/deployment.yaml.
     - usb-backup
+    # torklink's downloaded videos, migrated off a Longhorn RWX PVC
+    # (2026-08-26) -- same "Remote I/O error" failure class documented above
+    # for movies/tv/downloads, surfaced when Immich tried to scan the
+    # library. See ../immich and ../torklink for the consumers.
+    - torklink-videos
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
