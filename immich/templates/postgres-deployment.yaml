@@ -36,6 +36,12 @@ spec:
           env:
             - name: POSTGRES_INITDB_ARGS
               value: "--data-checksums"
+            # Longhorn PVCs land on a freshly mkfs'd ext4 volume, which
+            # already has a lost+found directory -- initdb refuses to use
+            # the mount point itself ("directory exists but is not empty"),
+            # so point PGDATA at a genuinely-empty subdirectory instead.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: data
