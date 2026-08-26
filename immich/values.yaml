@@ -45,6 +45,22 @@ externalLibrary:
   nfsPath: /torklink-videos
   mountPath: /mnt/torklink-downloads
 
+# Keeps the "Torklink Downloads" album in sync with the external library above.
+# Immich has no built-in auto-add-to-album feature, so a small CronJob
+# (templates/album-sync-cronjob.yaml) re-runs a search-by-library -> bulk-add-to-album
+# pass on a schedule -- idempotent, confirmed live (PUT /albums/{id}/assets returns a
+# per-asset "duplicate" error rather than failing the whole call for assets already in
+# the album). libraryId is the External Library's own id (Administration -> Libraries
+# in the Admin UI, or GET /api/libraries) -- there's no declarative way to pin this at
+# chart-install time since the library itself is created via a manual one-time step
+# (see NOTES.txt), so it's just recorded here once known.
+albumSync:
+  albumName: "Torklink Downloads"
+  libraryId: "4544b822-090b-433f-b65b-34c1aea9f08c"
+  # Staggered 15 min after Immich's own hourly library-scan schedule (Administration ->
+  # Settings -> Library) so newly-scanned assets are already there by the time this runs.
+  schedule: "15 * * * *"
+
 longhorn:
   enabled: true
   persistentVolumes:

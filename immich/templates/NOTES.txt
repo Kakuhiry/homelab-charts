@@ -12,9 +12,21 @@ Immich is deployed. Three things this chart cannot do for you:
      Administration -> External Libraries -> Create Library
      Import path: {{ .Values.externalLibrary.mountPath }}
    Then trigger a scan. torklink's downloaded videos live there, mounted
-   read-only from the same PVC the Discord bot writes to.
+   read-only from the same media-nfs export the Discord bot writes to (see
+   ../torklink/values.yaml). Once created, note the library's id (GET
+   /api/libraries or Administration -> Libraries) and set it as
+   albumSync.libraryId in values.yaml -- templates/album-sync-cronjob.yaml
+   needs it and there's no way to discover it automatically at chart-install
+   time.
 
-3. Cloudflare Tunnel public hostname
+3. Set Immich's own library scan schedule
+   Administration -> Settings -> Library -> set a cron schedule (e.g. hourly)
+   so newly-downloaded videos actually become new library assets on their
+   own. templates/album-sync-cronjob.yaml (see below) only keeps the
+   "Torklink Downloads" album in sync with whatever this scan has already
+   found -- it does not scan the filesystem itself.
+
+4. Cloudflare Tunnel public hostname
    cloudflared here runs in token mode (see ../cloudflared/templates/
    deployment.yaml) -- hostname routing is configured on Cloudflare's own
    dashboard/API, not in this repo. Add a Public Hostname entry for
@@ -25,3 +37,10 @@ Machine learning (facial recognition / CLIP smart search) is OFF by default
 -- this deployment's job is browsing/playing downloaded videos, not running
 a personal photo library. Set machineLearning.enabled: true and re-sync to
 add it back; nothing else depends on it being present.
+
+The "{{ .Values.albumSync.albumName }}" album (templates/album-sync-cronjob.yaml,
+schedule: {{ .Values.albumSync.schedule }}) keeps every asset in the external
+library grouped into one album instead of sitting loose in the main timeline --
+confirmed idempotent against a live run before this was written, so it's safe
+to trigger manually anytime: kubectl create job --from=cronjob/immich-album-sync
+manual-run-1 -n {{ .Release.Namespace }}

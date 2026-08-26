@@ -1,0 +1,103 @@
+# Immich has no built-in "auto-add scanned library assets to an album" feature and no
+# smart-album concept (confirmed against the OpenAPI spec + immich-app/immich source --
+# see plan notes). This CronJob is the whole mechanism: it doesn't scan the filesystem
+# itself (Immich's own library.scan.cronExpression system setting does that -- see
+# NOTES.txt), it only keeps the "Torklink Downloads" album's membership in sync with
+# whatever the library scan has already found, by re-running the same
+# search-by-libraryId -> bulk-add-to-album pass every time. PUT /albums/{id}/assets is
+# confirmed idempotent for already-member assets (returns a per-asset
+# {"error":"duplicate"}, not a batch failure) -- verified live against this exact
+# instance before writing this, so no separate "is this new" bookkeeping is needed:
+# every run just re-adds everything, cheaply, and Immich sorts out what's actually new.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: immich-album-sync
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: {{ .Values.albumSync.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 300
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: album-sync
+              # Same image already proven for exactly this kind of small
+              # curl+shell job -- see ../jellyfin-failover/failover.yaml.
+              image: alpine/k8s:1.27.13
+              envFrom:
+                - secretRef:
+                    name: immich-api-key
+              env:
+                - name: IMMICH_BASE_URL
+                  value: http://immich-server/api
+                - name: LIBRARY_ID
+                  value: {{ .Values.albumSync.libraryId | quote }}
+                - name: ALBUM_NAME
+                  value: {{ .Values.albumSync.albumName | quote }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+
+                  auth_header="x-api-key: $IMMICH_API_KEY"
+
+                  # Look up the album by name; create it if this is the very first run.
+                  ALBUM_ID=$(curl -sf -H "$auth_header" "$IMMICH_BASE_URL/albums" \
+                    | python3 -c "
+                  import json, sys
+                  name = sys.argv[1]
+                  for a in json.load(sys.stdin):
+                      if a['albumName'] == name:
+                          print(a['id']); break
+                  " "$ALBUM_NAME")
+
+                  if [ -z "$ALBUM_ID" ]; then
+                    echo "[$(date -u +%H:%M:%S)] album '$ALBUM_NAME' does not exist yet, creating it"
+                    ALBUM_ID=$(curl -sf -X POST -H "$auth_header" -H "Content-Type: application/json" \
+                      -d "{\"albumName\":\"$ALBUM_NAME\"}" "$IMMICH_BASE_URL/albums" \
+                      | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
+                  fi
+                  echo "[$(date -u +%H:%M:%S)] album '$ALBUM_NAME' -> $ALBUM_ID"
+
+                  page=1
+                  total=0
+                  while true; do
+                    resp=$(curl -sf -X POST -H "$auth_header" -H "Content-Type: application/json" \
+                      -d "{\"libraryId\":\"$LIBRARY_ID\",\"page\":$page,\"size\":200}" \
+                      "$IMMICH_BASE_URL/search/metadata")
+
+                    ids=$(echo "$resp" | python3 -c "
+                  import json, sys
+                  d = json.load(sys.stdin)['assets']
+                  print(json.dumps([a['id'] for a in d['items']]))
+                  ")
+                    count=$(echo "$ids" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
+
+                    if [ "$count" -eq 0 ]; then
+                      break
+                    fi
+
+                    curl -sf -X PUT -H "$auth_header" -H "Content-Type: application/json" \
+                      -d "{\"ids\":$ids}" "$IMMICH_BASE_URL/albums/$ALBUM_ID/assets" > /dev/null
+
+                    total=$((total + count))
+                    echo "[$(date -u +%H:%M:%S)] page $page: processed $count assets (running total $total)"
+
+                    next=$(echo "$resp" | python3 -c "
+                  import json, sys
+                  print(json.load(sys.stdin)['assets'].get('nextPage') or '')
+                  ")
+                    if [ -z "$next" ]; then
+                      break
+                    fi
+                    page=$next
+                  done
+
+                  echo "[$(date -u +%H:%M:%S)] done -- $total assets confirmed in '$ALBUM_NAME'"

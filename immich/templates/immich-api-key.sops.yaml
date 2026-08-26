@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: immich-api-key
+    namespace: torklink
+spec:
+    secretTemplates:
+        - name: immich-api-key
+          stringData:
+            IMMICH_API_KEY: ENC[AES256_GCM,data:lVcbZ4XcTRyxXGCDtaihnG/W7nW+jvstmeEMERTGvjtv1GwQ26b5boU=,iv:DX1C5wgKJHC9Lko8EKSa+VjWXhJMTNvZCyCMf2S6C1s=,tag:5bStXaKxv2EVPzCrMU7UVQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4ZVUzM3FrZXIrZjZNc3Jj
+            bk5WRHFwajJYbmw4eWZaaHVsWGxCQ3lRYVJnCm9ZcWxIaG5HWHkzTXNGSEFRRm9n
+            alhKaTJrcGFOV1M3c3NmQ0ViMjNuSXcKLS0tIG44U3M5eUJKd3dkQ1R2TmE1VTd5
+            cWlnOVV3MEgycjRlN1B5REROWnhET2cKObQbXND/F1bAzVpe0GcQHZdpeavG9sju
+            H922vwTvF/2eoxjuZmiWOYuehzZoV4XUWQsFyUsx96A2GIfwsJf/SA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-26T23:25:43Z"
+    mac: ENC[AES256_GCM,data:mXCDZ8Q2BFYyvy967TJmkiWJCMn7KwJQyrnIbCm+r82A3p1cNNd6v+KErhIVXBFcMKFfk8ki3t27q7J0I6hFXm/MDWWnmcX3PZ3cfpwS5xjzXEyuSmR9BzJsLN7IUVa8KQMCFXtS6BD8f8DckjdFqiy8V/eJU88kMe7G5OFNCVE=,iv:hDsPW+pmzisHpNKcVPVYY30KSmMXKssDfMFGJ4d5tJU=,tag:mCB+QFYW+0VctUmHW99HLw==,type:str]
+    version: 3.13.3
