@@ -1,0 +1,80 @@
+image:
+  repository: ghcr.io/immich-app/immich-server
+  tag: "v3.1.0"
+  pullPolicy: IfNotPresent
+
+# Disabled by default: this deployment exists to browse/play torklink's
+# downloaded videos, not to run a personal photo library with facial
+# recognition / CLIP smart search. The ML service is the heaviest,
+# most resource-hungry component and buys nothing for that use case.
+# Flip to true + apply to add it back later -- it's just another
+# Deployment/Service, nothing else depends on it being present.
+machineLearning:
+  enabled: false
+  image:
+    repository: ghcr.io/immich-app/immich-machine-learning
+    tag: "v3.1.0"
+
+postgres:
+  image:
+    # Immich's own Postgres image, not stock postgres -- bundles the
+    # vectorchord/pgvector extensions the server requires. Pinned to the
+    # exact tag from the v3.1.0 release's docker-compose.yml.
+    repository: ghcr.io/immich-app/postgres
+    tag: "14-vectorchord0.4.3-pgvectors0.2.0"
+
+redis:
+  image:
+    # Immich moved to Valkey (Redis fork) as of its own upstream compose --
+    # matching that rather than plain redis.
+    repository: docker.io/valkey/valkey
+    tag: "9"
+
+ingress:
+  host: immich.gbklabs.com
+
+# torklink-data already exists in this namespace (RWX Longhorn PVC, owned by
+# the torklink chart -- see ../torklink/templates/pvc.yaml) and holds
+# whatever the Discord bot has downloaded. Mounted read-only here and
+# registered as an Immich External Library (one-time manual step via the
+# Admin UI after first login -- see NOTES.txt) rather than re-imported into
+# Immich's own upload storage.
+externalLibrary:
+  existingClaim: torklink-data
+  mountPath: /mnt/torklink-downloads
+
+longhorn:
+  enabled: true
+  persistentVolumes:
+    immich-upload:
+      storageSize: 50Gi
+      storageClassName: longhorn-ssd
+    immich-postgres-data:
+      storageSize: 20Gi
+      storageClassName: longhorn-ssd
+
+resources:
+  server:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+  postgres:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  redis:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+nodeSelector: {}
+tolerations: []

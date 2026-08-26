@@ -1,0 +1,27 @@
+Immich is deployed. Three things this chart cannot do for you:
+
+1. First-run admin account
+   Visit https://{{ .Values.ingress.host }}/ and complete Immich's own
+   first-run setup wizard (creates the admin account). This is a one-time,
+   interactive step baked into Immich itself -- no env var/API shortcut for
+   the very first account.
+
+2. Register the external library
+   Immich doesn't support declaring External Libraries via env var or a
+   config file -- it's an Admin UI / API-only feature. After logging in:
+     Administration -> External Libraries -> Create Library
+     Import path: {{ .Values.externalLibrary.mountPath }}
+   Then trigger a scan. torklink's downloaded videos live there, mounted
+   read-only from the same PVC the Discord bot writes to.
+
+3. Cloudflare Tunnel public hostname
+   cloudflared here runs in token mode (see ../cloudflared/templates/
+   deployment.yaml) -- hostname routing is configured on Cloudflare's own
+   dashboard/API, not in this repo. Add a Public Hostname entry for
+   {{ .Values.ingress.host }} pointing at the Traefik service, the same way
+   the other *.gbklabs.com hosts are already configured there.
+
+Machine learning (facial recognition / CLIP smart search) is OFF by default
+-- this deployment's job is browsing/playing downloaded videos, not running
+a personal photo library. Set machineLearning.enabled: true and re-sync to
+add it back; nothing else depends on it being present.

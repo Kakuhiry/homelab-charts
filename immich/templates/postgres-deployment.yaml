@@ -1,0 +1,75 @@
+# Hand-rolled rather than using common.deployment.postgres -- that shared
+# helper doesn't expose a Deployment strategy override, and defaults to
+# RollingUpdate, which deadlocks against a single RWO PVC (new pod can't
+# attach until the old one releases, old won't terminate until new is
+# Ready). Same reasoning as romm's own mariadb deployment.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-postgres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: immich-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: immich-postgres
+  template:
+    metadata:
+      labels:
+        app: immich-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: immich-secret
+          env:
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: data
+            # Matches upstream docker-compose's shm_size: 128mb -- Postgres
+            # uses /dev/shm for parallel query workers' shared state.
+            - mountPath: /dev/shm
+              name: shm
+          resources:
+            {{- toYaml .Values.resources.postgres | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)", "-d", "$(POSTGRES_DB)"]
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "$(POSTGRES_USER)"]
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: immich-postgres-data-pvc
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

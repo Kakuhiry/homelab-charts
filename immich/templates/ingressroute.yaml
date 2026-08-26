@@ -1,14 +1,14 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: filebrowser
+  name: immich
   namespace: {{ .Release.Namespace }}
 spec:
   entryPoints:
     - websecure
   routes:
     - kind: Rule
-      match: Host("torklink-files.gbklabs.com")
+      match: Host("{{ .Values.ingress.host }}")
       services:
-        - name: filebrowser
+        - name: immich-server
           port: 80

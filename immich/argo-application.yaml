@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: immich
+  namespace: argocd
+  annotations:
+    # After torklink's own wave: this chart mounts torklink-data (owned by
+    # ../torklink) read-only, so that PVC should already exist.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:Kakuhiry/homelab-charts.git
+    targetRevision: HEAD
+    path: immich
+  destination:
+    server: https://kubernetes.default.svc
+    # Deliberately the torklink namespace, not its own -- Immich exists
+    # here specifically to browse/play what the torklink Discord bot
+    # downloads, and PVCs can't be mounted cross-namespace. Keeping it
+    # alongside the bot and the PVC it reads from is the natural home,
+    # not an accident.
+    namespace: torklink
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

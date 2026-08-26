@@ -1,7 +1,3 @@
-filebrowser:
-  image: filebrowser/filebrowser:latest
-  pullPolicy: Always
-
 bot:
   image: kakuheiki/vd-downloader:temporal
   pullPolicy: Always # mutable tag, rebuilt frequently during active development

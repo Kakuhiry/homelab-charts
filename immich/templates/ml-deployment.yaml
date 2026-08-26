@@ -1,0 +1,56 @@
+{{- if .Values.machineLearning.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-machine-learning
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: immich-machine-learning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: immich-machine-learning
+  template:
+    metadata:
+      labels:
+        app: immich-machine-learning
+    spec:
+      containers:
+        - name: immich-machine-learning
+          image: "{{ .Values.machineLearning.image.repository }}:{{ .Values.machineLearning.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3003
+              protocol: TCP
+          volumeMounts:
+            - name: model-cache
+              mountPath: /cache
+      volumes:
+        # Ephemeral by design: only caches downloaded ONNX models, which
+        # just re-download on restart. Not worth a Longhorn PVC.
+        - name: model-cache
+          emptyDir: {}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-machine-learning
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: immich-machine-learning
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3003
+      targetPort: 3003
+      protocol: TCP
+      name: http
+  selector:
+    app: immich-machine-learning
+{{- end }}

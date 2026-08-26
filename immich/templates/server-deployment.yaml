@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: immich-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # single RWO upload-location PVC -- see postgres-deployment.yaml
+  selector:
+    matchLabels:
+      app: immich-server
+  template:
+    metadata:
+      labels:
+        app: immich-server
+    spec:
+      containers:
+        - name: immich-server
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 2283
+              protocol: TCP
+          envFrom:
+            - secretRef:
+                name: immich-secret
+          env:
+            - name: DB_HOSTNAME
+              value: immich-postgres
+            - name: REDIS_HOSTNAME
+              value: immich-redis
+            - name: UPLOAD_LOCATION
+              value: /data
+            - name: TZ
+              value: Europe/London
+            - name: IMMICH_MACHINE_LEARNING_ENABLED
+              value: {{ .Values.machineLearning.enabled | quote }}
+            {{- if .Values.machineLearning.enabled }}
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: http://immich-machine-learning:3003
+            {{- end }}
+          volumeMounts:
+            - name: upload
+              mountPath: /data
+            # Read-only: this is torklink's own PVC (owned by ../torklink,
+            # not this chart) -- Immich should browse/play what the bot
+            # downloads, never write into or manage that volume's lifecycle.
+            - name: torklink-downloads
+              mountPath: {{ .Values.externalLibrary.mountPath }}
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources.server | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /api/server/ping
+              port: 2283
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/server/ping
+              port: 2283
+            initialDelaySeconds: 30
+            periodSeconds: 15
+      volumes:
+        - name: upload
+          persistentVolumeClaim:
+            claimName: immich-upload-pvc
+        - name: torklink-downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.externalLibrary.existingClaim }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
