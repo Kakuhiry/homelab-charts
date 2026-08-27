@@ -16,6 +16,16 @@ spec:
     name: immich-server
   minReplicas: {{ .Values.hpa.minReplicas }}
   maxReplicas: {{ .Values.hpa.maxReplicas }}
+  # CPU only. Memory was tried and reverted (2026-08-27): confirmed live
+  # that immich-server's baseline idle footprint (~850-1090Mi, all Node.js/
+  # Nest runtime overhead, not request load) sits permanently above any
+  # reasonable memory target regardless of replica count -- watched it
+  # runway-scale to maxReplicas (10 idle pods, ~10GB wasted) chasing a
+  # target adding more replicas can never satisfy, since per-pod baseline
+  # overhead doesn't shrink just because there are more pods. CPU actually
+  # reflects real work (thumbnail/video processing is CPU-bound), so it's
+  # the metric that maps to "photo uploads process faster," which is the
+  # actual goal here.
   metrics:
     - type: Resource
       resource:
@@ -23,9 +33,3 @@ spec:
         target:
           type: Utilization
           averageUtilization: {{ .Values.hpa.targetCPUUtilizationPercentage }}
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: {{ .Values.hpa.targetMemoryUtilizationPercentage }}

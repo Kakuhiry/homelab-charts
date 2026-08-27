@@ -93,7 +93,13 @@ resources:
   server:
     requests:
       cpu: 500m
-      memory: 1Gi
+      # Raised from 1Gi (2026-08-27): observed live baseline idle usage is
+      # ~850-1090Mi per pod (Node.js/Nest runtime overhead), which sat
+      # permanently above a 1Gi request regardless of real load -- see
+      # server-hpa.yaml for why memory was dropped as an HPA trigger
+      # entirely. Kept generous here purely for scheduling/OOM honesty, not
+      # for autoscaling.
+      memory: 1.25Gi
     limits:
       cpu: "3"
       memory: 3Gi
@@ -115,8 +121,9 @@ resources:
 hpa:
   minReplicas: 1
   maxReplicas: 10
+  # CPU only -- see server-hpa.yaml comment for why memory-based scaling
+  # was tried and reverted the same day.
   targetCPUUtilizationPercentage: 70
-  targetMemoryUtilizationPercentage: 75
 
 nodeSelector: {}
 tolerations: []
