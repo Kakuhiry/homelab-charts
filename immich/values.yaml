@@ -33,6 +33,15 @@ redis:
 ingress:
   host: immich.gbklabs.com
 
+# UPLOAD_LOCATION -- thumbnails, encoded video, and real uploaded photos/
+# videos (e.g. phone backup). media-nfs export, not a Longhorn PVC (moved
+# 2026-08-27) -- required for horizontalpodautoscaler.yaml's replicas to
+# all share the same storage simultaneously; RWO Longhorn hard-capped this
+# at 1 replica regardless of what the HPA said.
+upload:
+  nfsServer: 10.43.95.83
+  nfsPath: /immich-uploads
+
 # Same media-nfs export the torklink Discord bot writes to (see
 # ../torklink/values.yaml bot.nfsServer) -- migrated off a Longhorn RWX PVC
 # (2026-08-26) after it hit "Remote I/O error" mid-scan, the same failure
@@ -61,24 +70,33 @@ albumSync:
   # Settings -> Library) so newly-scanned assets are already there by the time this runs.
   schedule: "15 * * * *"
 
+# immich-upload dropped -- moved to the media-nfs export above, no longer a
+# chart-managed Longhorn volume.
 longhorn:
   enabled: true
   persistentVolumes:
-    immich-upload:
-      storageSize: 50Gi
-      storageClassName: longhorn-ssd
     immich-postgres-data:
       storageSize: 20Gi
       storageClassName: longhorn-ssd
 
+# Cluster has ~18.6 CPU / ~33GB free by request-accounting across all 5
+# nodes as of 2026-08-27 (kubectl describe nodes, Allocated resources).
+# Sized generously against that for real per-pod throughput headroom (photo
+# backup uploads/thumbnail generation are CPU-bound), while still leaving
+# room for everything else running here. At full HPA scale-out
+# (maxReplicas: 10, see server-hpa.yaml) this is 5 CPU / 10Gi *requested* --
+# well within headroom -- and up to 30 CPU / 30Gi at *limits* if every pod
+# bursts simultaneously, which is expected to be oversubscribed (limits
+# aren't a scheduling guarantee, only a per-pod ceiling) rather than
+# something the whole cluster could sustain at once.
 resources:
   server:
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 500m
+      memory: 1Gi
     limits:
-      cpu: "2"
-      memory: 4Gi
+      cpu: "3"
+      memory: 3Gi
   postgres:
     requests:
       cpu: 100m
@@ -93,6 +111,12 @@ resources:
     limits:
       cpu: 250m
       memory: 256Mi
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 75
 
 nodeSelector: {}
 tolerations: []

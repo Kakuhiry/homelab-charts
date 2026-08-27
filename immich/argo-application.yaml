@@ -27,3 +27,14 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+  # immich-server's replica count is owned by server-hpa.yaml once created --
+  # without this, selfHeal would fight the HPA every ~3min reconcile,
+  # resetting replicas back to git's (unset/default) value the same way it
+  # would have fought jellyfin-failover's controller (see ../jellyfin's own
+  # argo-application.yaml comment for that precedent).
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: immich-server
+      jsonPointers:
+        - /spec/replicas

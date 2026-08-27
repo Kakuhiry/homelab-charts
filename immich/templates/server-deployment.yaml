@@ -6,9 +6,13 @@ metadata:
   labels:
     app: immich-server
 spec:
-  replicas: 1
-  strategy:
-    type: Recreate # single RWO upload-location PVC -- see postgres-deployment.yaml
+  # No fixed replicas/strategy override -- HPA (server-hpa.yaml) owns replica
+  # count from here, and the default RollingUpdate strategy is fine now that
+  # /data lives on NFS (media-nfs's immich-uploads export, multi-attach
+  # capable) instead of the old Longhorn RWO PVC that used to force
+  # Recreate + a hard 1-replica ceiling. See postgres-deployment.yaml --
+  # Postgres itself is unaffected, still single-replica/Recreate/RWO, since
+  # only immich-server needs to scale.
   selector:
     matchLabels:
       app: immich-server
@@ -35,6 +39,14 @@ spec:
               value: immich-redis
             - name: UPLOAD_LOCATION
               value: /data
+            # Migrations run unconditionally on every boot unless this is
+            # set (DB_SKIP_MIGRATIONS) -- harmless for routine HPA replica
+            # scaling since there's never anything new to apply between
+            # scale events (same image/version), but if this chart's image
+            # tag is ever bumped while running >1 replica, scale down to 1
+            # first, let it apply migrations, then scale back up -- multiple
+            # replicas racing to apply a *new* migration simultaneously
+            # isn't something we've verified is safe.
             - name: TZ
               value: Europe/London
             - name: IMMICH_MACHINE_LEARNING_ENABLED
@@ -68,9 +80,12 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 15
       volumes:
+        # media-nfs export (multi-attach), not the old Longhorn RWO PVC --
+        # required for >1 replica to share UPLOAD_LOCATION simultaneously.
         - name: upload
-          persistentVolumeClaim:
-            claimName: immich-upload-pvc
+          nfs:
+            server: {{ .Values.upload.nfsServer }}
+            path: {{ .Values.upload.nfsPath }}
         - name: torklink-downloads
           nfs:
             server: {{ .Values.externalLibrary.nfsServer }}
