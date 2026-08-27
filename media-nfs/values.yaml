@@ -43,6 +43,13 @@ nfsServer:
     # for movies/tv/downloads, surfaced when Immich tried to scan the
     # library. See ../immich and ../torklink for the consumers.
     - torklink-videos
+    # Immich's own UPLOAD_LOCATION (thumbnails, encoded video, and -- once
+    # phone backup actually starts -- real uploaded photos/videos). Moved
+    # here instead of a Longhorn RWO PVC (2026-08-27) specifically to
+    # support horizontally scaling immich-server via HPA: every replica
+    # needs simultaneous read/write access to the same storage, which RWO
+    # cannot provide regardless of replica count.
+    - immich-uploads
   # egbp-nuc looked like the better choice on paper (more NVMe headroom) but
   # its memory *requests* were already at 99% allocated from existing pods
   # (mostly Longhorn replicas) -- actual usage isn't the same as scheduling
