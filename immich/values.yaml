@@ -119,7 +119,17 @@ resources:
       memory: 256Mi
 
 hpa:
-  minReplicas: 1
+  # minReplicas pinned to maxReplicas (2026-08-27, temporary): phone backup
+  # uploads only ever hit 1-2 pods at a time no matter the CPU target,
+  # because the Immich mobile app opens a small fixed number of upload
+  # connections and there's no in-app setting to raise it -- so CPU-based
+  # scale-out never had a signal to react to (peaked ~28% against a 70%
+  # target during a live test). Forcing all 10 pods up removes that
+  # ceiling directly at the connection-spread level instead. Revert to
+  # minReplicas: 1 when told to -- cluster has headroom to spare (~14 CPU /
+  # 22Gi free across nodes as of 2026-08-27) but this is not meant to be
+  # the permanent steady-state.
+  minReplicas: 10
   maxReplicas: 10
   # CPU only -- see server-hpa.yaml comment for why memory-based scaling
   # was tried and reverted the same day.
