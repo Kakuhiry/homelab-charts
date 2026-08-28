@@ -48,16 +48,33 @@ spec:
           #    Cookies are one x.com login's session -- they will expire
           #    eventually and need re-exporting into that secret when
           #    gated downloads start failing again.
+          #
+          #    Found live 2026-08-28 while verifying against the real
+          #    deployed Secret (not just a manually kubectl-cp'd test file,
+          #    which is writable and didn't expose this): yt-dlp always
+          #    tries to write updated cookies back to whatever file
+          #    --cookies points at when it exits, even for a plain read.
+          #    Pointed straight at the Secret volume mount (genuinely
+          #    read-only), that write-back throws and yt-dlp exits
+          #    non-zero -- even though the actual video download itself
+          #    already completed successfully beforehand. The bot likely
+          #    treats that non-zero exit as a failed download regardless.
+          #    Fix: copy the mounted cookie file to a writable path once at
+          #    startup and point the shim at that copy instead of the
+          #    mount directly.
           command:
             - sh
             - -c
             - |
               pip install --upgrade --break-system-packages yt-dlp
+              if [ -f /etc/ytdlp/cookies.txt ]; then
+                cp /etc/ytdlp/cookies.txt /tmp/ytdlp-cookies.txt
+              fi
               mv /usr/local/bin/yt-dlp /usr/local/bin/yt-dlp.real
               cat > /usr/local/bin/yt-dlp << 'SHIM'
               #!/bin/sh
-              if [ -f /etc/ytdlp/cookies.txt ]; then
-                exec /usr/local/bin/yt-dlp.real --cookies /etc/ytdlp/cookies.txt "$@"
+              if [ -f /tmp/ytdlp-cookies.txt ]; then
+                exec /usr/local/bin/yt-dlp.real --cookies /tmp/ytdlp-cookies.txt "$@"
               else
                 exec /usr/local/bin/yt-dlp.real "$@"
               fi
