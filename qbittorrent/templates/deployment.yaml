@@ -25,42 +25,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: gluetun
-          image: {{ .Values.gluetun.image | quote }}
-          imagePullPolicy: {{ .Values.gluetun.pullPolicy }}
-          securityContext:
-            capabilities:
-              add:
-                - NET_ADMIN
-          env:
-            - name: VPN_SERVICE_PROVIDER
-              value: {{ .Values.gluetun.vpnProvider | quote }}
-            - name: VPN_TYPE
-              value: wireguard
-            - name: WIREGUARD_PRIVATE_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.gluetun.secretName }}
-                  key: privateKey
-            - name: WIREGUARD_ADDRESSES
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.gluetun.secretName }}
-                  key: addresses
-            - name: SERVER_COUNTRIES
-              value: {{ .Values.gluetun.serverCountries | quote }}
-            - name: VPN_PORT_FORWARDING
-              value: "on"
-            - name: FIREWALL_OUTBOUND_SUBNETS
-              value: {{ .Values.gluetun.firewallOutboundSubnets | quote }}
-            - name: HEALTH_SERVER_ADDRESS
-              value: ":9999"
-            - name: VPN_PORT_FORWARDING_UP_COMMAND
-              value: {{ .Values.gluetun.portForwardingUpCommand | quote }}
-          volumeMounts:
-            - name: dev-tun
-              mountPath: /dev/net/tun
-
+        # gluetun sidecar removed (2026-08-28, temporary -- no longer using
+        # a VPN in front of qbittorrent for now). protonvpn-wg.sops.yaml
+        # secret and .Values.gluetun block are left in place, unreferenced,
+        # so this is a quick revert if that changes back.
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -81,9 +49,6 @@ spec:
           {{- end }}
 
       volumes:
-        - name: dev-tun
-          hostPath:
-            path: /dev/net/tun
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

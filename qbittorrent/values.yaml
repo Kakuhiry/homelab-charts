@@ -16,16 +16,18 @@ image:
   pullPolicy: IfNotPresent
   tag: "latest"
 
-gluetun:
-  image: qmcgaw/gluetun:latest
-  pullPolicy: IfNotPresent
-  vpnProvider: protonvpn
-  serverCountries: Netherlands
-  firewallOutboundSubnets: "10.42.0.0/16,10.43.0.0/16"
-  # Secret is managed via templates/protonvpn-wg.sops.yaml (SOPS-encrypted,
-  # decrypted in-cluster by sops-secrets-operator), keys: privateKey, addresses
-  secretName: protonvpn-wg
-  portForwardingUpCommand: "/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data \"json={\\\"listen_port\\\":{{PORT}},\\\"random_port\\\":false,\\\"upnp\\\":false}\" http://127.0.0.1:8080/api/v2/app/setPreferences'"
+# gluetun sidecar removed from deployment.yaml (2026-08-28, temporary --
+# no longer using a VPN in front of qbittorrent for now). Block below kept
+# only as a reference for re-enabling later; templates/protonvpn-wg.sops.yaml
+# (the WireGuard key secret) is also still in the repo, unreferenced.
+# gluetun:
+#   image: qmcgaw/gluetun:latest
+#   pullPolicy: IfNotPresent
+#   vpnProvider: protonvpn
+#   serverCountries: Netherlands
+#   firewallOutboundSubnets: "10.42.0.0/16,10.43.0.0/16"
+#   secretName: protonvpn-wg
+#   portForwardingUpCommand: "/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data \"json={\\\"listen_port\\\":{{PORT}},\\\"random_port\\\":false,\\\"upnp\\\":false}\" http://127.0.0.1:8080/api/v2/app/setPreferences'"
 
 imagePullSecrets: []
 nameOverride: ""
