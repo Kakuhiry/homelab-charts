@@ -24,6 +24,12 @@ bot:
   # discord-token secret is managed via templates/discord-bot-token.sops.yaml
   # (SOPS-encrypted, decrypted in-cluster by sops-secrets-operator).
   discordTokenSecretName: discord-bot-token
+  # x.com session cookies, needed for tweets X gates behind a login -- see
+  # templates/deployment-bot.yaml's command comment for the full story.
+  # Managed via templates/x-cookies.sops.yaml (SOPS-encrypted, same as
+  # discord-token above); optional at the Deployment level so the pod
+  # still starts if this hasn't been created yet.
+  cookiesSecretName: torklink-x-cookies
   # media-nfs's ClusterIP (same server already used by jellyfin/radarr/
   # sonarr for movies/tv/downloads -- see ../jellyfin/values.yaml).
   nfsServer: 10.43.95.83

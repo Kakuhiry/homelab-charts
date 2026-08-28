@@ -1,0 +1,25 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: torklink-x-cookies
+    namespace: torklink
+spec:
+    secretTemplates:
+        - name: torklink-x-cookies
+          stringData:
+            cookies.txt: ENC[AES256_GCM,data:mufG5oML9H6Jp71urRf8kr+rBWRNuCGZW89Pi6/HmIsQ840IdJzBEwXsKexJwuk5igXYE8a6VinMLKSoqXTtE0C/O1OaNP4Og15QURUWAQw5onaXewdZkVL14Ygtju+IAk06+Axw8giwiYtXtHsrsUSgUeZqhjiUt4e3+sd/1GWiGb0hQnkooEZLoLnFKILeBsXeJZsqs+x+0phd4tGKdA7ickKhaRuHyhepjUUnEBEXfnHc8Hyja/UhFZ0ptlwnMo/azOE+dKhSnN4iR93DC6PTLGG3/f6WXX0/oqo4b2w6GlcNVNH4wpEJ2nL2Ym/kBK2yU3reF0VB6s17aFm6hidwGUojaA1+4KM7Y5F7XdNhZW3F6T3qhTjEh8+TzsHicG02L8pd28PVzmBbtEv4TexeYRVB49zPC8lj93uNdr6MVZsRpY5rMEm/x/hMcgxxG+ZD3S/7VI6uZLlVAiOtDGmPcUF0na6U8UnzItmHu4iWeJiXjS2hXjlg93T9okPmN+KTdcciKJpRHQQmlD/NqI/b0gTQggTELqgIoPbboYEr0aq/3cwLprNfhGLs8F/iPChVsTJ+HF0zI1fVk1ItxGCvvww02h4riLxAJWSEPYoWLQIMaxkblWzVJomchTP4mjDuaeFbprU+tvF125eWQMYVcm2ROqRcJ2D5LRzwYLkJKUzRGC6vrLQVn5t+VbKqa3f902bz2OgBwX7y1mHGZThcvLyXjKpSrO6v2zCI+Ezm8ic80oURIXb+1xGPn+OJSE5AbR0L7zCMmhqGM0VRCRKsYG3qmfS9+WFaT4v7IJAbUIZnGLZFTPF3SCY/nol43io3SJcWuvY3YfETeVROvUrloyQ+OHiXulLR1jgC1AwjRvNeQ0uoBS4LOyxllZv06umEwaAvQuvsND3ZdMgBY1+L0uw/ptp5zgWYv9KTBywoTZ8f4sbgeS3Dqt4yb6SxiDWJPsnlpNrn8zWcdPzu4ZwK4eIQpEgZTXvLgB7Kt6YZSMWOKbfdrUaQFzEVC//VSyWVcf5XI3elBTtMZbIXe2bHMdSATilMK+HiCav5CedbH34tvU3YJ0iV4vvS//bOLWYOTvdIUwvTzIAnX/FcPK3wNw54BFm4SQASLjkxg5DE427gCGxSTBryBRFTnsSYCFvIrW6BaXz4DTWpNwKbOoSnwGMwzfNPNv7KptI8IMA/37KWNwcM1u3Zhp1FZ4AlPMIl8MKvaY1Fh1sSsKGU2haXK2Ok30mcB+FSPAbsM/5qNUKuJq702QKF3SQQN5G2mIL+SoePLZT4SXokCPBvZuJ4MSQ/eIg+QtFG0+SNQVxJo5cJJDnbhdLPJpGD6P5+Or98XtUBKBzsEV6qGW5rGRM1NBWTprhevLuttXlklwQa8RJy9bK4lhdELb2wPAKd19XVJHd9oiTlJUUqC9v0qzvbX9Z/RSoi5RV09Yteu0gtwVu6Al7cxoJCQOxW7RvaBmAR5lHsqEMwsJnJGP20hEkzOT8jZnR6LB+8PHCX8AmdYQha4cZLTBjYeiCM4OTFup5eeqos/uxEX6V+DUC8LYdmUOP2al5qIeUVF+EvVRA+v0HmB9SnOsQ3oP0letNeDe3Jg+0S69a86E39ZPWGLh0NYbAnNWMR9fTo9Ue0j/Zwyk+SGzcOBjQE/xWJm4Dl2X88UwCAdk1F/aMHmRyJSew8wMcKRKvT222P6XPseGRjBxZfUDMpLLfL4n6nbi68yEX9weyolu0VtY0P+eRM5hfkjCoJLY08dRlJDMnDqu/Zj4YkWFTcLqZNGKQJLKHsUXCYdZjd7NEzvG5Cjuyvg4X7cWVGTRQ2chb6Hcnf9Jjetq4453boUP7Vj9tbznNacgpMY8ttVcjaI1OiCGn95+L1cfcqwmLGhxufWpE=,iv:K46Zcqaxx6IO6+rlnplGbwXHLA+jIT3oXHwRoLdpmVU=,tag:AgNRMfsr7c54YWk7yZ5mKQ==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBKVjF4WExKWUZpUTdmSkNp
+            TE5pdVBjMU5OenRWN0dXalZUWlZkcmN6SlYwCjI3RVVJRkFKQ1NWRXFqeHhPa2ts
+            MEhzdW1JaEl3cURDemJ0YUNrOXRTZFEKLS0tIEhHYWNBclNrMTcwYTZXWU0xYWgx
+            QVFrRWtNTXRFZTlldVFnZWlUOW9hOGcKiexlwPQwDpXvWj651UIlgwA4OGEk4Kdw
+            mYyFENDrwS3zgRbixLnmYUcrAW4eBRHJUk+LCYK03J+fBV3hiHeJuQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1h4azg8f0prh7rezk5s7zj7glg2w2y64ze6gfrzrq8mrcxz8sjqus2ycwcn
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-08-28T09:13:29Z"
+    mac: ENC[AES256_GCM,data:RXJwyD/d4vjrihFlQ0QZpH0T7QO3SKz3DfNUNhk7ekFiInek/xJQzNOFcVHQveWMs4FmVYLaEouu0Z7ozk+V3/k+xlfJoV0P0SyNgODC1wPMgamGRoWIbnmY45ywySr0FIcjpoXDpMWAbM1jTQEY7i7Vu4eBcTdxQM6KMXmPRzw=,iv:Xb78nddXFeCv20LGgPW7Zapq7s89+DbHJX1FUmxqXRU=,tag:VFIkZYnR+56oh/nYF93D2g==,type:str]
+    version: 3.13.3

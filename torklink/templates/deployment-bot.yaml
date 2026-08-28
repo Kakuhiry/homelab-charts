@@ -21,22 +21,48 @@ spec:
         - name: discord-bot
           image: {{ .Values.bot.image | quote }}
           imagePullPolicy: {{ .Values.bot.pullPolicy }}
-          # yt-dlp's Twitter/X extractor breaks often as X changes its
-          # internal GraphQL API, independently of this image's own rebuild
-          # cadence -- found live 2026-08-28: the image's baked-in pip
-          # install (2026.07.04, ~6 weeks stale) failed "No video could be
-          # found in this tweet" on tweets that do have a directly-attached
-          # video; upgrading to 2026.08.19 fixed it with no cookies/auth
-          # needed (tested against a verified-video tweet, both with and
-          # without cookies -- cookies made no difference, version did).
-          # Rather than wait on an image rebuild each time X breaks this
-          # again, self-update yt-dlp on every pod (re)start instead of
-          # relying on whatever the image happened to pin at build time.
+          # Twitter/X downloads were failing "No video could be found in
+          # this tweet" -- turned out to be two separate causes, found live
+          # 2026-08-28:
+          # 1. The image's baked-in pip-installed yt-dlp (2026.07.04, ~6
+          #    weeks stale) couldn't parse X's current GraphQL response on
+          #    otherwise-normal tweets. X's Twitter extractor breaks often
+          #    enough that yt-dlp ships near-weekly patches for it, so
+          #    rather than wait on this image's own rebuild cadence,
+          #    self-update yt-dlp on every pod (re)start instead of relying
+          #    on whatever the image happened to pin at build time.
+          # 2. Separately -- and this turned out to be the dominant real
+          #    failure mode, not an edge case -- tweets X flags as
+          #    sensitive/age-gated come back as a bare GraphQL
+          #    {"__typename":"TweetTombstone"} to anonymous/guest requests,
+          #    regardless of yt-dlp version. Confirmed live that an
+          #    authenticated request (real browser cookies) resolves these
+          #    the same as any other tweet. The bot's own yt-dlp invocation
+          #    has no --cookies support at all (no such flag/env var in the
+          #    binary), so rather than wait on a Go source change, shim
+          #    /usr/local/bin/yt-dlp itself: move the real (freshly
+          #    upgraded) binary aside and replace it with a wrapper that
+          #    adds --cookies whenever torklink-x-cookies.sops.yaml's
+          #    secret is mounted, then falls through to the real binary
+          #    unchanged if it isn't (e.g. before that secret exists).
+          #    Cookies are one x.com login's session -- they will expire
+          #    eventually and need re-exporting into that secret when
+          #    gated downloads start failing again.
           command:
             - sh
             - -c
             - |
               pip install --upgrade --break-system-packages yt-dlp
+              mv /usr/local/bin/yt-dlp /usr/local/bin/yt-dlp.real
+              cat > /usr/local/bin/yt-dlp << 'SHIM'
+              #!/bin/sh
+              if [ -f /etc/ytdlp/cookies.txt ]; then
+                exec /usr/local/bin/yt-dlp.real --cookies /etc/ytdlp/cookies.txt "$@"
+              else
+                exec /usr/local/bin/yt-dlp.real "$@"
+              fi
+              SHIM
+              chmod +x /usr/local/bin/yt-dlp
               exec /usr/local/bin/app
           resources:
             {{- toYaml .Values.bot.resources | nindent 12 }}
@@ -53,6 +79,9 @@ spec:
           volumeMounts:
             - name: torklink-data
               mountPath: {{ .Values.bot.savePath }}
+            - name: x-cookies
+              mountPath: /etc/ytdlp
+              readOnly: true
       volumes:
         # Migrated off a Longhorn RWX PVC (2026-08-26) -- that storage class
         # hit the same "Remote I/O error" failure class already documented
@@ -62,3 +91,12 @@ spec:
           nfs:
             server: {{ .Values.bot.nfsServer }}
             path: /torklink-videos
+        # See command's comment above -- SOPS-encrypted x.com session
+        # cookies, used only for tweets X gates behind a login (most of
+        # what this bot actually downloads, in practice). optional: true
+        # so the pod still starts (falling back to unauthenticated
+        # requests) if this secret hasn't been created yet or is deleted.
+        - name: x-cookies
+          secret:
+            secretName: {{ .Values.bot.cookiesSecretName }}
+            optional: true
