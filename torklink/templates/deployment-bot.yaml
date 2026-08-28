@@ -21,6 +21,23 @@ spec:
         - name: discord-bot
           image: {{ .Values.bot.image | quote }}
           imagePullPolicy: {{ .Values.bot.pullPolicy }}
+          # yt-dlp's Twitter/X extractor breaks often as X changes its
+          # internal GraphQL API, independently of this image's own rebuild
+          # cadence -- found live 2026-08-28: the image's baked-in pip
+          # install (2026.07.04, ~6 weeks stale) failed "No video could be
+          # found in this tweet" on tweets that do have a directly-attached
+          # video; upgrading to 2026.08.19 fixed it with no cookies/auth
+          # needed (tested against a verified-video tweet, both with and
+          # without cookies -- cookies made no difference, version did).
+          # Rather than wait on an image rebuild each time X breaks this
+          # again, self-update yt-dlp on every pod (re)start instead of
+          # relying on whatever the image happened to pin at build time.
+          command:
+            - sh
+            - -c
+            - |
+              pip install --upgrade --break-system-packages yt-dlp
+              exec /usr/local/bin/app
           resources:
             {{- toYaml .Values.bot.resources | nindent 12 }}
           env:
