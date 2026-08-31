@@ -15,6 +15,10 @@ spec:
     spec:
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: pihole
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

@@ -8,9 +8,24 @@ webPassword: "changeme"
 
 timezone: "America/Santo_Domingo"
 
-# Pin to the node with the static IP used for DNS
+# Moved from egbp to egbo (2026-08-31): originally pinned to egbp for its
+# static IP, but DNS clients actually point at pihole-dns-lb's advertised
+# node IPs (10.0.0.10/23/40 -- k3s ServiceLB), which route to this pod
+# wherever it's scheduled regardless of node -- so pinning to a specific
+# node's own IP was never actually load-bearing for DNS continuity. Real
+# reason for this move: raspberrypi (its home until now) lost its SD card
+# (donated to fix egbo's own dead card) and is offline until physically
+# replaced. egbo has spare capacity and is otherwise unrelated to DNS.
 nodeSelector:
-  kubernetes.io/hostname: egbp
+  kubernetes.io/hostname: egbo
+
+# egbo runs Longhorn/media-nfs duty and carries this taint -- see
+# ../media-nfs/values.yaml or ../torklink/values.yaml for the same pattern.
+tolerations:
+  - key: StorageNode
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
 
 persistence:
   storageClass: longhorn-ssd
