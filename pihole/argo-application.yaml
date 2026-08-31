@@ -20,3 +20,14 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      # This Deployment had ~2.5 months of manual live edits before being
+      # registered with ArgoCD (2026-08-31) -- client-side strategic-merge
+      # apply (the default) doesn't fully replace list fields like
+      # containerPorts against that drifted history, so every sync could
+      # flip the ports array order back and forth against git's canonical
+      # order, each flip registering as new drift and re-triggering
+      # another sync -- an infinite loop that was cycling the pod (and
+      # briefly dropping DNS) every few seconds. Server-side apply does a
+      # real full-field reconcile instead of a legacy merge, which stops
+      # this class of flap for good.
+      - ServerSideApply=true
