@@ -29,7 +29,13 @@ tolerations:
 
 persistence:
   storageClass: longhorn-ssd
-  size: 5Gi
+  # Live PVC was actually expanded to 15Gi at some point outside of git
+  # (found 2026-08-31 while registering this app with ArgoCD for the first
+  # time -- git said 5Gi, causing every selfHeal sync attempt to fail with
+  # "field can not be less than previous value" since PVCs can only grow,
+  # never shrink, and the repeated failed-sync retries were churning the
+  # Deployment as collateral damage on live DNS).
+  size: 15Gi
 
 # LoadBalancer IP for DNS (UDP/TCP port 53)
 dnsLoadBalancerIP: ""
