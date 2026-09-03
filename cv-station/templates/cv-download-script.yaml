@@ -14,9 +14,13 @@ data:
   10-setup-cv-tools.sh: |
     #!/bin/bash
     set -e
-    echo "[cv-station] Ensuring nodejs/npm present..."
+    echo "[cv-station] Ensuring nodejs present..."
     apt-get update -qq
-    apt-get install -y -qq nodejs npm
+    # NodeSource's repo is already configured in this base image, and its
+    # nodejs package bundles npm -- installing a separate npm package
+    # alongside it conflicts (confirmed live: "Unable to satisfy
+    # dependencies... two conflicting assignments").
+    apt-get install -y -qq nodejs
 
     # The container's root filesystem is ephemeral -- only /config
     # persists (Longhorn PVC) -- so nodejs/npm itself gets reinstalled
@@ -39,11 +43,35 @@ data:
     const { chromium } = require('playwright');
 
     (async () => {
-      const browser = await chromium.launch({ headless: false });
-      const page = await browser.newPage();
+      // launchPersistentContext (not launch()) -- by default Playwright
+      // launches Chromium against a throwaway, randomly-named profile
+      // under /tmp that's deleted the moment the browser closes, so a
+      // Google sign-in (or any cookies) would NOT survive even between
+      // two runs of this script in the same pod, let alone a pod
+      // restart. Pointing the profile at /config (the Longhorn PVC,
+      // the only path that actually persists) makes logins/cookies
+      // survive both.
+      const context = await chromium.launchPersistentContext(
+        '/config/chrome-profile',
+        { headless: false }
+      );
+      const page = context.pages()[0] || (await context.newPage());
       await page.goto('{{ .Values.cv.url }}');
       await page.waitForTimeout(10000);
-      await page.click('button:has-text("{{ .Values.cv.buttonText }}")');
+      try {
+        await page.click('button:has-text("{{ .Values.cv.buttonText }}")', { timeout: 10000 });
+      } catch (e) {
+        // Confirmed live 2026-09-03: window.print()'s native dialog can
+        // block Playwright's own click-confirmation handshake, causing
+        // page.click() to time out and throw -- even though the click
+        // itself (and the resulting print dialog) already succeeded on
+        // screen. Left uncaught, that throw crashes the whole script,
+        // which by default also tears down the browser it launched --
+        // silently closing the print dialog out from under you. Catching
+        // it here just logs a note and moves on; the dialog is still
+        // there either way.
+        console.log('Click confirmation timed out (this is expected/harmless) -- check the screen, the print dialog should already be open.');
+      }
       // window.print() opens Chromium's native print dialog here.
       // Playwright does not intercept this (it only intercepts JS
       // alert/confirm/prompt dialogs) -- it renders normally on-screen,
