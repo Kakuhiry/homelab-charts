@@ -1,0 +1,6 @@
+apiVersion: v2
+name: cv-station
+description: A real, visible browser desktop (webtop + noVNC) for manually clicking through gbklabs.com/cv's "Print / Save as PDF" button via Playwright automation
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

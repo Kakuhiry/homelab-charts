@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cv-station
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: cv-station
+  ports:
+    - name: novnc
+      port: 80
+      targetPort: {{ .Values.service.port }}
+      protocol: TCP

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-station
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  # Same RollingUpdate+RWO-PVC deadlock documented elsewhere in this repo
+  # (pihole, radarr, sonarr) -- a rollout would otherwise hang on
+  # FailedAttachVolume since the new pod can't attach the RWO /config PVC
+  # while the old pod still holds it.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: cv-station
+  template:
+    metadata:
+      labels:
+        app: cv-station
+    spec:
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: cv-station
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Default webtop entrypoint (s6-overlay) is left untouched --
+          # see cv-download-script.yaml's comment for why command: isn't
+          # overridden here the way torklink.yaml's ttyd manifest does.
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          ports:
+            - name: novnc
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            # Chromium needs a real shared-memory size to run reliably in
+            # a container -- the container runtime's default /dev/shm
+            # (64Mi) is a well-known cause of Chromium crashing/tab-crash
+            # under real page loads.
+            - name: dshm
+              mountPath: /dev/shm
+            - name: scripts
+              mountPath: /custom-cont-init.d/10-setup-cv-tools.sh
+              subPath: 10-setup-cv-tools.sh
+            - name: scripts
+              mountPath: /config/cv-download.js
+              subPath: cv-download.js
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: cv-station-config-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+        - name: scripts
+          configMap:
+            name: cv-station-scripts
+            defaultMode: 0755

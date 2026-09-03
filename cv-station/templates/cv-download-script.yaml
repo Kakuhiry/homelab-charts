@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cv-station-scripts
+  namespace: {{ .Release.Namespace }}
+data:
+  # linuxserver/webtop runs s6-overlay as PID 1 -- unlike the plain
+  # node:22-bullseye-slim image torklink's ttyd manifest uses, you can't
+  # just override `command:` here without skipping webtop's own
+  # permission-fixing/VNC-startup process and breaking the image. The
+  # supported extension point is dropping an executable script into
+  # /custom-cont-init.d/, which webtop's own init runs automatically,
+  # once, as root, before the desktop session starts.
+  10-setup-cv-tools.sh: |
+    #!/bin/bash
+    set -e
+    echo "[cv-station] Ensuring nodejs/npm present..."
+    apt-get update -qq
+    apt-get install -y -qq nodejs npm
+
+    # The container's root filesystem is ephemeral -- only /config
+    # persists (Longhorn PVC) -- so nodejs/npm itself gets reinstalled
+    # on every restart (cheap, ~seconds), but the slow part (Playwright's
+    # own bundled Chromium download) is gated on a dir check, same
+    # pattern already used by this repo's torklink.yaml ttyd manifest for
+    # its own npm-install-at-startup approach.
+    if [ ! -d /config/node_modules/playwright ]; then
+      echo "[cv-station] First boot: installing Playwright + Chromium (can take a few minutes)..."
+      cd /config
+      npm install playwright
+      npx playwright install --with-deps chromium
+    else
+      echo "[cv-station] Playwright already installed, skipping."
+    fi
+
+    chown -R abc:abc /config/node_modules /config/package*.json 2>/dev/null || true
+
+  cv-download.js: |
+    const { chromium } = require('playwright');
+
+    (async () => {
+      const browser = await chromium.launch({ headless: false });
+      const page = await browser.newPage();
+      await page.goto('{{ .Values.cv.url }}');
+      await page.waitForTimeout(10000);
+      await page.click('button:has-text("{{ .Values.cv.buttonText }}")');
+      // window.print() opens Chromium's native print dialog here.
+      // Playwright does not intercept this (it only intercepts JS
+      // alert/confirm/prompt dialogs) -- it renders normally on-screen,
+      // left for you to finish by hand: pick the save location yourself
+      // in that dialog, same as if you'd clicked the button manually.
+      console.log('Clicked -- finish the save in the print dialog now.');
+      await new Promise(() => {}); // keep the browser open indefinitely
+    })();

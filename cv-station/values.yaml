@@ -1,0 +1,49 @@
+image:
+  # linuxserver's webtop -- a full desktop environment (Ubuntu + XFCE)
+  # served over noVNC in a plain web browser, or a native VNC client
+  # (e.g. macOS's built-in Screen Sharing app -- zero extra install).
+  repository: lscr.io/linuxserver/webtop
+  tag: ubuntu-xfce
+  pullPolicy: IfNotPresent
+
+# Deliberately NOT egbp or egbp-nuc -- both are etcd/control-plane voters,
+# and this session's egbo incident was caused by exactly this pattern
+# (overloading a control-plane node with heavy non-control-plane duty).
+# egbp-pc is a pure worker node and had by far the most real scheduling
+# headroom of the candidates when checked (19% memory requested vs
+# egbp-nuc's 93%).
+nodeSelector:
+  kubernetes.io/hostname: egbp-pc
+
+env:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "America/Santo_Domingo"
+  # Landing resolution for the noVNC session.
+  TITLE: "cv-station"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "2"
+    memory: 2Gi
+
+service:
+  # webtop's noVNC web UI.
+  port: 3000
+
+ingress:
+  host: cv-station.gbklabs.com
+
+persistence:
+  storageClass: longhorn-ssd
+  size: 5Gi
+
+# Where cv-download.js (see templates/cv-download-script.yaml) navigates
+# to and which button it clicks -- kept here rather than hardcoded in
+# the script so it doesn't need editing if the CV page ever moves.
+cv:
+  url: "https://gbklabs.com/cv"
+  buttonText: "Print / Save as PDF"
