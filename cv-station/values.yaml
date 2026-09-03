@@ -1,9 +1,17 @@
 image:
-  # linuxserver's webtop -- a full desktop environment (Ubuntu + XFCE)
-  # served over noVNC in a plain web browser, or a native VNC client
-  # (e.g. macOS's built-in Screen Sharing app -- zero extra install).
-  repository: lscr.io/linuxserver/webtop
-  tag: ubuntu-xfce
+  # jlesage's docker-baseimage-gui family -- actively maintained, uses
+  # classic TigerVNC + noVNC (not the newer WebRTC/Selkies stack
+  # linuxserver/webtop turned out to use, which needed a WebSocket
+  # upgrade that Traefik's default HTTP/2 frontend couldn't pass through
+  # cleanly -- confirmed live 2026-09-03: the backend explicitly reported
+  # "missing Upgrade header" even when one was sent, and fixing that
+  # would mean changing Traefik's entrypoint-wide HTTP/2 setting,
+  # affecting every other app on this cluster, not something to do for
+  # one VM's convenience). This image exposes raw VNC directly (5900),
+  # so it's reachable over plain TCP -- no HTTP, no WebSocket, no
+  # Traefik involved at all for that path.
+  repository: jlesage/firefox
+  tag: latest
   pullPolicy: IfNotPresent
 
 # Deliberately NOT egbp or egbp-nuc -- both are etcd/control-plane voters,
@@ -16,11 +24,16 @@ nodeSelector:
   kubernetes.io/hostname: egbp-pc
 
 env:
-  PUID: "1000"
-  PGID: "1000"
+  USER_ID: "1000"
+  GROUP_ID: "1000"
   TZ: "America/Santo_Domingo"
-  # Landing resolution for the noVNC session.
-  TITLE: "cv-station"
+  DISPLAY_WIDTH: "1600"
+  DISPLAY_HEIGHT: "900"
+  # docker-baseimage-gui's own built-in mechanism for installing extra
+  # apt packages at startup -- simpler than a custom apt-get call for
+  # this part. Playwright itself still needs its own init script (see
+  # cv-download-script.yaml) since it's an npm install, not an apt one.
+  INSTALL_PACKAGES: "nodejs"
 
 resources:
   requests:
@@ -31,10 +44,15 @@ resources:
     memory: 2Gi
 
 service:
-  # webtop's noVNC web UI.
-  port: 3000
+  webPort: 5800
+  vncPort: 5900
 
 ingress:
+  # Secondary/convenience path only -- the primary, reliable access path
+  # is the raw VNC LoadBalancer below. This goes through the same
+  # Traefik HTTP/2 frontend that broke the previous image's WebSocket
+  # stream, so it may hit the same class of issue for noVNC's own
+  # (simpler, but still WebSocket-based) browser view.
   host: cv-station.gbklabs.com
 
 persistence:

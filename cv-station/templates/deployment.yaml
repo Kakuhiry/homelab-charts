@@ -27,17 +27,20 @@ spec:
         - name: cv-station
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # Default webtop entrypoint (s6-overlay) is left untouched --
-          # see cv-download-script.yaml's comment for why command: isn't
-          # overridden here the way torklink.yaml's ttyd manifest does.
+          # Default entrypoint (s6-overlay) is left untouched -- see
+          # cv-download-script.yaml's comment for why command: isn't
+          # overridden here.
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
           ports:
-            - name: novnc
-              containerPort: {{ .Values.service.port }}
+            - name: web
+              containerPort: {{ .Values.service.webPort }}
+              protocol: TCP
+            - name: vnc
+              containerPort: {{ .Values.service.vncPort }}
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -51,8 +54,8 @@ spec:
             - name: dshm
               mountPath: /dev/shm
             - name: scripts
-              mountPath: /custom-cont-init.d/10-setup-cv-tools.sh
-              subPath: 10-setup-cv-tools.sh
+              mountPath: /etc/cont-init.d/50-setup-cv-tools.sh
+              subPath: 50-setup-cv-tools.sh
             - name: scripts
               mountPath: /config/cv-download.js
               subPath: cv-download.js

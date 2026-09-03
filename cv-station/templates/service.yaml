@@ -7,7 +7,28 @@ spec:
   selector:
     app: cv-station
   ports:
-    - name: novnc
+    - name: web
       port: 80
-      targetPort: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.webPort }}
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cv-station-vnc
+  namespace: {{ .Release.Namespace }}
+spec:
+  # Raw TCP, k3s's built-in ServiceLB (same mechanism already used by
+  # pihole-dns-lb elsewhere in this repo) -- bypasses Traefik/HTTP/
+  # WebSocket entirely, sidestepping the HTTP/2-upgrade problem that
+  # broke the previous image's browser-based access. Connect with any
+  # native VNC client (e.g. macOS's built-in Screen Sharing app) at
+  # this Service's advertised external IP, port 5900.
+  type: LoadBalancer
+  selector:
+    app: cv-station
+  ports:
+    - name: vnc
+      port: {{ .Values.service.vncPort }}
+      targetPort: {{ .Values.service.vncPort }}
       protocol: TCP

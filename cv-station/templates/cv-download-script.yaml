@@ -4,16 +4,18 @@ metadata:
   name: cv-station-scripts
   namespace: {{ .Release.Namespace }}
 data:
-  # linuxserver/webtop runs s6-overlay as PID 1 -- unlike the plain
-  # node:22-bullseye-slim image torklink's ttyd manifest uses, you can't
-  # just override `command:` here without skipping webtop's own
-  # permission-fixing/VNC-startup process and breaking the image. The
-  # supported extension point is dropping an executable script into
-  # /custom-cont-init.d/, which webtop's own init runs automatically,
-  # once, as root, before the desktop session starts.
-  10-setup-cv-tools.sh: |
+  # jlesage's docker-baseimage-gui (like linuxserver's webtop before it)
+  # runs s6-overlay as PID 1 -- can't just override `command:` without
+  # skipping the whole permission-fixing/VNC-startup process. This
+  # project's own extension point is /etc/cont-init.d/ (numbered 50-59
+  # for custom scripts, per its own docs), run once as root before the
+  # GUI session starts. Node.js itself is installed via this image's
+  # built-in INSTALL_PACKAGES env var (see values.yaml) -- this script
+  # only needs to handle the npm/Playwright part.
+  50-setup-cv-tools.sh: |
     #!/bin/bash
     set -e
+
     # Chromium writes a SingletonLock (+ SingletonSocket/SingletonCookie)
     # into its profile dir to stop two instances sharing one profile --
     # but a pod restart is a hard kill, not a graceful Chromium exit, so
@@ -29,20 +31,11 @@ data:
     # the same still-running pod.
     rm -f /config/chrome-profile/Singleton*
 
-    echo "[cv-station] Ensuring nodejs present..."
-    apt-get update -qq
-    # NodeSource's repo is already configured in this base image, and its
-    # nodejs package bundles npm -- installing a separate npm package
-    # alongside it conflicts (confirmed live: "Unable to satisfy
-    # dependencies... two conflicting assignments").
-    apt-get install -y -qq nodejs
-
     # The container's root filesystem is ephemeral -- only /config
-    # persists (Longhorn PVC) -- so nodejs/npm itself gets reinstalled
-    # on every restart (cheap, ~seconds), but the slow part (Playwright's
-    # own bundled Chromium download) is gated on a dir check, same
-    # pattern already used by this repo's torklink.yaml ttyd manifest for
-    # its own npm-install-at-startup approach.
+    # persists (Longhorn PVC) -- so the slow part (Playwright's own
+    # bundled Chromium download) is gated on a dir check, same pattern
+    # already used by this repo's torklink.yaml ttyd manifest for its own
+    # npm-install-at-startup approach.
     if [ ! -d /config/node_modules/playwright ]; then
       echo "[cv-station] First boot: installing Playwright + Chromium (can take a few minutes)..."
       cd /config
@@ -52,7 +45,7 @@ data:
       echo "[cv-station] Playwright already installed, skipping."
     fi
 
-    chown -R abc:abc /config/node_modules /config/package*.json 2>/dev/null || true
+    chown -R "${USER_ID:-1000}:${GROUP_ID:-1000}" /config/node_modules /config/package*.json 2>/dev/null || true
 
   cv-download.js: |
     const { chromium } = require('playwright');
@@ -65,7 +58,12 @@ data:
       // two runs of this script in the same pod, let alone a pod
       // restart. Pointing the profile at /config (the Longhorn PVC,
       // the only path that actually persists) makes logins/cookies
-      // survive both.
+      // survive both. (Note: this profile is entirely separate from the
+      // desktop's own built-in Firefox and its own persisted profile --
+      // sign into Google there instead, since that browser was never
+      // launched via Playwright/CDP and won't hit Google's "this
+      // browser may not be secure" automation check the way this one
+      // would.)
       const context = await chromium.launchPersistentContext(
         '/config/chrome-profile',
         { headless: false }
