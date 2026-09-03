@@ -14,6 +14,21 @@ data:
   10-setup-cv-tools.sh: |
     #!/bin/bash
     set -e
+    # Chromium writes a SingletonLock (+ SingletonSocket/SingletonCookie)
+    # into its profile dir to stop two instances sharing one profile --
+    # but a pod restart is a hard kill, not a graceful Chromium exit, so
+    # this lock survives on the PVC referencing a pod hostname that no
+    # longer exists, permanently blocking every future launch with
+    # "profile appears to be in use by another Chromium process" (found
+    # live 2026-09-03, restarting the pod between two script runs
+    # reproduced it every time). Safe to clear exactly once per pod boot,
+    # here rather than in cv-download.js itself -- a fresh pod boot means
+    # whatever's in that lock is necessarily stale (this container didn't
+    # create it), whereas clearing it from inside the script would also
+    # defeat the lock's real job of stopping two concurrent runs within
+    # the same still-running pod.
+    rm -f /config/chrome-profile/Singleton*
+
     echo "[cv-station] Ensuring nodejs present..."
     apt-get update -qq
     # NodeSource's repo is already configured in this base image, and its
