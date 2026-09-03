@@ -13,7 +13,15 @@ data:
   # built-in INSTALL_PACKAGES env var (see values.yaml) -- this script
   # only needs to handle the npm/Playwright part.
   50-setup-cv-tools.sh: |
-    #!/bin/bash
+    #!/bin/sh
+    # This base image (jlesage/docker-baseimage-gui) is Alpine, not
+    # Debian/Ubuntu -- confirmed live 2026-09-03 via its apk-based
+    # package install log. Alpine doesn't ship bash by default, so a
+    # #!/bin/bash shebang here failed with "not found" (error 127) and
+    # s6-overlay treated that as fatal, crash-looping the whole pod
+    # before the VNC service ever started. The script body itself was
+    # already POSIX-sh-safe (no bashisms), so only the shebang needed
+    # fixing.
     set -e
 
     # Chromium writes a SingletonLock (+ SingletonSocket/SingletonCookie)
