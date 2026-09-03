@@ -39,19 +39,27 @@ data:
     # the same still-running pod.
     rm -f /config/chrome-profile/Singleton*
 
+    # Only the Playwright JS library itself is installed here -- NOT its
+    # own bundled Chromium (that build is glibc-linked and can't run on
+    # this Alpine/musl base at all; see values.yaml's INSTALL_PACKAGES
+    # comment). The actual browser is Alpine's own native chromium apk
+    # package, launched via executablePath in cv-download.js below.
+    #
     # The container's root filesystem is ephemeral -- only /config
-    # persists (Longhorn PVC) -- so the slow part (Playwright's own
-    # bundled Chromium download) is gated on a dir check, same pattern
-    # already used by this repo's torklink.yaml ttyd manifest for its own
-    # npm-install-at-startup approach.
+    # persists (Longhorn PVC) -- so this is gated on a dir check, same
+    # pattern already used by this repo's torklink.yaml ttyd manifest for
+    # its own npm-install-at-startup approach.
     if [ ! -d /config/node_modules/playwright ]; then
-      echo "[cv-station] First boot: installing Playwright + Chromium (can take a few minutes)..."
+      echo "[cv-station] First boot: installing Playwright..."
       cd /config
       npm install playwright
-      npx playwright install --with-deps chromium
     else
       echo "[cv-station] Playwright already installed, skipping."
     fi
+
+    # Clean up any stale glibc Chromium download from before this fix
+    # (2026-09-03) -- it can't run here and just wastes PVC space.
+    rm -rf /config/.cache/ms-playwright
 
     chown -R "${USER_ID:-1000}:${GROUP_ID:-1000}" /config/node_modules /config/package*.json 2>/dev/null || true
 
@@ -74,7 +82,13 @@ data:
       // would.)
       const context = await chromium.launchPersistentContext(
         '/config/chrome-profile',
-        { headless: false }
+        {
+          headless: false,
+          // Alpine's native (musl) chromium package, not Playwright's
+          // own bundled one -- see values.yaml's INSTALL_PACKAGES
+          // comment for why that one can't run on this base at all.
+          executablePath: '/usr/bin/chromium',
+        }
       );
       const page = context.pages()[0] || (await context.newPage());
       await page.goto('{{ .Values.cv.url }}');

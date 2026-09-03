@@ -30,10 +30,17 @@ env:
   DISPLAY_WIDTH: "1600"
   DISPLAY_HEIGHT: "900"
   # docker-baseimage-gui's own built-in mechanism for installing extra
-  # apt packages at startup -- simpler than a custom apt-get call for
-  # this part. Playwright itself still needs its own init script (see
-  # cv-download-script.yaml) since it's an npm install, not an apt one.
-  INSTALL_PACKAGES: "nodejs"
+  # apk packages at startup (this base is Alpine, not Debian/Ubuntu --
+  # confirmed live 2026-09-03). Playwright's own downloaded Chromium is
+  # glibc-linked and cannot run here at all (Alpine uses musl, and
+  # confirmed live that /lib64/ld-linux-x86-64.so.2 doesn't exist,
+  # causing a plain ENOENT when Playwright tries to spawn it) --
+  # Playwright doesn't officially support Alpine for this reason. Fix:
+  # install Alpine's own natively-compiled (musl) chromium package here,
+  # and point Playwright at it via executablePath instead of letting it
+  # download/use its own incompatible browser build (see
+  # cv-download-script.yaml and cv-download.js).
+  INSTALL_PACKAGES: "nodejs chromium"
 
 resources:
   requests:
